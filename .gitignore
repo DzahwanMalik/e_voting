@@ -1,0 +1,9 @@
+# Resource
+node_modules
+dist
+
+# Database
+/generated/prisma
+
+# Environment Variable
+.env
