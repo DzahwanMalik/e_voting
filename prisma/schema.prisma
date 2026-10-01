@@ -5,9 +5,64 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  VOTER
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  username       String          @unique
+  password       String
+  name           String
+  role           UserRole        @default(VOTER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  electionVoters ElectionVoter[]
+}
+
+model Election {
+  id             Int             @id @default(autoincrement())
+  title          String
+  description    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  candidates     Candidate[]
+  electionVoters ElectionVoter[]
+}
+
+model Candidate {
+  id          Int      @id @default(autoincrement())
+  electionId  Int
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  election    Election @relation(fields: [electionId], references: [id])
+  votes       Vote[]
+}
+
+model ElectionVoter {
+  id         Int      @id @default(autoincrement())
+  electionId Int
+  userId     Int
+  hasVoted   Boolean  @default(false)
+  election   Election @relation(fields: [electionId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([electionId, userId])
+}
+
+model Vote {
+  id          Int       @id @default(autoincrement())
+  candidateId Int
+  createadAt  DateTime  @default(now())
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
 }
