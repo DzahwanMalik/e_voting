@@ -1,33 +1,16 @@
 {
-  "name": "e_voting",
+  "name": "e-voting-monorepo",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
-  "type": "module",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q ./dist/index.js\"",
-    "build": "npx tsc",
-    "serve": "node ./dist/index.js"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.6.3",
-    "@types/pg": "^8.23.1",
-    "concurrently": "^10.0.5",
-    "prisma": "^7.10.0",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
-  },
-  "dependencies": {
-    "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.10.0",
-    "cors": "^2.8.6",
-    "dotenv": "^18.0.4",
-    "express": "^5.2.1",
-    "pg": "^8.23.0"
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:voting": "npm run dev --workspace=e_voting",
+    "build": "npm run build --workspaces --if-present",
+    "build:server": "npm run build --workspace=server",
+    "build:voting": "npm run build --workspace=e_voting"
   }
 }

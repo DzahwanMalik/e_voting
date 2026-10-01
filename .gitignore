@@ -2,8 +2,14 @@
 node_modules
 dist
 
-# Database
-src/generated/prisma
+# Database & Generated
+**/generated/prisma
 
-# Environment Variable
+# Environment Variables
 .env
+.env.*
+!*.env.example
+
+# Workspaces build and cache
+apps/*/dist
+apps/*/node_modules
