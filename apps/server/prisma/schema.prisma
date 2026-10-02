@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,6 +11,7 @@ datasource db {
 }
 
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
   VOTER
 }
@@ -23,8 +22,12 @@ model User {
   password       String
   name           String
   role           UserRole        @default(VOTER)
+  createdById    Int?
+  createdBy      User?           @relation("UserCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers   User[]          @relation("UserCreator")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  electionAdmins ElectionAdmin[]
   electionVoters ElectionVoter[]
 }
 
@@ -35,7 +38,19 @@ model Election {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   candidates     Candidate[]
+  electionAdmins ElectionAdmin[]
   electionVoters ElectionVoter[]
+}
+
+model ElectionAdmin {
+  id         Int      @id @default(autoincrement())
+  electionId Int
+  userId     Int
+  createdAt  DateTime @default(now())
+  election   Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([electionId, userId])
 }
 
 model Candidate {
@@ -45,7 +60,7 @@ model Candidate {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  election    Election @relation(fields: [electionId], references: [id])
+  election    Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
   votes       Vote[]
 }
 
@@ -54,8 +69,9 @@ model ElectionVoter {
   electionId Int
   userId     Int
   hasVoted   Boolean  @default(false)
-  election   Election @relation(fields: [electionId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  election   Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([electionId, userId])
 }
@@ -63,6 +79,6 @@ model ElectionVoter {
 model Vote {
   id          Int       @id @default(autoincrement())
   candidateId Int
-  createadAt  DateTime  @default(now())
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  createdAt   DateTime  @default(now())
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }

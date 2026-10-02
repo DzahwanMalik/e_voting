@@ -1,21 +1,43 @@
 import { prisma } from "../src/lib/prisma";
 
 async function main() {
+  // Clean up existing data in reverse order of dependencies
+  await prisma.vote.deleteMany();
+  await prisma.electionVoter.deleteMany();
+  await prisma.electionAdmin.deleteMany();
+  await prisma.candidate.deleteMany();
+  await prisma.election.deleteMany();
+  await prisma.user.deleteMany();
+
+  // 1. Super Admin (BR-02: Single Super Admin, created via seed)
+  const superAdmin = await prisma.user.create({
+    data: {
+      username: "superadmin",
+      password: "superadmin123",
+      name: "Super Administrator",
+      role: "SUPER_ADMIN",
+    },
+  });
+
+  // 2. Admin (Created by Super Admin)
   const admin = await prisma.user.create({
     data: {
       username: "admin",
       password: "admin123",
       name: "Administrator",
       role: "ADMIN",
+      createdById: superAdmin.id,
     },
   });
 
+  // 3. Voters (Created by Super Admin or Admin)
   const andi = await prisma.user.create({
     data: {
       username: "andi",
       password: "andi123",
       name: "Andi",
       role: "VOTER",
+      createdById: admin.id,
     },
   });
 
@@ -25,6 +47,7 @@ async function main() {
       password: "budi123",
       name: "Budi",
       role: "VOTER",
+      createdById: admin.id,
     },
   });
 
@@ -34,9 +57,11 @@ async function main() {
       password: "citra123",
       name: "Citra",
       role: "VOTER",
+      createdById: superAdmin.id,
     },
   });
 
+  // 4. Election (Created by Super Admin)
   const election = await prisma.election.create({
     data: {
       title: "Pemilihan Ketua 2026",
@@ -44,6 +69,7 @@ async function main() {
     },
   });
 
+  // 6. Candidates for Election
   const ahmad = await prisma.candidate.create({
     data: {
       name: "Ahmad",
@@ -68,6 +94,7 @@ async function main() {
     },
   });
 
+  // 7. Election Voters
   await prisma.electionVoter.createMany({
     data: [
       {
@@ -85,15 +112,13 @@ async function main() {
     ],
   });
 
-  console.log({
-    admin,
-    andi,
-    budi,
-    citra,
-    election,
-    ahmad,
-    budiCandidate,
-    citraCandidate,
+  console.log("Seeding finished successfully:", {
+    superAdmin: superAdmin.username,
+    admin: admin.username,
+    voters: [andi.username, budi.username, citra.username],
+    election: election.title,
+    assignedAdmin: admin.username,
+    candidates: [ahmad.name, budiCandidate.name, citraCandidate.name],
   });
 }
 
