@@ -80,7 +80,7 @@ apps/server/
 │   ├── middlewares/           # Middleware Express (Auth, RBAC, Validation)
 │   ├── routes/                # Definisi Endpoint URL & Routing Express
 │   ├── services/              # Logika Bisnis Inti & Operasi Data Kompleks
-│   ├── utils/                 # Fungsi Helper Murni (JWT, Hash, Date, dll)
+│   ├── utils/                 # Fungsi Helper Murni (JWT, Hash, Error, dll)
 │   ├── types/                 # Type Definitions & Express Namespace Extension
 │   ├── lib/                   # Inisialisasi Third-party Client/Singleton (Prisma)
 │   ├── generated/             # Auto-generated Prisma Client (JANGAN diedit manual)
@@ -90,24 +90,24 @@ apps/server/
 ### Penjelasan & Tanggung Jawab Tiap Folder:
 
 1. **`src/controllers/`**
-   - **Fungsi:** Menerima input dari HTTP request (`req.body`, `req.params`, `req.query`), memvalidasi input dasar, memanggil service/database, dan mengembalikan HTTP response (`res.status(...).json(...)`).
-   - **Prinsip:** Tidak boleh memuat logic bisnis yang rumit; controller fokus pada orkestrasi input/output HTTP.
+   - **Fungsi:** Menerima input dari HTTP request (`req.body`, `req.params`, `req.query`), memvalidasi input dasar (tipe data, format), memanggil layer service, dan mengembalikan HTTP response (`res.status(...).json(...)`).
+   - **Prinsip:** Tidak boleh memuat logic bisnis yang rumit ataupun menyentuh query database Prisma secara langsung; controller fokus pada orkestrasi input/output HTTP dan pemetaan status code.
 
-2. **`src/middlewares/`**
+2. **`src/services/`**
+   - **Fungsi:** Menyimpan business logic murni (misal: verifikasi kredensial user, verifikasi kelayakan voter, kalkulasi suara, transaksi database atomik).
+   - **Prinsip:** Tidak boleh bergantung pada objek `req` atau `res` Express agar business logic tetap murni (*framework-agnostic*), terisolasi (*decoupled*), dan dapat digunakan kembali secara fleksibel di luar konteks HTTP (seperti script seeder, cron job, worker, atau CLI).
+
+3. **`src/middlewares/`**
    - **Fungsi:** Menyaring atau memproses request sebelum diteruskan ke controller.
-   - **Contoh:** `auth.middleware.ts` untuk verifikasi token JWT, `role.middleware.ts` untuk verifikasi role (RBAC), error handling middleware.
+   - **Contoh:** `auth.middleware.ts` untuk verifikasi token JWT, `role.middleware.ts` untuk verifikasi role (RBAC).
 
-3. **`src/routes/`**
+4. **`src/routes/`**
    - **Fungsi:** Mendaftarkan path URL dan HTTP verb (`GET`, `POST`, `PUT`, `DELETE`).
    - **Prinsip:** Menggabungkan endpoint dengan middleware pengaman dan controller yang bersangkutan.
 
-4. **`src/services/`**
-   - **Fungsi:** Menyimpan business logic murni (misal: verifikasi kelayakan voter, penghitungan suara, aturan relasi).
-   - **Prinsip:** Tidak boleh bergantung pada objek `req` atau `res` Express agar logic bisa diuji secara modular (*unit testable*).
-
 5. **`src/utils/`**
    - **Fungsi:** Menyimpan fungsi-fungsi bantuan (*helper functions*) yang tidak terikat dengan domain bisnis tertentu.
-   - **Contoh:** `jwt.ts` (sign & verify token), `password.ts` (hashing).
+   - **Contoh:** `jwt.ts` (sign & verify token), `password.ts` (hashing), `app-error.ts` (standarisasi error).
 
 6. **`src/types/`**
    - **Fungsi:** Menyimpan definisi TypeScript (interface, type alias, deklarasi global).
@@ -121,7 +121,7 @@ apps/server/
 
 ## 3. Implementasi Referensi (Reference Implementation: Sistem Auth)
 
-Berikut adalah contoh standar implementasi sistem autentikasi yang sudah memenuhi aturan di atas:
+Berikut adalah contoh standar implementasi sistem autentikasi yang memenuhi arsitektur berlapis (Route -> Middleware -> Controller -> Service -> DB) dan aturan kode di atas:
 
 ### A. Utilitas Password (`src/utils/password.ts`)
 ```typescript
@@ -133,7 +133,10 @@ const hashPassword = async (plainText: string): Promise<string> => {
   return bcrypt.hash(plainText, SALT_ROUNDS);
 };
 
-const comparePassword = async (plainText: string, hashed: string): Promise<boolean> => {
+const comparePassword = async (
+  plainText: string,
+  hashed: string,
+): Promise<boolean> => {
   return bcrypt.compare(plainText, hashed);
 };
 
@@ -149,8 +152,8 @@ import { UserRole } from "../generated/prisma/enums";
 
 interface JwtPayload {
   userId: number;
-  username: string;
-  name: string;
+  username?: string;
+  name?: string;
   role: UserRole;
 }
 
@@ -159,7 +162,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 
 const generateToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
+    expiresIn: JWT_EXPIRES_IN as NonNullable<jwt.SignOptions["expiresIn"]>,
   });
 };
 
@@ -173,9 +176,30 @@ export { generateToken, verifyToken };
 
 ---
 
-### C. Type Extension (`src/types/express.d.ts`)
+### C. Helper Error Standar (`src/utils/app-error.ts`)
 ```typescript
-import { JwtPayload } from "../utils/jwt";
+class AppError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode = 400) {
+    super(message);
+    this.name = "AppError";
+    this.statusCode = statusCode;
+  }
+}
+
+const isAppError = (error: unknown): error is AppError => {
+  return error instanceof AppError;
+};
+
+export { AppError, isAppError };
+```
+
+---
+
+### D. Type Extension (`src/types/express.d.ts`)
+```typescript
+import type { JwtPayload } from "../utils/jwt";
 
 declare global {
   namespace Express {
@@ -190,12 +214,16 @@ export {};
 
 ---
 
-### D. Middleware Autentikasi (`src/middlewares/auth.middleware.ts`)
+### E. Middleware Autentikasi (`src/middlewares/auth.middleware.ts`)
 ```typescript
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 
-const authenticate = (req: Request, res: Response, next: NextFunction): void => {
+const authenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -205,12 +233,19 @@ const authenticate = (req: Request, res: Response, next: NextFunction): void => 
 
   const token = authHeader.split(" ")[1];
 
+  if (!token) {
+    res.status(401).json({ message: "Format token tidak valid." });
+    return;
+  }
+
   try {
     const decoded = verifyToken(token);
     req.user = decoded;
     next();
-  } catch (error) {
-    res.status(401).json({ message: "Token tidak valid atau telah kedaluwarsa." });
+  } catch {
+    res
+      .status(401)
+      .json({ message: "Token tidak valid atau telah kedaluwarsa." });
   }
 };
 
@@ -219,20 +254,24 @@ export { authenticate };
 
 ---
 
-### E. Middleware Otorisasi Role (`src/middlewares/role.middleware.ts`)
+### F. Middleware Otorisasi Role (`src/middlewares/role.middleware.ts`)
 ```typescript
-import { Request, Response, NextFunction } from "express";
-import { UserRole } from "../generated/prisma/enums";
+import type { NextFunction, Request, Response } from "express";
+import type { UserRole } from "../generated/prisma/enums";
 
-const requireRole = (...allowedRoles: UserRole[]) => {
+const requireRole = (
+  ...allowedRoles: UserRole[]
+): ((req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({ message: "User belum terautentikasi." });
+      res.status(401).json({ message: "User belum terautentikasi!" });
       return;
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ message: "Forbidden: Anda tidak memiliki akses ke resource ini." });
+      res.status(403).json({
+        message: "Forbidden: Anda tidak memiliki akses ke resource ini.",
+      });
       return;
     }
 
@@ -245,12 +284,94 @@ export { requireRole };
 
 ---
 
-### F. Controller Auth (`src/controllers/auth.controller.ts`)
+### G. Service Auth (`src/services/auth.service.ts`)
 ```typescript
-import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { comparePassword } from "../utils/password";
 import { generateToken } from "../utils/jwt";
+import { AppError } from "../utils/app-error";
+import { UserRole } from "../generated/prisma/enums";
+
+interface LoginInput {
+  username: string;
+  password: string;
+}
+
+interface AuthUser {
+  id: number;
+  username: string;
+  name: string;
+  role: UserRole;
+  createdAt?: Date;
+}
+
+interface LoginResult {
+  token: string;
+  user: AuthUser;
+}
+
+const loginUser = async (input: LoginInput): Promise<LoginResult> => {
+  const user = await prisma.user.findUnique({
+    where: { username: input.username },
+  });
+
+  if (!user) {
+    throw new AppError("Username atau password salah.", 401);
+  }
+
+  const isPasswordValid = await comparePassword(input.password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError("Username atau password salah.", 401);
+  }
+
+  const token = generateToken({
+    userId: user.id,
+    username: user.username,
+    name: user.name,
+    role: user.role,
+  });
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    },
+  };
+};
+
+const getCurrentUser = async (userId: number): Promise<AuthUser> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User tidak ditemukan.", 404);
+  }
+
+  return user;
+};
+
+export type { LoginInput, AuthUser, LoginResult };
+export { loginUser, getCurrentUser };
+```
+
+---
+
+### H. Controller Auth (`src/controllers/auth.controller.ts`)
+```typescript
+import type { Request, Response } from "express";
+import { isAppError } from "../utils/app-error";
+import * as authService from "../services/auth.service";
 
 const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -261,39 +382,21 @@ const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (!user) {
-      res.status(401).json({ message: "Username atau password salah." });
-      return;
-    }
-
-    const isPasswordValid = await comparePassword(password, user.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: "Username atau password salah." });
-      return;
-    }
-
-    const token = generateToken({
-      userId: user.id,
-      username: user.username,
-      name: user.name,
-      role: user.role,
+    const { token, user } = await authService.loginUser({
+      username,
+      password,
     });
 
     res.status(200).json({
       message: "Login berhasil",
       token,
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
-      },
+      user,
     });
   } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
     console.error("Login error:", error);
     res.status(500).json({ message: "Terjadi kesalahan pada server." });
   }
@@ -302,23 +405,19 @@ const login = async (req: Request, res: Response): Promise<void> => {
 const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
-      res.status(401).json({ message: "Tidak terautentikasi." });
+      res.status(401).json({ message: "Tidak terautentikasi" });
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    const user = await authService.getCurrentUser(req.user.userId);
 
     res.status(200).json({ user });
   } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+    console.error("GetMe error:", error);
     res.status(500).json({ message: "Terjadi kesalahan pada server." });
   }
 };
@@ -328,7 +427,7 @@ export { login, getMe };
 
 ---
 
-### G. Routing Auth (`src/routes/auth.routes.ts`)
+### I. Routing Auth (`src/routes/auth.routes.ts`)
 ```typescript
 import { Router } from "express";
 import { login, getMe } from "../controllers/auth.controller";
