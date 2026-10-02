@@ -566,3 +566,251 @@ Tidak terdapat user registration mandiri dalam MVP.
 - Authorization Admin mempertimbangkan election assignment.
 - Authorization Voter mempertimbangkan election eligibility.
 - Voter yang dibuat oleh Admin tidak dapat mengakses election di luar scope Admin yang membuatnya.
+---
+
+## 15. Business Capability
+
+Business Capability adalah kemampuan bisnis inti yang harus dimiliki oleh sistem untuk memenuhi kebutuhan stakeholder.
+
+### Capability Map
+
+```text
+E-Voting System
+├── 1. Identity & Access Management
+│   ├── Authentication
+│   ├── Role-Based Authorization
+│   └── Scope-Based Access Control
+│
+├── 2. Election Management
+│   ├── Election Lifecycle
+│   └── Admin Assignment
+│
+├── 3. Candidate Management
+│   ├── Candidate Lifecycle
+│   └── Vote Cascade on Deletion
+│
+├── 4. Voter Management
+│   ├── Voter Registration
+│   ├── Election Eligibility
+│   └── Creator Scope Enforcement
+│
+├── 5. Voting
+│   ├── Vote Casting
+│   ├── Vote Consistency
+│   └── One-Vote-Per-Election Guard
+│
+└── 6. Result Management
+    ├── Vote Aggregation
+    └── Restricted Result Access
+```
+
+---
+
+### 15.1 Identity & Access Management
+
+Kemampuan sistem untuk mengidentifikasi, mengotentikasi, dan mengotorisasi pengguna berdasarkan peran dan cakupan aksesnya.
+
+**Authentication**
+
+Sistem mampu memverifikasi identitas user melalui username dan password. Tidak ada self-registration; seluruh user dibuat oleh entitas yang berwenang.
+
+Terkait: BR-01.
+
+**Role-Based Authorization**
+
+Sistem mampu membatasi akses berdasarkan tiga role:
+
+- Super Admin — akses penuh.
+- Admin — akses terbatas pada election yang diberikan.
+- Voter — hanya vote dan lihat status.
+
+Terkait: BR-01, BR-02, BR-03.
+
+**Scope-Based Access Control**
+
+Sistem mampu membatasi akses Admin berdasarkan election assignment, dan akses Voter berdasarkan election eligibility serta scope creator-nya.
+
+Terkait: BR-05, BR-07, BR-08.
+
+Authorization harus ditegakkan di backend. Frontend bukan sumber kebenaran.
+
+---
+
+### 15.2 Election Management
+
+Kemampuan sistem untuk mengelola siklus hidup pemilihan dan penugasan admin.
+
+**Election Lifecycle**
+
+Sistem mampu membuat, mengubah, dan menghapus election. Hanya Super Admin yang dapat membuat election. Election yang dihapus tidak lagi dapat diakses oleh siapa pun.
+
+Terkait: BR-04, BR-17.
+
+**Admin Assignment**
+
+Sistem mampu menugaskan satu atau lebih Admin untuk mengelola election tertentu. Hanya Super Admin yang dapat membuat atau mengubah assignment. Admin tidak dapat mengubah assignment-nya sendiri maupun Admin lain.
+
+Terkait: BR-05, BR-06.
+
+---
+
+### 15.3 Candidate Management
+
+Kemampuan sistem untuk mengelola kandidat dalam suatu election beserta dampak kaskasinya.
+
+**Candidate Lifecycle**
+
+Sistem mampu membuat, mengubah, dan menghapus candidate dalam election. Super Admin dapat mengelola candidate di semua election; Admin hanya pada election yang diberikan. Candidate hanya dimiliki satu election.
+
+Terkait: BR-09, BR-13, BR-15.
+
+**Vote Cascade on Deletion**
+
+Ketika candidate dihapus:
+
+- vote terkait dengan candidate tersebut dihapus dari result;
+- `hasVoted` voter pada election tersebut direset menjadi `false`;
+- voter dapat melakukan voting kembali pada election tersebut.
+
+Perubahan pada candidate (update) tidak mempengaruhi vote yang sudah ada.
+
+Terkait: BR-14, BR-15.
+
+Penghapusan candidate adalah operasi destruktif yang me-reset status voting voter terkait. Harus dijalankan dalam transaksi atomik.
+
+---
+
+### 15.4 Voter Management
+
+Kemampuan sistem untuk mengelola registrasi voter, kelayakan mengikuti election, dan pembatasan scope berdasarkan creator.
+
+**Voter Registration**
+
+Sistem mampu membuat user Voter. Voter dibuat oleh Super Admin atau Admin. Tidak ada self-registration.
+
+**Election Eligibility**
+
+Sistem mampu mendaftarkan dan menghapus voter dari election tertentu. Voter harus terdaftar pada election sebelum dapat voting. Jika voter dihapus setelah vote, vote yang sudah tercatat tetap berlaku.
+
+Terkait: BR-07, BR-16.
+
+**Creator Scope Enforcement**
+
+Jika Voter dibuat oleh Admin, Voter hanya dapat mengakses election yang dikelola oleh Admin pembuat. Admin hanya dapat mendaftarkan Voter pada election yang menjadi tanggung jawabnya. Super Admin tidak memiliki batasan ini.
+
+Terkait: BR-08.
+
+---
+
+### 15.5 Voting
+
+Kemampuan sistem untuk memfasilitasi proses pemungutan suara yang aman, konsisten, dan berintegritas.
+
+**Vote Casting**
+
+Voter dapat memberikan satu vote kepada satu candidate dalam election yang diikutinya.
+
+Prasyarat:
+
+- user sudah login;
+- user adalah Voter;
+- user terdaftar pada election;
+- candidate merupakan bagian dari election;
+- user belum pernah vote pada election tersebut.
+
+Terkait: BR-07, BR-09, BR-10.
+
+**Vote Consistency**
+
+Vote tercatat dan status `hasVoted` voter harus selalu konsisten.
+
+Tidak boleh terjadi:
+
+- vote tercatat tetapi voter masih dapat voting;
+- voter dianggap sudah voting tetapi vote tidak tercatat.
+
+Implementasi harus menggunakan database transaction untuk memastikan atomicity.
+
+Terkait: BR-11.
+
+**One-Vote-Per-Election Guard**
+
+Setelah vote berhasil, voter tidak dapat vote lagi pada election yang sama. Guard ini direset hanya jika candidate yang dipilih dihapus.
+
+Terkait: BR-10, BR-14.
+
+---
+
+### 15.6 Result Management
+
+Kemampuan sistem untuk mengagregasi dan menyajikan hasil pemungutan suara dengan akses yang terbatas.
+
+**Vote Aggregation**
+
+Sistem mampu menghitung jumlah vote per candidate dalam suatu election. Vote dari candidate yang telah dihapus tidak dihitung dalam result.
+
+Terkait: BR-14.
+
+**Restricted Result Access**
+
+Hanya Super Admin yang dapat melihat result.
+
+```text
+Super Admin → Allowed
+Admin       → Forbidden
+Voter       → Forbidden
+```
+
+Terkait: BR-12.
+
+---
+
+### 15.7 Cross-Cutting Concerns
+
+Aspek-aspek yang menjangkau seluruh capability:
+
+**Election Isolation**
+
+Data dari satu election tidak boleh digunakan atau bocor ke election lain. Voter tidak bisa memilih candidate dari election lain.
+
+Terkait: BR-13.
+
+**Single Super Admin**
+
+Sistem hanya memiliki tepat satu Super Admin, dibuat melalui seed.
+
+Terkait: BR-02.
+
+**Backend-Enforced Authorization**
+
+Seluruh aturan otorisasi ditegakkan di backend. Frontend hanya bersifat UX helper.
+
+**Transactional Integrity**
+
+Operasi yang melibatkan multiple state changes (vote, candidate deletion) harus bersifat atomik.
+
+Terkait: BR-11, BR-14.
+
+---
+
+### Capability — Business Rule Traceability
+
+```text
+Capability                  BR-01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17
+─────────────────────────── ───── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+Authentication                ●
+Role-Based AuthZ              ●    ●  ●
+Scope-Based AC                            ●        ●  ●
+Election Lifecycle                        ●                                     ●
+Admin Assignment                          ●  ●
+Candidate Lifecycle                                   ●              ●     ●
+Vote Cascade                                                         ●     ●
+Voter Registration
+Election Eligibility                            ●                             ●
+Creator Scope                                      ●
+Vote Casting                                   ●     ●  ●
+Vote Consistency                                              ●
+One-Vote Guard                                        ●           ●
+Vote Aggregation                                                  ●
+Result Access                                                ●
+```
