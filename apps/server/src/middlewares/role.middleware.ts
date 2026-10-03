@@ -1,7 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import type { UserRole } from "../generated/prisma/enums";
 
-const requireRole = (...allowedRoles: UserRole[]) => {
+const requireRole = (
+  ...allowedRoles: UserRole[]
+): ((req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi!" });

@@ -97,7 +97,7 @@ Setiap election memiliki:
 - description;
 - candidate;
 - voter;
-- Admin yang ditugaskan.
+- Admin yang ditugaskan (opsional, penugasan dilakukan setelah election dibuat).
 
 Hanya **Super Admin** yang dapat membuat election.
 
@@ -111,9 +111,9 @@ Jika election dihapus, election tersebut tidak lagi dapat diakses oleh voter mau
 
 ## 4. Admin Assignment
 
-Super Admin menentukan Admin yang dapat mengelola suatu election.
+Super Admin menentukan Admin yang dapat mengelola suatu election setelah election dibuat.
 
-Satu election dapat memiliki **banyak Admin**.
+Satu election dapat memiliki **banyak Admin** atau **tidak memiliki Admin** sama sekali (dikelola langsung oleh Super Admin).
 
 Contoh:
 
@@ -137,7 +137,7 @@ Admin tidak dapat:
 - memberikan akses kepada Admin lain;
 - mengubah assignment.
 
-Assignment hanya dapat dilakukan oleh Super Admin.
+Assignment hanya dapat dilakukan oleh Super Admin. Penugasan Admin dapat dilakukan secara massal (plural/bulk) melalui antarmuka pilihan (seperti checkbox) dengan mengirimkan daftar `adminIds`.
 
 ---
 
@@ -148,8 +148,14 @@ Candidate merupakan pilihan dalam suatu election.
 Setiap candidate:
 
 - hanya dimiliki oleh satu election;
-- memiliki nama;
-- memiliki informasi/deskripsi.
+- memiliki nama (name);
+- memiliki foto profil (photoUrl, opsional);
+- memiliki deskripsi/ringkasan (description, opsional);
+- memiliki tanggal lahir (birthday, wajib);
+- memiliki visi (vision, wajib);
+- memiliki misi (mission, wajib).
+
+Tampilan awal kartu kandidat menampilkan nama, foto profil (jika tersedia), dan deskripsi ringkas. Terdapat tombol detail untuk membuka modal yang menampilkan seluruh informasi lengkap kandidat (tanggal lahir, visi, misi).
 
 Candidate dapat dibuat oleh:
 
@@ -648,7 +654,7 @@ Terkait: BR-04, BR-17.
 
 **Admin Assignment**
 
-Sistem mampu menugaskan satu atau lebih Admin untuk mengelola election tertentu. Hanya Super Admin yang dapat membuat atau mengubah assignment. Admin tidak dapat mengubah assignment-nya sendiri maupun Admin lain.
+Sistem mampu menugaskan satu atau lebih Admin untuk mengelola election tertentu setelah election berhasil dibuat. Penugasan Admin bersifat opsional karena tidak semua election memerlukan Admin. Hanya Super Admin yang dapat membuat atau mengubah assignment. Admin tidak dapat mengubah assignment-nya sendiri maupun Admin lain.
 
 Terkait: BR-05, BR-06.
 

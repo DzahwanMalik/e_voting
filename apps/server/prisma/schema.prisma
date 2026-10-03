@@ -57,7 +57,11 @@ model Candidate {
   id          Int      @id @default(autoincrement())
   electionId  Int
   name        String
+  photoUrl    String?
   description String?
+  birthday    DateTime
+  vision      String
+  mission     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   election    Election @relation(fields: [electionId], references: [id], onDelete: Cascade)

@@ -73,7 +73,11 @@ async function main() {
   const ahmad = await prisma.candidate.create({
     data: {
       name: "Ahmad",
-      description: "Kandidat nomor 1",
+      photoUrl: "https://example.com/photos/ahmad.jpg",
+      description: "Mahasiswa berprestasi bidang teknologi dan kepemimpinan",
+      birthday: new Date("2002-05-15"),
+      vision: "Mewujudkan organisasi yang transparan dan inovatif",
+      mission: "Meningkatkan kolaborasi dan digitalisasi sistem",
       electionId: election.id,
     },
   });
@@ -81,7 +85,11 @@ async function main() {
   const budiCandidate = await prisma.candidate.create({
     data: {
       name: "Budi",
-      description: "Kandidat nomor 2",
+      photoUrl: "https://example.com/photos/budi.jpg",
+      description: "Aktivis kampus berpengalaman dalam manajemen organisasi",
+      birthday: new Date("2001-08-20"),
+      vision: "Menjadikan organisasi unggul dan berdaya saing global",
+      mission: "Mengembangkan potensi anggota melalui pelatihan berkala",
       electionId: election.id,
     },
   });
@@ -89,7 +97,11 @@ async function main() {
   const citraCandidate = await prisma.candidate.create({
     data: {
       name: "Citra",
-      description: "Kandidat nomor 3",
+      photoUrl: "https://example.com/photos/citra.jpg",
+      description: "Penggerak kegiatan sosial dan pemberdayaan mahasiswa",
+      birthday: new Date("2003-01-10"),
+      vision: "Membangun lingkungan inklusif dan progresif",
+      mission: "Mendorong partisipasi aktif seluruh anggota",
       electionId: election.id,
     },
   });

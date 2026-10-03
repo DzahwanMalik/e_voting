@@ -66,6 +66,57 @@ export default router;
 
 ---
 
+### Aturan 3: Backend Tidak Perlu Melakukan Trim Payload
+- Sanitasi dan pembersihan spasi (*trimming*) pada string payload (seperti `title`, `username`, `name`, `description`) **sepenuhnya dihandle di Frontend**.
+- Backend **TIDAK PERLU** memanggil `.trim()` pada data request body.
+- Backend hanya fokus pada validasi keberadaan (*presence*) dan tipe data (*type check*):
+  - Memastikan field wajib ada dan bertipe string (`!title || typeof title !== "string"`).
+  - Tidak memutasi atau memangkas string yang dikirim oleh client.
+
+---
+
+### Aturan 4: Hindari Penggunaan `select` Redundan pada Query Prisma
+- Secara default, Prisma Client otomatis mengembalikan **seluruh field skalar** (*all scalar fields*) dari model saat query dijalankan tanpa blok `select`.
+- **DILARANG** menggunakan blok `select` jika tujuannya hanya mendaftar ulang seluruh field skalar yang dimiliki model tersebut.
+- Blok `select` **HANYA DIGUNAKAN** untuk:
+  1. **Menyembunyikan field sensitif**, seperti mengecualikan kolom `password` pada model `User`.
+  2. **Memilih sebagian field dari tabel relasi**, misalnya `user: { select: { id: true, name: true } }`.
+  3. **Optimasi payload**, jika model memiliki kolom teks/binary berukuran sangat besar yang tidak dibutuhkan.
+  4. **Kebutuhan agregasi/counting**, seperti `_count: { select: { candidates: true } }`.
+
+```typescript
+// ❌ SALAH (Redundan: mendaftar ulang seluruh field Election)
+return prisma.election.create({
+  data: { title, description },
+  select: {
+    id: true,
+    title: true,
+    description: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+});
+
+// ✅ BENAR (Bersih, ringkas, otomatis mengambil semua field skalar)
+return prisma.election.create({
+  data: { title, description },
+});
+
+// ✅ BENAR (Tepat: memakai select untuk mengecualikan password User)
+return prisma.user.findUnique({
+  where: { id: userId },
+  select: {
+    id: true,
+    username: true,
+    name: true,
+    role: true,
+    createdAt: true,
+  },
+});
+```
+
+---
+
 ## 2. Struktur Folder & Fungsi Masing-Masing Folder
 
 Berikut hierarki folder di dalam `apps/server/src`:
@@ -152,8 +203,6 @@ import { UserRole } from "../generated/prisma/enums";
 
 interface JwtPayload {
   userId: number;
-  username?: string;
-  name?: string;
   role: UserRole;
 }
 
@@ -326,8 +375,6 @@ const loginUser = async (input: LoginInput): Promise<LoginResult> => {
 
   const token = generateToken({
     userId: user.id,
-    username: user.username,
-    name: user.name,
     role: user.role,
   });
 
