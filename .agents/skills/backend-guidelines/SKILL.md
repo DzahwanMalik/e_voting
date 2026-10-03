@@ -157,8 +157,9 @@ apps/server/
    - **Prinsip:** Menggabungkan endpoint dengan middleware pengaman dan controller yang bersangkutan.
 
 5. **`src/utils/`**
-   - **Fungsi:** Menyimpan fungsi-fungsi bantuan (*helper functions*) yang tidak terikat dengan domain bisnis tertentu.
-   - **Contoh:** `jwt.ts` (sign & verify token), `password.ts` (hashing), `app-error.ts` (standarisasi error).
+   - **Fungsi:** Menyimpan fungsi-fungsi bantuan (*helper functions*) yang tidak terikat dengan domain bisnis tertentu dan dapat digunakan lintas modul/controller.
+   - **Contoh:** `jwt.ts` (sign & verify token), `password.ts` (hashing), `app-error.ts` (standarisasi error), `parser.ts` (validasi & parsing parameter numerik/ID).
+   - **Prinsip:** Fungsi pembantu umum seperti `parsePositiveInt` wajib diekstrak ke dalam `src/utils/` sebagai shared utility dan dilarang diduplikasi di setiap controller.
 
 6. **`src/types/`**
    - **Fungsi:** Menyimpan definisi TypeScript (interface, type alias, deklarasi global).
@@ -246,7 +247,29 @@ export { AppError, isAppError };
 
 ---
 
-### D. Type Extension (`src/types/express.d.ts`)
+### D. Utilitas Parser (`src/utils/parser.ts`)
+Digunakan oleh controller untuk memvalidasi dan mengonversi parameter numerik (seperti `:id`, `:electionId`, `:candidateId`, query params) agar selalu bernilai integer positif yang aman. Fungsi ini wajib digunakan sebagai *shared utility* dan dilarang diduplikasi di masing-masing controller:
+
+```typescript
+const parsePositiveInt = (
+  value: string | string[] | undefined,
+): number | null => {
+  if (!value) return null;
+  const str = Array.isArray(value) ? value[0] : value;
+  if (!str) return null;
+  const parsed = Number(str);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+  return parsed;
+};
+
+export { parsePositiveInt };
+```
+
+---
+
+### E. Type Extension (`src/types/express.d.ts`)
 ```typescript
 import type { JwtPayload } from "../utils/jwt";
 
@@ -263,7 +286,7 @@ export {};
 
 ---
 
-### E. Middleware Autentikasi (`src/middlewares/auth.middleware.ts`)
+### F. Middleware Autentikasi (`src/middlewares/auth.middleware.ts`)
 ```typescript
 import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
@@ -303,7 +326,7 @@ export { authenticate };
 
 ---
 
-### F. Middleware Otorisasi Role (`src/middlewares/role.middleware.ts`)
+### G. Middleware Otorisasi Role (`src/middlewares/role.middleware.ts`)
 ```typescript
 import type { NextFunction, Request, Response } from "express";
 import type { UserRole } from "../generated/prisma/enums";
@@ -333,7 +356,7 @@ export { requireRole };
 
 ---
 
-### G. Service Auth (`src/services/auth.service.ts`)
+### H. Service Auth (`src/services/auth.service.ts`)
 ```typescript
 import { prisma } from "../lib/prisma";
 import { comparePassword } from "../utils/password";
@@ -414,7 +437,7 @@ export { loginUser, getCurrentUser };
 
 ---
 
-### H. Controller Auth (`src/controllers/auth.controller.ts`)
+### I. Controller Auth (`src/controllers/auth.controller.ts`)
 ```typescript
 import type { Request, Response } from "express";
 import { isAppError } from "../utils/app-error";
@@ -474,7 +497,7 @@ export { login, getMe };
 
 ---
 
-### I. Routing Auth (`src/routes/auth.routes.ts`)
+### J. Routing Auth (`src/routes/auth.routes.ts`)
 ```typescript
 import { Router } from "express";
 import { login, getMe } from "../controllers/auth.controller";

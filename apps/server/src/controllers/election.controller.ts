@@ -1,19 +1,7 @@
 import type { Request, Response } from "express";
 import { isAppError } from "../utils/app-error";
+import { parsePositiveInt } from "../utils/parser";
 import * as electionService from "../services/election.service";
-
-const parsePositiveInt = (
-  value: string | string[] | undefined,
-): number | null => {
-  if (!value) return null;
-  const str = Array.isArray(value) ? value[0] : value;
-  if (!str) return null;
-  const parsed = Number(str);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-  return parsed;
-};
 
 const createElection = async (req: Request, res: Response): Promise<void> => {
   try {

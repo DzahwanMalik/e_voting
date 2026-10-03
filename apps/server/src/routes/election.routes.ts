@@ -12,6 +12,13 @@ import {
   removeAdmin,
   getElectionAdmins,
 } from "../controllers/election.controller";
+import {
+  createCandidate,
+  getCandidates,
+  getCandidateById,
+  updateCandidate,
+  deleteCandidate,
+} from "../controllers/candidate.controller";
 
 const router = Router();
 
@@ -50,6 +57,28 @@ router.delete(
   authenticate,
   requireRole(UserRole.SUPER_ADMIN),
   removeAdmin,
+);
+
+// Candidate Management (Election-scoped)
+router.get("/:electionId/candidates", authenticate, getCandidates);
+router.post(
+  "/:electionId/candidates",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  createCandidate,
+);
+router.get("/:electionId/candidates/:id", authenticate, getCandidateById);
+router.put(
+  "/:electionId/candidates/:id",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  updateCandidate,
+);
+router.delete(
+  "/:electionId/candidates/:id",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  deleteCandidate,
 );
 
 export default router;
