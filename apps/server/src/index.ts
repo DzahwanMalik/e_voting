@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import electionRoutes from "./routes/election.routes";
 import candidateRoutes from "./routes/candidate.routes";
+import voterRoutes from "./routes/voter.routes";
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/elections", electionRoutes);
 app.use("/api/candidates", candidateRoutes);
+app.use("/api/voters", voterRoutes);
 
 app.get("/", (req: Request, res: Response): void => {
   res.send("Hello World!");
