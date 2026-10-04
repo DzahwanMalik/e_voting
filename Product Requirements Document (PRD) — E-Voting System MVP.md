@@ -17,7 +17,7 @@ E-Voting System adalah aplikasi pemungutan suara digital dengan tiga jenis user:
 
 Sistem harus memastikan voter hanya dapat memberikan **satu vote pada satu election**.
 
-Result hanya dapat dilihat oleh **Super Admin**.
+Result dan perolehan suara setiap kandidat (*candidate vote result*) hanya dapat dilihat oleh **Super Admin**.
 
 ---
 
@@ -34,7 +34,7 @@ Dapat:
 - mengelola candidate pada seluruh election;
 - mengelola voter pada seluruh election;
 - menentukan Admin yang dapat mengelola election;
-- melihat result.
+- melihat result dan perolehan suara setiap kandidat (*candidate vote result*).
 
 Super Admin dibuat melalui **seed** dan sistem hanya memiliki **satu Super Admin**.
 
@@ -55,7 +55,7 @@ Tidak dapat:
 
 - mengakses election yang tidak diberikan;
 - menentukan assignment Admin;
-- melihat result.
+- melihat result maupun perolehan suara kandidat (*candidate vote result*).
 
 Admin dibuat oleh Super Admin.
 
@@ -76,7 +76,7 @@ Voter tidak dapat:
 - mengelola election;
 - mengelola candidate;
 - mengelola voter;
-- melihat result.
+- melihat result maupun perolehan suara kandidat (*candidate vote result*).
 
 Voter dapat dibuat oleh:
 
@@ -156,6 +156,8 @@ Setiap candidate:
 - memiliki misi (mission, wajib).
 
 Tampilan awal kartu kandidat menampilkan nama, foto profil (jika tersedia), dan deskripsi ringkas. Terdapat tombol detail untuk membuka modal yang menampilkan seluruh informasi lengkap kandidat (tanggal lahir, visi, misi).
+
+Perolehan suara kandidat (*candidate vote result*) bersifat rahasia dan **hanya dapat diakses oleh Super Admin**. Voter dan Admin tidak dapat melihat jumlah perolehan suara kandidat, baik pada kartu kandidat, modal detail kandidat, maupun endpoint candidate.
 
 Candidate dapat dibuat oleh:
 
@@ -315,23 +317,29 @@ sehingga voter dapat memilih candidate lain.
 
 ## 9. Result
 
-Result berisi jumlah vote setiap candidate dalam suatu election.
+Result berisi rincian perolehan suara setiap kandidat (*candidate vote result*) dalam suatu election, beserta agregasi total suara masuk, jumlah pemilih terdaftar, dan persentase perolehan suara.
 
 Contoh:
 
 ```text
-Candidate A → 40 votes
-Candidate B → 35 votes
-Candidate C → 25 votes
+Total Pemilih : 100
+Total Suara Masuk : 100
+Tingkat Partisipasi : 100.0%
+
+Candidate A → 40 votes (40.0%)
+Candidate B → 35 votes (35.0%)
+Candidate C → 25 votes (25.0%)
 ```
 
-Hanya **Super Admin** yang dapat melihat result.
+Hanya **Super Admin** yang dapat melihat result dan perolehan suara kandidat (*candidate vote result*).
 
 ```text
-Super Admin → Allowed
-Admin       → Forbidden
-Voter       → Forbidden
+Super Admin → Allowed (Full Access)
+Admin       → Forbidden (403)
+Voter       → Forbidden (403)
 ```
+
+Admin maupun Voter dilarang keras mengakses perolehan suara kandidat, baik melalui endpoint hasil maupun representasi data lainnya.
 
 ---
 
@@ -410,7 +418,7 @@ Vote dan status voting voter harus selalu konsisten.
 
 ### BR-12 — Result Access
 
-Hanya Super Admin yang dapat melihat result.
+Hanya Super Admin yang dapat melihat result dan rincian perolehan suara setiap kandidat (*candidate vote result*). Admin maupun Voter dilarang mengakses hasil perolehan suara.
 
 ### BR-13 — Election Isolation
 
@@ -541,6 +549,7 @@ Tidak terdapat user registration mandiri dalam MVP.
 - Candidate dapat dihapus meskipun sudah memiliki vote.
 - Jika candidate dihapus, `hasVoted` voter pada election tersebut menjadi `false`.
 - Vote pada candidate yang dihapus tidak lagi dihitung dalam result.
+- Perolehan suara kandidat (*candidate vote result*) tidak dapat dilihat atau diakses oleh Admin maupun Voter.
 
 ### Voter Management
 
@@ -562,9 +571,9 @@ Tidak terdapat user registration mandiri dalam MVP.
 
 ### Result
 
-- Super Admin dapat melihat result.
-- Admin tidak dapat melihat result.
-- Voter tidak dapat melihat result.
+- Super Admin dapat melihat result (agregasi suara dan perolehan suara setiap kandidat / *candidate vote result*).
+- Admin tidak dapat melihat result maupun candidate vote result.
+- Voter tidak dapat melihat result maupun candidate vote result.
 
 ### Authorization
 
@@ -759,12 +768,12 @@ Terkait: BR-14.
 
 **Restricted Result Access**
 
-Hanya Super Admin yang dapat melihat result.
+Hanya Super Admin yang dapat melihat result dan rincian perolehan suara setiap kandidat (*candidate vote result*). Admin dan Voter dilarang mengakses hasil perolehan suara kandidat baik secara agregat maupun parsial.
 
 ```text
-Super Admin → Allowed
-Admin       → Forbidden
-Voter       → Forbidden
+Super Admin → Allowed (Full Access)
+Admin       → Forbidden (403)
+Voter       → Forbidden (403)
 ```
 
 Terkait: BR-12.

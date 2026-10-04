@@ -1,4 +1,5 @@
 import { prisma } from "../src/lib/prisma";
+import { hashPassword } from "../src/utils/password";
 
 async function main() {
   // Clean up existing data in reverse order of dependencies
@@ -13,7 +14,7 @@ async function main() {
   const superAdmin = await prisma.user.create({
     data: {
       username: "superadmin",
-      password: "superadmin123",
+      password: await hashPassword("superadmin123"),
       name: "Super Administrator",
       role: "SUPER_ADMIN",
     },
@@ -23,7 +24,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       username: "admin",
-      password: "admin123",
+      password: await hashPassword("admin123"),
       name: "Administrator",
       role: "ADMIN",
       createdById: superAdmin.id,
@@ -34,7 +35,7 @@ async function main() {
   const andi = await prisma.user.create({
     data: {
       username: "andi",
-      password: "andi123",
+      password: await hashPassword("andi123"),
       name: "Andi",
       role: "VOTER",
       createdById: admin.id,
@@ -44,7 +45,7 @@ async function main() {
   const budi = await prisma.user.create({
     data: {
       username: "budi",
-      password: "budi123",
+      password: await hashPassword("budi123"),
       name: "Budi",
       role: "VOTER",
       createdById: admin.id,
@@ -54,7 +55,7 @@ async function main() {
   const citra = await prisma.user.create({
     data: {
       username: "citra",
-      password: "citra123",
+      password: await hashPassword("citra123"),
       name: "Citra",
       role: "VOTER",
       createdById: superAdmin.id,
