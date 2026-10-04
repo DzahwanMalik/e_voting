@@ -24,6 +24,11 @@ import {
   enrollVoters,
   removeVoterFromElection,
 } from "../controllers/voter.controller";
+import {
+  castVote,
+  getVotingStatus,
+  getElectionResults,
+} from "../controllers/vote.controller";
 
 const router = Router();
 
@@ -104,6 +109,25 @@ router.delete(
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   removeVoterFromElection,
+);
+
+// Voting & Results (Election-scoped)
+router.post(
+  "/:id/vote",
+  authenticate,
+  requireRole(UserRole.VOTER),
+  castVote,
+);
+router.get(
+  "/:id/vote/status",
+  authenticate,
+  getVotingStatus,
+);
+router.get(
+  "/:id/results",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN),
+  getElectionResults,
 );
 
 export default router;
