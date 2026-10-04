@@ -1,1 +1,3 @@
-export type LoginPageProps = Record<string, never>;
+type LoginPageProps = Record<string, never>;
+
+export type { LoginPageProps };

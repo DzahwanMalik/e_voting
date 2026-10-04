@@ -1,5 +1,7 @@
 import type { UserRole } from "@/stores/useUserStore";
 
-export interface ProtectedRouteProps {
+interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
+
+export type { ProtectedRouteProps };

@@ -5,7 +5,7 @@ import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { LoginForm, type LoginCredentials } from "@/components/organisms/LoginForm";
 import { loginApi } from "@/services/auth.service";
 
-export const LoginPage = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -95,3 +95,5 @@ export const LoginPage = () => {
     </AuthLayout>
   );
 };
+
+export default LoginPage;

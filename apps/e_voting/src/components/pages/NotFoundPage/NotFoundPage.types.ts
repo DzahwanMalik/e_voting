@@ -1,1 +1,3 @@
-export type NotFoundPageProps = Record<string, never>;
+type NotFoundPageProps = Record<string, never>;
+
+export type { NotFoundPageProps };

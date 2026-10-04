@@ -2,7 +2,7 @@ import { Vote, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/atoms/Badge";
 import type { AuthLayoutProps } from "./AuthLayout.types";
 
-export const AuthLayout = ({
+const AuthLayout = ({
   children,
   title = "E-Voting",
   subtitle = "Sistem Pemungutan Suara Digital",
@@ -65,3 +65,5 @@ export const AuthLayout = ({
     </div>
   );
 };
+
+export default AuthLayout;

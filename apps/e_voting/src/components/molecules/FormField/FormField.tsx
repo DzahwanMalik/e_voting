@@ -2,7 +2,7 @@ import { AlertCircle } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
 import type { FormFieldProps } from "./FormField.types";
 
-export const FormField = ({
+const FormField = ({
   id,
   label,
   required = false,
@@ -37,3 +37,5 @@ export const FormField = ({
     </div>
   );
 };
+
+export default FormField;

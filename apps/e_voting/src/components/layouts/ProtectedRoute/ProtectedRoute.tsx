@@ -3,7 +3,7 @@ import { useUserStore } from "@/stores/useUserStore";
 import { getAuthToken } from "@/services/auth.service";
 import type { ProtectedRouteProps } from "./ProtectedRoute.types";
 
-export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const token = getAuthToken();
   const { user } = useUserStore();
 
@@ -25,3 +25,5 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   // 3. Izin sah: render rute anak
   return <Outlet />;
 };
+
+export default ProtectedRoute;

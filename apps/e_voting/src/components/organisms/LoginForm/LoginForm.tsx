@@ -8,7 +8,7 @@ import { FormField } from "@/components/molecules/FormField";
 import { loginSchema, type LoginFormData } from "./LoginForm.schema";
 import type { LoginFormProps } from "./LoginForm.types";
 
-export const LoginForm = ({
+const LoginForm = ({
   onSubmit,
   isLoading = false,
   initialUsername = "",
@@ -121,3 +121,5 @@ export const LoginForm = ({
     </form>
   );
 };
+
+export default LoginForm;

@@ -1,6 +1,9 @@
-import type { LabelHTMLAttributes } from "react";
+import type { LabelHTMLAttributes, Ref } from "react";
 
-export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
+interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
+  ref?: Ref<HTMLLabelElement>;
   required?: boolean;
   optional?: boolean;
 }
+
+export type { LabelProps };

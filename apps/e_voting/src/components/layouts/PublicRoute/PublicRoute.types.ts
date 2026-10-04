@@ -1,1 +1,3 @@
-export type PublicRouteProps = Record<string, never>;
+type PublicRouteProps = Record<string, never>;
+
+export type { PublicRouteProps };

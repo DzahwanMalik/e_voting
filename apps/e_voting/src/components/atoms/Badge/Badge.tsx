@@ -9,7 +9,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   secondary: "bg-secondary text-secondary-foreground",
 };
 
-export const Badge = ({
+const Badge = ({
   children,
   variant = "default",
   icon,
@@ -28,3 +28,5 @@ export const Badge = ({
     </span>
   );
 };
+
+export default Badge;

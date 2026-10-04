@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router";
 import { useUserStore } from "@/stores/useUserStore";
 import { getAuthToken } from "@/services/auth.service";
 
-export const PublicRoute = () => {
+const PublicRoute = () => {
   const token = getAuthToken();
   const user = useUserStore((state) => state.user);
 
@@ -17,3 +17,5 @@ export const PublicRoute = () => {
   // Jika belum login, izinkan render rute publik (form login)
   return <Outlet />;
 };
+
+export default PublicRoute;

@@ -1,16 +1,16 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "VOTER";
+type UserRole = "SUPER_ADMIN" | "ADMIN" | "VOTER";
 
-export interface AuthUser {
+interface AuthUser {
   id: number;
   username: string;
   name: string;
   role: UserRole;
 }
 
-export interface UserState {
+interface UserState {
   user: AuthUser | null;
   setUser: (user: AuthUser) => void;
   clearUser: () => void;
@@ -19,7 +19,7 @@ export interface UserState {
   isVoter: () => boolean;
 }
 
-export const useUserStore = create<UserState>()(
+const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       user: null,
@@ -35,3 +35,6 @@ export const useUserStore = create<UserState>()(
     },
   ),
 );
+
+export type { UserRole, AuthUser, UserState };
+export { useUserStore };

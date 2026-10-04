@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 
-export interface AuthLayoutProps {
+interface AuthLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
   badgeText?: string;
 }
+
+export type { AuthLayoutProps };

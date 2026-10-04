@@ -5,7 +5,7 @@ import { Badge } from "@/components/atoms/Badge";
 import { useUserStore } from "@/stores/useUserStore";
 import { getAuthToken } from "@/services/auth.service";
 
-export const NotFoundPage = () => {
+const NotFoundPage = () => {
   const navigate = useNavigate();
   const token = getAuthToken();
   const user = useUserStore((state) => state.user);
@@ -83,3 +83,5 @@ export const NotFoundPage = () => {
     </div>
   );
 };
+
+export default NotFoundPage;

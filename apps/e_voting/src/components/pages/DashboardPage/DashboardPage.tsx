@@ -7,7 +7,7 @@ import { Button } from "@/components/atoms/Button";
 import { useUserStore } from "@/stores/useUserStore";
 import { logoutApi } from "@/services/auth.service";
 
-export const DashboardPage = () => {
+const DashboardPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -192,3 +192,5 @@ export const DashboardPage = () => {
     </div>
   );
 };
+
+export default DashboardPage;

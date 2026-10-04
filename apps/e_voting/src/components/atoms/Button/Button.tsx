@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import type { ButtonProps, ButtonVariant, ButtonSize } from "./Button.types";
 
@@ -21,47 +20,43 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "h-12 px-6 text-base gap-2.5",
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      children,
-      className = "",
-      variant = "primary",
-      size = "md",
-      isLoading = false,
-      icon,
-      fullWidth = false,
-      disabled,
-      type = "button",
-      ...props
-    },
-    ref,
-  ) => {
-    const isDisabled = disabled || isLoading;
+const Button = ({
+  ref,
+  children,
+  className = "",
+  variant = "primary",
+  size = "md",
+  isLoading = false,
+  icon,
+  fullWidth = false,
+  disabled,
+  type = "button",
+  ...props
+}: ButtonProps) => {
+  const isDisabled = disabled || isLoading;
 
-    return (
-      <button
-        ref={ref}
-        type={type}
-        disabled={isDisabled}
-        className={`inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-          variantClasses[variant]
-        } ${sizeClasses[size]} ${
-          fullWidth ? "w-full" : ""
-        } ${
-          isDisabled ? "opacity-60 cursor-not-allowed hover:bg-auto active:scale-100" : ""
-        } ${className}`.trim()}
-        {...props}
-      >
-        {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-current" />
-        ) : (
-          icon
-        )}
-        <span>{children}</span>
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      ref={ref}
+      type={type}
+      disabled={isDisabled}
+      className={`inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+        variantClasses[variant]
+      } ${sizeClasses[size]} ${
+        fullWidth ? "w-full" : ""
+      } ${
+        isDisabled ? "opacity-60 cursor-not-allowed hover:bg-auto active:scale-100" : ""
+      } ${className}`.trim()}
+      {...props}
+    >
+      {isLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin text-current" />
+      ) : (
+        icon
+      )}
+      <span>{children}</span>
+    </button>
+  );
+};
 
-Button.displayName = "Button";
+export default Button;
