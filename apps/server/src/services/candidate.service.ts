@@ -405,20 +405,8 @@ const deleteCandidate = async (
     }
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.electionVoter.updateMany({
-      where: {
-        electionId: candidate.electionId,
-        hasVoted: true,
-      },
-      data: {
-        hasVoted: false,
-      },
-    });
-
-    await tx.candidate.delete({
-      where: { id: candidateId },
-    });
+  await prisma.candidate.delete({
+    where: { id: candidateId },
   });
 };
 

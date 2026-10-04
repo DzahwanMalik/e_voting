@@ -70,6 +70,14 @@ async function main() {
     },
   });
 
+  // 5. Assign Admin to Election
+  await prisma.electionAdmin.create({
+    data: {
+      electionId: election.id,
+      userId: admin.id,
+    },
+  });
+
   // 6. Candidates for Election
   const ahmad = await prisma.candidate.create({
     data: {

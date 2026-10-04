@@ -27,8 +27,8 @@ import {
 import {
   castVote,
   getVotingStatus,
-  getElectionResults,
 } from "../controllers/vote.controller";
+import { getElectionResultById } from "../controllers/result.controller";
 
 const router = Router();
 
@@ -127,7 +127,7 @@ router.get(
   "/:id/results",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN),
-  getElectionResults,
+  getElectionResultById,
 );
 
 export default router;

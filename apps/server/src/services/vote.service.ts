@@ -23,28 +23,6 @@ interface VotingStatusResult {
   hasVoted: boolean;
 }
 
-interface CandidateVoteResult {
-  candidateId: number;
-  name: string;
-  photoUrl: string | null;
-  description: string | null;
-  voteCount: number;
-  percentage: number;
-}
-
-interface ElectionResultData {
-  election: {
-    id: number;
-    title: string;
-    description: string | null;
-  };
-  totalVoters: number;
-  votedCount: number;
-  totalVotes: number;
-  turnoutPercentage: number;
-  results: CandidateVoteResult[];
-}
-
 const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
   const { electionId, candidateId, userId, role } = input;
 
@@ -84,10 +62,7 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
 
   // 3. Cek apakah voter sudah pernah voting pada election ini (BR-10)
   if (electionVoter.hasVoted) {
-    throw new AppError(
-      "Anda sudah melakukan voting pada election ini.",
-      400,
-    );
+    throw new AppError("Anda sudah melakukan voting pada election ini.", 400);
   }
 
   // 4. Cek keberadaan Candidate
@@ -122,10 +97,7 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
     });
 
     if (updateResult.count === 0) {
-      throw new AppError(
-        "Anda sudah melakukan voting pada election ini.",
-        400,
-      );
+      throw new AppError("Anda sudah melakukan voting pada election ini.", 400);
     }
 
     await tx.vote.create({
@@ -207,98 +179,5 @@ const getVotingStatus = async (
   };
 };
 
-const getElectionResults = async (
-  electionId: number,
-  role: UserRole,
-): Promise<ElectionResultData> => {
-  // BR-12: Hanya Super Admin yang dapat melihat result
-  if (role !== UserRole.SUPER_ADMIN) {
-    throw new AppError(
-      "Forbidden: Hanya Super Admin yang dapat melihat hasil pemilihan.",
-      403,
-    );
-  }
-
-  const election = await prisma.election.findUnique({
-    where: { id: electionId },
-    include: {
-      candidates: {
-        include: {
-          _count: {
-            select: {
-              votes: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      _count: {
-        select: {
-          electionVoters: true,
-        },
-      },
-    },
-  });
-
-  if (!election) {
-    throw new AppError("Election tidak ditemukan.", 404);
-  }
-
-  const votedCount = await prisma.electionVoter.count({
-    where: {
-      electionId,
-      hasVoted: true,
-    },
-  });
-
-  const totalVoters = election._count.electionVoters;
-  const totalVotes = election.candidates.reduce(
-    (sum, candidate) => sum + candidate._count.votes,
-    0,
-  );
-  const turnoutPercentage =
-    totalVoters > 0
-      ? Number(((votedCount / totalVoters) * 100).toFixed(2))
-      : 0;
-
-  const results: CandidateVoteResult[] = election.candidates.map((candidate) => {
-    const voteCount = candidate._count.votes;
-    const percentage =
-      totalVotes > 0
-        ? Number(((voteCount / totalVotes) * 100).toFixed(2))
-        : 0;
-
-    return {
-      candidateId: candidate.id,
-      name: candidate.name,
-      photoUrl: candidate.photoUrl,
-      description: candidate.description,
-      voteCount,
-      percentage,
-    };
-  });
-
-  return {
-    election: {
-      id: election.id,
-      title: election.title,
-      description: election.description,
-    },
-    totalVoters,
-    votedCount,
-    totalVotes,
-    turnoutPercentage,
-    results,
-  };
-};
-
-export type {
-  CastVoteInput,
-  CastVoteResult,
-  VotingStatusResult,
-  CandidateVoteResult,
-  ElectionResultData,
-};
-export { castVote, getVotingStatus, getElectionResults };
+export type { CastVoteInput, CastVoteResult, VotingStatusResult };
+export { castVote, getVotingStatus };

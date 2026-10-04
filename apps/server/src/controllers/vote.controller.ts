@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { isAppError } from "../utils/app-error";
 import { parsePositiveInt } from "../utils/parser";
 import * as voteService from "../services/vote.service";
+import { getElectionResultById } from "../services/result.service";
 
 const castVote = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -48,10 +49,7 @@ const castVote = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const getVotingStatus = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+const getVotingStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
@@ -119,10 +117,7 @@ const getElectionResults = async (
       return;
     }
 
-    const resultData = await voteService.getElectionResults(
-      electionId,
-      req.user.role,
-    );
+    const resultData = await getElectionResultById(electionId, req.user.role);
 
     res.status(200).json({
       message: "Hasil pemilihan berhasil diambil.",

@@ -6,6 +6,7 @@ import electionRoutes from "./routes/election.routes";
 import candidateRoutes from "./routes/candidate.routes";
 import voterRoutes from "./routes/voter.routes";
 import voteRoutes from "./routes/vote.routes";
+import resultRoutes from "./routes/result.routes";
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,7 @@ app.use("/api/elections", electionRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/voters", voterRoutes);
 app.use("/api/votes", voteRoutes);
+app.use("/api/results", resultRoutes);
 
 app.get("/", (req: Request, res: Response): void => {
   res.send("Hello World!");

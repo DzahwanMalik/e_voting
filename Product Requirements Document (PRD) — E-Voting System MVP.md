@@ -171,8 +171,8 @@ Candidate juga dapat dihapus oleh Super Admin atau Admin yang memiliki akses ter
 Jika candidate yang sudah memiliki vote dihapus:
 
 - vote yang terkait dengan candidate tersebut tidak lagi menjadi bagian dari result;
-- status `hasVoted` voter pada election tersebut menjadi `false`;
-- voter dapat melakukan voting kembali pada election tersebut.
+- status `hasVoted` voter pada election tersebut tetap `true`;
+- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
 
 Jika candidate hanya diubah, vote yang sudah ada tetap berlaku.
 
@@ -277,6 +277,8 @@ Vote hanya dapat dilakukan apabila:
 
 Setelah vote berhasil, voter tidak dapat melakukan vote lagi pada election yang sama.
 
+Vote bersifat **anonim**: record vote hanya menyimpan referensi ke candidate, tanpa referensi ke user yang melakukan vote. User yang melakukan vote tidak dapat dilacak.
+
 ---
 
 ## 8. Vote Consistency
@@ -305,13 +307,13 @@ Voter dianggap sudah voting
 tetapi vote tidak tercatat
 ```
 
-Jika candidate dihapus, status voting voter pada election tersebut dikembalikan menjadi:
+Jika candidate dihapus, status voting voter pada election tersebut tidak berubah:
 
 ```text
-hasVoted = false
+hasVoted = true (tetap)
 ```
 
-sehingga voter dapat memilih candidate lain.
+voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
 
 ---
 
@@ -431,7 +433,8 @@ Candidate dapat dihapus meskipun sudah memiliki vote.
 Ketika candidate dihapus:
 
 - vote candidate tersebut ikut dihapus dari result;
-- `hasVoted` voter pada election tersebut dikembalikan menjadi `false`.
+- `hasVoted` voter pada election tersebut tetap `true`;
+- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
 
 ### BR-15 — Candidate Update
 
@@ -463,13 +466,15 @@ User
  │                       │
  │                       └── Candidate
  │                              │
- │                              └── Vote
+ │                              └── Vote (anonymous)
  │
  └── Role
 
 Admin
  └── ElectionAdmin ── Election
 ```
+
+Vote bersifat **anonim**: tidak menyimpan referensi ke User maupun Election. Vote hanya terhubung ke Candidate. User yang melakukan vote tidak dapat dilacak.
 
 Hubungan utama:
 
@@ -547,7 +552,7 @@ Tidak terdapat user registration mandiri dalam MVP.
 - Admin dapat membuat candidate pada election yang diberikan kepadanya.
 - Candidate dapat diubah.
 - Candidate dapat dihapus meskipun sudah memiliki vote.
-- Jika candidate dihapus, `hasVoted` voter pada election tersebut menjadi `false`.
+- Jika candidate dihapus, `hasVoted` voter pada election tersebut tetap `true`.
 - Vote pada candidate yang dihapus tidak lagi dihitung dalam result.
 - Perolehan suara kandidat (*candidate vote result*) tidak dapat dilihat atau diakses oleh Admin maupun Voter.
 
@@ -684,14 +689,14 @@ Terkait: BR-09, BR-13, BR-15.
 Ketika candidate dihapus:
 
 - vote terkait dengan candidate tersebut dihapus dari result;
-- `hasVoted` voter pada election tersebut direset menjadi `false`;
-- voter dapat melakukan voting kembali pada election tersebut.
+- `hasVoted` voter pada election tersebut tetap `true`;
+- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
 
 Perubahan pada candidate (update) tidak mempengaruhi vote yang sudah ada.
 
 Terkait: BR-14, BR-15.
 
-Penghapusan candidate adalah operasi destruktif yang me-reset status voting voter terkait. Harus dijalankan dalam transaksi atomik.
+Penghapusan candidate bersifat destruktif: vote yang terkait akan ikut terhapus, namun status voting voter tidak berubah.
 
 ---
 
@@ -750,7 +755,7 @@ Terkait: BR-11.
 
 **One-Vote-Per-Election Guard**
 
-Setelah vote berhasil, voter tidak dapat vote lagi pada election yang sama. Guard ini direset hanya jika candidate yang dipilih dihapus.
+Setelah vote berhasil, voter tidak dapat vote lagi pada election yang sama. Guard ini bersifat permanen dan tidak di-reset meskipun candidate yang dipilih dihapus.
 
 Terkait: BR-10, BR-14.
 
@@ -802,9 +807,9 @@ Seluruh aturan otorisasi ditegakkan di backend. Frontend hanya bersifat UX helpe
 
 **Transactional Integrity**
 
-Operasi yang melibatkan multiple state changes (vote, candidate deletion) harus bersifat atomik.
+Operasi yang melibatkan multiple state changes (vote) harus bersifat atomik.
 
-Terkait: BR-11, BR-14.
+Terkait: BR-11.
 
 ---
 

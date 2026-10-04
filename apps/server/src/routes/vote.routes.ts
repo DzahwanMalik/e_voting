@@ -5,8 +5,8 @@ import { requireRole } from "../middlewares/role.middleware";
 import {
   castVote,
   getVotingStatus,
-  getElectionResults,
 } from "../controllers/vote.controller";
+import { getElectionResultById } from "../controllers/result.controller";
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.get(
   "/results/:electionId",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN),
-  getElectionResults,
+  getElectionResultById,
 );
 
 export default router;
