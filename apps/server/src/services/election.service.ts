@@ -128,6 +128,7 @@ const getAllElections = async (
       },
     },
     include: {
+      candidates: true,
       electionVoters: {
         where: {
           userId,

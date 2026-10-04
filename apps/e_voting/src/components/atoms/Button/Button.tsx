@@ -40,7 +40,7 @@ const Button = ({
       ref={ref}
       type={type}
       disabled={isDisabled}
-      className={`inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+      className={`inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 cursor-pointer select-none whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
         variantClasses[variant]
       } ${sizeClasses[size]} ${
         fullWidth ? "w-full" : ""

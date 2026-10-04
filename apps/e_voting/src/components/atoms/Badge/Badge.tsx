@@ -18,7 +18,7 @@ const Badge = ({
 }: BadgeProps) => {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide whitespace-nowrap ${
         variantClasses[variant]
       } ${className}`.trim()}
       {...props}

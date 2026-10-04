@@ -12,15 +12,14 @@ const LoginPage = () => {
   // Quick-select prefilled credentials matching database seed
   const [demoCreds, setDemoCreds] = useState<LoginCredentials | null>(null);
 
-  const handleQuickFill = (role: "Super Admin" | "Admin" | "Voter") => {
-    if (role === "Super Admin") {
-      setDemoCreds({ username: "superadmin", password: "superadmin123" });
-    } else if (role === "Admin") {
-      setDemoCreds({ username: "admin", password: "admin123" });
-    } else {
-      setDemoCreds({ username: "andi", password: "andi123" });
-    }
-  };
+  // Daftar akun seed untuk keperluan pengujian peran
+  const seedAccounts: { label: string; username: string; password: string }[] = [
+    { label: "Super Admin", username: "superadmin", password: "superadmin123" },
+    { label: "Admin", username: "admin", password: "admin123" },
+    { label: "Voter — Andi (2 election)", username: "andi", password: "andi123" },
+    { label: "Voter — Budi (1 election)", username: "budi", password: "budi123" },
+    { label: "Voter — Citra (2 election)", username: "citra", password: "citra123" },
+  ];
 
   const handleLoginSubmit = async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -59,27 +58,18 @@ const LoginPage = () => {
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleQuickFill("Super Admin")}
-              className="px-2.5 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors font-medium cursor-pointer"
-            >
-              Super Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("Admin")}
-              className="px-2.5 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors font-medium cursor-pointer"
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("Voter")}
-              className="px-2.5 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors font-medium cursor-pointer"
-            >
-              Voter (Andi)
-            </button>
+            {seedAccounts.map((account) => (
+              <button
+                key={account.username}
+                type="button"
+                onClick={() =>
+                  setDemoCreds({ username: account.username, password: account.password })
+                }
+                className="px-2.5 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors font-medium cursor-pointer"
+              >
+                {account.label}
+              </button>
+            ))}
           </div>
         </div>
 
