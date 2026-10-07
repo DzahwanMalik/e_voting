@@ -17,6 +17,6 @@ import { ProtectedRoute } from "@/components/layouts/ProtectedRoute";
 import { Route } from "react-router";
 
 <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}>
-  <Route path="/admin/dashboard" element={<DashboardPage />} />
+  <Route path="/voter/dashboard" element={<VoterDashboardPage />} />
 </Route>
 ```

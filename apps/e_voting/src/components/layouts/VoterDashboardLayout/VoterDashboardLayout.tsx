@@ -1,15 +1,15 @@
 import { Vote, LogOut } from "lucide-react";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
-import type { DashboardLayoutProps } from "./DashboardLayout.types";
+import type { VoterDashboardLayoutProps } from "./VoterDashboardLayout.types";
 
-const DashboardLayout = ({
+const VoterDashboardLayout = ({
   children,
   roleName,
   displayName,
   onLogout,
   isLoggingOut = false,
-}: DashboardLayoutProps) => {
+}: VoterDashboardLayoutProps) => {
   const badgeVariant =
     roleName === "Super Admin"
       ? "info"
@@ -60,4 +60,4 @@ const DashboardLayout = ({
   );
 };
 
-export default DashboardLayout;
+export default VoterDashboardLayout;

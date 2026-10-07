@@ -4,7 +4,7 @@
 - **Folder**: `src/components/organisms/AdminDashboard/`
 
 ## Purpose
-Modular view organism for the Admin role per PRD Section 2.2. Displays administrator scope and role capabilities, and fetches and renders all elections assigned to this admin with live candidate tallies.
+Modular view organism for the Admin role per PRD Section 2.2. Renders the Admin Hero Card (role badge, welcome message), fetches and displays all elections assigned to this admin with live candidate tallies. Uses reusable `LoadingState` and `EmptyState` molecules for async display states; errors are communicated via toast notification only (no inline error UI).
 
 ## Props
 - `displayName`: `string` - Formatted name of the active administrator.

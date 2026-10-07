@@ -4,24 +4,24 @@ import {
   Users,
   CheckCircle,
   BarChart3,
-  AlertCircle,
   Calendar,
   Layers,
   Award,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/atoms/Badge";
-import { Button } from "@/components/atoms/Button";
 import {
   getElectionsApi,
   type ElectionListItem,
 } from "@/services/election.service";
+import { formatDate } from "@/lib/utils";
+import { LoadingState } from "@/components/molecules/LoadingState";
+import { EmptyState } from "@/components/molecules/EmptyState";
 import type { SuperAdminDashboardProps } from "./SuperAdminDashboard.types";
 
 const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [elections, setElections] = useState<ElectionListItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -37,7 +37,6 @@ const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
             err instanceof Error
               ? err.message
               : "Gagal memuat daftar seluruh pemilihan.";
-          setError(message);
           toast.error(message);
         }
       } finally {
@@ -52,39 +51,6 @@ const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
       isMounted = false;
     };
   }, []);
-
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getElectionsApi();
-      setElections(data);
-      toast.success("Seluruh data pemilihan berhasil diperbarui.");
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Gagal memuat daftar seluruh pemilihan.";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(date);
-    } catch {
-      return dateString;
-    }
-  };
 
   const totalCandidates = elections.reduce(
     (sum, e) => sum + (e._count?.candidates || 0),
@@ -139,19 +105,6 @@ const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
         </div>
       </div>
 
-      {/* Error Notice */}
-      {error && (
-        <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span className="text-sm font-medium">{error}</span>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} isLoading={isLoading}>
-            Coba Lagi
-          </Button>
-        </div>
-      )}
-
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-5 rounded-3xl bg-card border border-border shadow-xs flex items-center gap-4">
@@ -197,10 +150,7 @@ const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center space-y-2">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Memuat data pemilihan...</p>
-          </div>
+          <LoadingState message="Memuat data pemilihan..." />
         ) : elections.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {elections.map((elec) => (
@@ -224,23 +174,15 @@ const SuperAdminDashboard = ({ displayName }: SuperAdminDashboardProps) => {
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{formatDate(elec.createdAt)}</span>
                   </div>
-                  <Badge variant="secondary">ID: #{elec.id}</Badge>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center mx-auto">
-              <Layers className="w-6 h-6" />
-            </div>
-            <p className="text-sm font-semibold text-card-foreground">
-              Belum Ada Pemilihan Dibuat
-            </p>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
-              Sistem belum memiliki data pemilihan. Anda dapat membuat pemilihan baru sebagai Super Administrator.
-            </p>
-          </div>
+          <EmptyState
+            title="Belum Ada Pemilihan Dibuat"
+            description="Sistem belum memiliki data pemilihan. Anda dapat membuat pemilihan baru sebagai Super Administrator."
+          />
         )}
       </div>
     </div>

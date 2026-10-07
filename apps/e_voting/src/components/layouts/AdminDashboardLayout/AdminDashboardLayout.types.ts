@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-interface DashboardLayoutProps {
+interface AdminDashboardLayoutProps {
   children: ReactNode;
   roleName: string;
   displayName: string;
@@ -8,4 +8,4 @@ interface DashboardLayoutProps {
   isLoggingOut?: boolean;
 }
 
-export type { DashboardLayoutProps };
+export type { AdminDashboardLayoutProps };

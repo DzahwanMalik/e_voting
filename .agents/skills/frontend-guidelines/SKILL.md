@@ -315,10 +315,10 @@ const handleAction = async () => {
 ```text
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
-├── molecules/    # Kombinasi 2+ atom (FormField, SearchInput, NavItem, StatItem)
-├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable)
-├── layouts/      # Struktur shell & skeleton (AuthLayout, DashboardLayout, ProtectedRoute, PublicRoute)
-└── pages/        # Route view + business logic + data fetching (LoginPage, DashboardPage, NotFoundPage)
+├── molecules/    # Kombinasi 2+ atom (FormField, SearchInput, NavItem, StatItem, LoadingState, EmptyState)
+├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, AdminDashboard, VoterDashboard)
+├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
+└── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, NotFoundPage)
 ```
 
 ### Tanggung Jawab per Level
@@ -479,14 +479,56 @@ const sizeClasses: Record<ButtonSize, string> = {
 ```text
 apps/e_voting/src/
 ├── components/         # Atomic Design hierarchy (lihat §3)
-├── lib/                # Konfigurasi third-party client (Axios instance)
+├── lib/                # Konfigurasi third-party client (Axios instance) + shared utilities
+│   └── utils/          # Pure utility functions (e.g., date formatting, helpers)
 ├── services/           # API call functions & token management
 ├── stores/             # Zustand stores (state management)
+├── hooks/              # Custom React hooks (state + lifecycle logic)
 ├── global.css          # Semantic design tokens & Tailwind v4 @theme bridge
 └── main.tsx            # Entry point: Router, Toaster, StrictMode
 ```
 
-### 7.1 `src/lib/` — Konfigurasi Client
+### 7.1 `src/lib/` — Utility & Client Config
+
+**`src/lib/utils/`** stores pure utility functions shared across multiple components (non-React, no side effects, no UI). Each utility lives in its own file with a descriptive name and barrel export.
+
+```ts
+// src/lib/utils/date.ts
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return "-";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(dateString));
+};
+
+export { formatDate };
+```
+
+### 7.2 `src/hooks/` — Custom React Hooks
+
+**`src/hooks/`** stores custom React hooks that encapsulate state + lifecycle logic (e.g., `useLocalStorage`, `useDebounce`). Hooks must use arrow function syntax and bottom exports.
+
+### 7.3 Aturan 11: Shared Function Harus di `lib/utils/` atau `hooks/`
+
+> **Jika ada fungsi yang dibagi (shared) dan digunakan oleh lebih dari satu komponen, fungsi tersebut wajib disimpan di `src/lib/utils/` (untuk pure utility) atau `src/hooks/` (untuk React hooks). Dilarang menduplikat kode utilitas yang sama di dalam komponen.**
+
+```tsx
+// ❌ SALAH — Duplikat formatDate di dalam komponen
+const AdminDashboard = () => {
+  const formatDate = (dateString?: string): string => { ... };
+};
+
+const SuperAdminDashboard = () => {
+  const formatDate = (dateString?: string): string => { ... }; // duplicated!
+};
+
+// ✅ BENAR — Import dari lib/utils
+import { formatDate } from "@/lib/utils/date";
+```
+
+### 7.4 `src/lib/axios.ts` — Axios Instance (Client Config)
 
 File konfigurasi third-party client seperti Axios instance beserta interceptors (menggunakan bottom export):
 
@@ -663,14 +705,16 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/login" element={<LoginPage />} />
         </Route>
 
-        {/* Rute admin & super admin */}
+        {/* Rute admin & super admin (dengan Sidebar layout) */}
         <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}>
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route element={<AdminShellPage />}>
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          </Route>
         </Route>
 
-        {/* Rute voter */}
+        {/* Rute voter (dengan top navbar layout) */}
         <Route element={<ProtectedRoute allowedRoles={["VOTER"]} />}>
-          <Route path="/voter/dashboard" element={<DashboardPage />} />
+          <Route path="/voter/dashboard" element={<VoterDashboardPage />} />
         </Route>
 
         {/* 404 */}
@@ -1019,11 +1063,97 @@ export default LoginPage;
 
 ---
 
+### E. Molecule: LoadingState (`src/components/molecules/LoadingState/`)
+
+Reusable loading state component — replaces duplicated inline spinner markup across dashboard organisms. Uses CSS border animation (no icon dependency for the spinner itself).
+
+```tsx
+// LoadingState.types.ts
+type LoadingSpinnerSize = "sm" | "md" | "lg";
+
+interface LoadingStateProps {
+  message?: string;
+  spinnerSize?: LoadingSpinnerSize;
+}
+
+export type { LoadingSpinnerSize, LoadingStateProps };
+```
+
+```tsx
+// LoadingState.tsx
+const spinnerClasses: Record<"sm" | "md" | "lg", string> = {
+  sm: "w-5 h-5 border-2",
+  md: "w-8 h-8 border-2",
+  lg: "w-10 h-10 border-3",
+};
+
+const LoadingState = ({
+  message = "Memuat...",
+  spinnerSize = "md",
+}: LoadingStateProps) => {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-8">
+      <div
+        className={`${spinnerClasses[spinnerSize]} border-primary border-t-transparent rounded-full animate-spin`}
+      />
+      <p className="text-sm text-muted-foreground font-medium">{message}</p>
+    </div>
+  );
+};
+
+export default LoadingState;
+```
+
+### F. Molecule: EmptyState (`src/components/molecules/EmptyState/`)
+
+Reusable empty state component — replaces duplicated inline "no data" markup across dashboard organisms.
+
+```tsx
+// EmptyState.types.ts
+import type { ReactNode } from "react";
+
+interface EmptyStateProps {
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
+}
+
+export type { EmptyStateProps };
+```
+
+```tsx
+// EmptyState.tsx
+import { Layers } from "lucide-react";
+import type { EmptyStateProps } from "./EmptyState.types";
+
+const EmptyState = ({
+  title = "Tidak Ada Data",
+  description = "Tidak ada data untuk ditampilkan saat ini.",
+  icon,
+}: EmptyStateProps) => {
+  return (
+    <div className="bg-card rounded-3xl border border-border p-12 text-center space-y-4 shadow-sm">
+      <div className="w-16 h-16 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center mx-auto">
+        {icon || <Layers className="w-8 h-8" />}
+      </div>
+      <div className="space-y-1 max-w-md mx-auto">
+        <h2 className="font-sans text-lg font-bold text-card-foreground">{title}</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+      </div>
+    </div>
+  );
+};
+
+export default EmptyState;
+```
+
+---
+
 ## 14. Naming Convention Summary
 
 | Entitas | Konvensi | Contoh |
 | :--- | :--- | :--- |
-| Komponen | PascalCase | `LoginForm`, `DashboardPage`, `Badge` |
+| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge` |
 | File komponen | PascalCase.tsx (export default di bawah) | `LoginForm.tsx` |
 | File types | PascalCase.types.ts (export type {...}) | `LoginForm.types.ts` |
 | File schema | PascalCase.schema.ts | `LoginForm.schema.ts` |

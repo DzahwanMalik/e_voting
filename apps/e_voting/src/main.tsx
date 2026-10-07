@@ -6,12 +6,15 @@ import { Toaster } from "sonner";
 import { PublicRoute } from "@/components/layouts/PublicRoute";
 import { ProtectedRoute } from "@/components/layouts/ProtectedRoute";
 import { LoginPage } from "@/components/pages/LoginPage";
-import { DashboardPage } from "@/components/pages/DashboardPage";
+import { VoterDashboardPage } from "@/components/pages/VoterDashboardPage";
+import { AdminShellPage } from "@/components/pages/AdminShellPage";
+import { AdminDashboardPage } from "@/components/pages/AdminDashboardPage";
+import { ComingSoonPage } from "@/components/pages/ComingSoonPage";
 import { NotFoundPage } from "@/components/pages/NotFoundPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Toaster position="top-right" richColors />
+    <Toaster position="bottom-right" richColors />
     <BrowserRouter>
       <Routes>
         {/* Rute Tamu (Public / Guest Only) */}
@@ -20,14 +23,44 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/login" element={<LoginPage />} />
         </Route>
 
-        {/* Rute Khusus Admin & Super Admin */}
-        <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}>
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
+        {/* Rute Admin & Super Admin dengan Sidebar Layout */}
+        <Route
+          element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}
+        >
+          <Route element={<AdminShellPage />}>
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route
+              path="/admin/elections"
+              element={<ComingSoonPage title="Manajemen Pemilihan" />}
+            />
+            <Route
+              path="/admin/candidates"
+              element={<ComingSoonPage title="Manajemen Kandidat" />}
+            />
+            <Route
+              path="/admin/voters"
+              element={<ComingSoonPage title="Manajemen Pemilih" />}
+            />
+          </Route>
+        </Route>
+
+        {/* Rute khusus Super Admin (Penugasan Admin & Hasil Voting) */}
+        <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
+          <Route element={<AdminShellPage />}>
+            <Route
+              path="/admin/admin-assignment"
+              element={<ComingSoonPage title="Penugasan Admin" />}
+            />
+            <Route
+              path="/admin/results"
+              element={<ComingSoonPage title="Hasil Voting" />}
+            />
+          </Route>
         </Route>
 
         {/* Rute Khusus Voter */}
         <Route element={<ProtectedRoute allowedRoles={["VOTER"]} />}>
-          <Route path="/voter/dashboard" element={<DashboardPage />} />
+          <Route path="/voter/dashboard" element={<VoterDashboardPage />} />
         </Route>
 
         {/* 404 Not Found Page */}
@@ -36,4 +69,3 @@ createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </StrictMode>,
 );
-

@@ -4,7 +4,7 @@
 - **Folder**: `src/components/organisms/SuperAdminDashboard/`
 
 ## Purpose
-Modular view organism for the Super Admin role per PRD Section 2.1. Displays full system governance privileges, high-level aggregated metrics (total elections, total candidates), and a centralized overview of all elections in the database.
+Modular view organism for the Super Admin role per PRD Section 2.1. Displays full system governance privileges, high-level aggregated metrics (total elections, total candidates), and a centralized overview of all elections in the database. Uses reusable `LoadingState` and `EmptyState` molecules for async display states; errors are communicated via toast notification only (no inline error UI).
 
 ## Props
 - `displayName`: `string` - Formatted name of the super administrator.
