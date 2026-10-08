@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Generic, reusable table component for displaying fetched data passed via props. Supports column-based rendering, per-row action options menu (using `DropdownMenu` molecule), and loading/empty states. Designed for admin dashboard use (Admin & Super Admin) to simplify Developer Experience.
+Generic, reusable table component for displaying fetched data passed via props. Supports column-based rendering, per-row action options menu (using `DropdownMenu` molecule), and loading/empty states. Designed for admin section use (Admin & Super Admin) to simplify Developer Experience.
 
 ## Props
 

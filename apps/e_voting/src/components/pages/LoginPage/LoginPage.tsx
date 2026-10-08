@@ -28,11 +28,11 @@ const LoginPage = () => {
       const response = await loginApi(credentials);
       toast.success(response.message || "Login berhasil!");
 
-      // Navigate directly to respective dashboard according to PRD roles
+      // Navigate directly to respective landing page according to PRD roles
       if (response.user.role === "VOTER") {
         navigate("/voter/dashboard");
       } else {
-        navigate("/admin/dashboard");
+        navigate("/admin/elections");
       }
     } catch (error) {
       const message =

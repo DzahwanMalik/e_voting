@@ -4,8 +4,8 @@
 - **Folder**: `src/components/pages/LoginPage/`
 
 ## Purpose
-The `LoginPage` component represents the login view route for the E-Voting System MVP. It is self-contained (`<LoginPage />`), orchestrating the `AuthLayout` shell, the `LoginForm` organism, and rapid demo role presets. Upon successful submission, it **immediately navigates to each role's respective dashboard** without any intermediate screen:
-- **Super Admin & Admin**: `/admin/dashboard`
+The `LoginPage` component represents the login view route for the E-Voting System MVP. It is self-contained (`<LoginPage />`), orchestrating the `AuthLayout` shell, the `LoginForm` organism, and rapid demo role presets. Upon successful submission, it **immediately navigates to each role's respective landing page** without any intermediate screen:
+- **Super Admin & Admin**: `/admin/elections`
 - **Voter**: `/voter/dashboard`
 
 ## Props

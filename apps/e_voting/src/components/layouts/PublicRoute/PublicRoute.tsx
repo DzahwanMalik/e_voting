@@ -6,12 +6,12 @@ const PublicRoute = () => {
   const token = getAuthToken();
   const user = useUserStore((state) => state.user);
 
-  // Jika sudah terautentikasi, alihkan langsung ke dashboard yang sesuai
+  // Jika sudah terautentikasi, alihkan langsung ke halaman yang sesuai
   if (token && user) {
     if (user.role === "VOTER") {
       return <Navigate to="/voter/dashboard" replace />;
     }
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/admin/elections" replace />;
   }
 
   // Jika belum login, izinkan render rute publik (form login)

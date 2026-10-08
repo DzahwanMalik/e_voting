@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/components/layouts/ProtectedRoute";
 import { LoginPage } from "@/components/pages/LoginPage";
 import { VoterDashboardPage } from "@/components/pages/VoterDashboardPage";
 import { AdminShellPage } from "@/components/pages/AdminShellPage";
-import { AdminDashboardPage } from "@/components/pages/AdminDashboardPage";
 import { ComingSoonPage } from "@/components/pages/ComingSoonPage";
 import { NotFoundPage } from "@/components/pages/NotFoundPage";
 
@@ -28,7 +27,6 @@ createRoot(document.getElementById("root")!).render(
           element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}
         >
           <Route element={<AdminShellPage />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route
               path="/admin/elections"
               element={<ComingSoonPage title="Manajemen Pemilihan" />}

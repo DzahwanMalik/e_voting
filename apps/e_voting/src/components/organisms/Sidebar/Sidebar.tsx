@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import {
-  LayoutDashboard,
   Layers,
   Award,
   Users,
@@ -15,11 +14,6 @@ import { Button } from "@/components/atoms/Button";
 import type { SidebarNavItem, SidebarProps } from "./Sidebar.types";
 
 const sidebarNavItems: SidebarNavItem[] = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/admin/dashboard",
-  },
   {
     label: "Pemilihan",
     icon: Layers,

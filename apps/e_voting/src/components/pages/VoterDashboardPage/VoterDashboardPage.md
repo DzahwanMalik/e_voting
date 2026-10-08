@@ -7,7 +7,7 @@
 
 Route container khusus untuk peran **Voter**. Merender `<VoterDashboard />` di dalam `<VoterDashboardLayout>` (top navbar layout).
 
-> **Catatan**: Admin dan Super Admin dashboard menggunakan `AdminShellPage` → `AdminDashboardLayout` → `Sidebar` (dengan navigasi samping). `VoterDashboardPage` hanya untuk voter.
+> **Catatan**: Admin dan Super Admin menggunakan `AdminShellPage` → `AdminDashboardLayout` → `Sidebar` (dengan navigasi samping ke halaman Pemilihan, Kandidat, Pemilih, Penugasan Admin, dan Hasil Voting). `VoterDashboardPage` hanya untuk voter.
 
 ## Props
 

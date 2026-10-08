@@ -4,7 +4,7 @@
 - **Folder**: `src/components/layouts/PublicRoute/`
 
 ## Purpose
-The `PublicRoute` component wraps guest-only pages like `/login`. It prevents authenticated users who already possess an active session token and user profile from accessing the login page, redirecting them immediately to their designated dashboard.
+The `PublicRoute` component wraps guest-only pages like `/login`. It prevents authenticated users who already possess an active session token and user profile from accessing the login page, redirecting them immediately to their designated landing page.
 
 ## Props
 None. Self-contained guard wrapper.

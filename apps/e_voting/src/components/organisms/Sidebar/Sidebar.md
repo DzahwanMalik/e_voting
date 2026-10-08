@@ -5,11 +5,10 @@
 
 ## Purpose
 
-Vertical navigation rail for the Admin and Super Admin dashboard layouts. Provides role-aware navigation items based on PRD permissions:
+Vertical navigation rail for the Admin and Super Admin shell layouts. Provides role-aware navigation items based on PRD permissions:
 
 | Nav Item | Admin | Super Admin | Rationale |
 |---|---|---|---|
-| Dashboard | ✓ | ✓ | Overview of elections |
 | Pemilihan (Elections) | ✓ | ✓ | BR-05: Admin manages assigned; BR-03/04: Super Admin manages all |
 | Kandidat (Candidates) | ✓ | ✓ | Manage candidates within election scope |
 | Pemilih (Voters) | ✓ | ✓ | Create & enroll voters within scope |

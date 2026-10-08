@@ -17,7 +17,7 @@ const NotFoundPage = () => {
       if (user?.role === "VOTER") {
         navigate("/voter/dashboard");
       } else {
-        navigate("/admin/dashboard");
+         navigate("/admin/elections");
       }
     } else {
       navigate("/login");
@@ -69,7 +69,7 @@ const NotFoundPage = () => {
               onClick={handleReturnHome}
               icon={isAuthenticated ? <Home className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
             >
-              {isAuthenticated ? "Kembali ke Dashboard" : "Kembali ke Halaman Login"}
+               {isAuthenticated ? "Kembali ke Beranda" : "Kembali ke Halaman Login"}
             </Button>
           </div>
         </div>

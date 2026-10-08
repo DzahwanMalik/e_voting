@@ -35,8 +35,8 @@ const ComingSoonPage = ({
           {title} sedang dalam pengembangan. Silakan kunjungi kembali nanti atau
           hubungi administrator sistem.
         </p>
-        <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
-          Kembali ke Dashboard
+        <Button variant="outline" onClick={() => navigate("/admin/elections")}>
+          Kembali ke Beranda
         </Button>
       </div>
     </div>

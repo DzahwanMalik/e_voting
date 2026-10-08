@@ -18,8 +18,8 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     if (user.role === "VOTER") {
       return <Navigate to="/voter/dashboard" replace />;
     }
-    // Admin yang mengakses area voter dialihkan ke admin dashboard
-    return <Navigate to="/admin/dashboard" replace />;
+    // Admin/Super Admin yang mengakses area voter dialihkan ke halaman utama admin
+    return <Navigate to="/admin/elections" replace />;
   }
 
   // 3. Izin sah: render rute anak

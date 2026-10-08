@@ -4,7 +4,7 @@
 - **Folder**: `src/components/layouts/ProtectedRoute/`
 
 ## Purpose
-The `ProtectedRoute` component protects authenticated route segments in React Router. It inspects `localStorage` token existence and reactive user profile state in `useUserStore`. Unauthenticated users are redirected to `/login`, and users attempting to access routes outside their authorized role are redirected to their respective role dashboard.
+The `ProtectedRoute` component protects authenticated route segments in React Router. It inspects `localStorage` token existence and reactive user profile state in `useUserStore`. Unauthenticated users are redirected to `/login`, and users attempting to access routes outside their authorized role are redirected to their respective role landing page.
 
 ## Props
 | Prop | Type | Default | Description |

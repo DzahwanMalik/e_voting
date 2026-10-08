@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Layout shell for all Admin and Super Admin dashboard pages. Uses a vertical Sidebar (organism) for role-based navigation instead of the top-navbar-only `VoterDashboardLayout` used by Voters.
+Layout shell for all Admin and Super Admin section pages. Uses a vertical Sidebar (organism) for role-based navigation instead of the top-navbar-only `VoterDashboardLayout` used by Voters.
 
 **Key difference from `VoterDashboardLayout`:**
 

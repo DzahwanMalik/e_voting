@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Layout route component for all Admin and Super Admin routes. Wraps child routes (Dashboard, Elections, Candidates, Voters, Admin Assignment, Results) inside the `AdminDashboardLayout` (which includes the Sidebar organism).
+Layout route component for all Admin and Super Admin routes. Wraps child routes (Elections, Candidates, Voters, Admin Assignment, Results) inside the `AdminDashboardLayout` (which includes the Sidebar organism).
 
 This component centralizes:
 - Role resolution from Zustand store (`isSuperAdmin()`)
@@ -25,7 +25,6 @@ Takes no props — reads all state from `useUserStore`.
 // Inside <Routes> in main.tsx
 <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}>
   <Route element={<AdminShellPage />}>
-    <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
     <Route path="/admin/elections" element={<ComingSoonPage title="Manajemen Pemilihan" />} />
     ...
   </Route>

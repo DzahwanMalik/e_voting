@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Reusable loading state component displaying a spinning indicator with an optional message. Used across dashboard organisms (VoterDashboard, AdminDashboard, SuperAdminDashboard) to replace duplicated inline spinner markup.
+Reusable loading state component displaying a spinning indicator with an optional message. Used across page organisms (e.g., VoterDashboard and admin section pages) to replace duplicated inline spinner markup.
 
 ## Props
 
