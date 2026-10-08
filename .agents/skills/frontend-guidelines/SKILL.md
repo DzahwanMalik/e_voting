@@ -1149,11 +1149,283 @@ export default EmptyState;
 
 ---
 
+### G. Organism: DataTable with Admin Dashboard Integration (`src/components/organisms/DataTable/`)
+
+Reusable table component for displaying fetched data passed via props. Composes the `DropdownMenu` molecule for per-row action options. Each option's `onClick` receives the row data.
+
+#### DataTable Component
+
+```tsx
+// src/components/organisms/DataTable/DataTable.tsx
+import { MoreHorizontal } from "lucide-react";
+import { DropdownMenu } from "@/components/molecules/DropdownMenu";
+import { LoadingState } from "@/components/molecules/LoadingState";
+import { EmptyState } from "@/components/molecules/EmptyState";
+import type { DataTableProps } from "./DataTable.types";
+
+const DataTable = <T,>({
+  data,
+  columns,
+  rowOptions,
+  rowKey = "id" as keyof T,
+  isLoading = false,
+  emptyTitle = "Tidak Ada Data",
+  emptyDescription = "Tidak ada data untuk ditampilkan saat ini.",
+  className = "",
+  ...props
+}: DataTableProps<T>) => {
+  const getKey = (row: T, index: number): string => {
+    if (typeof rowKey === "function") return String(rowKey(row));
+    const val = row[rowKey];
+    return val != null ? String(val) : String(index);
+  };
+
+  const renderOptionsMenu = (row: T) => {
+    if (!rowOptions || rowOptions.length === 0) return null;
+
+    const options = rowOptions.map((opt) => ({
+      label: opt.label,
+      icon: opt.icon,
+      onClick: () => opt.onClick(row),
+      isDestructive: opt.isDestructive ?? false,
+      disabled: opt.disabled ? opt.disabled(row) : false,
+    }));
+
+    return (
+      <DropdownMenu
+        options={options}
+        triggerIcon={<MoreHorizontal className="w-4 h-4" />}
+        triggerLabel="Pilih aksi"
+      />
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
+        {...props}
+      >
+        <LoadingState message="Memuat data..." />
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div
+        className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
+        {...props}
+      >
+        <EmptyState title={emptyTitle} description={emptyDescription} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
+      {...props}
+    >
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                className={`text-left font-sans font-semibold text-xs text-muted-foreground uppercase tracking-wider px-4 py-3 border-b border-border whitespace-nowrap ${
+                  col.headerClassName ?? ""
+                }`}
+              >
+                {col.header}
+              </th>
+            ))}
+            {rowOptions && rowOptions.length > 0 && (
+              <th className="w-10 px-4 py-3 text-right" />
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr
+              key={getKey(row, index)}
+              className="border-b border-border last:border-0"
+            >
+              {columns.map((col) => (
+                <td
+                  key={`${getKey(row, index)}-${col.key}`}
+                  className={`px-4 py-3 text-foreground align-top ${col.className ?? ""}`}
+                >
+                  {col.cell(row)}
+                </td>
+              ))}
+              {rowOptions && rowOptions.length > 0 && (
+                <td className="px-2 py-3 text-right">
+                  {renderOptionsMenu(row)}
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default DataTable;
+```
+
+#### DataTable Types
+
+```tsx
+// src/components/organisms/DataTable/DataTable.types.ts
+import type { HTMLAttributes, ReactNode } from "react";
+
+interface DataTableColumn<T> {
+  key: string;
+  header: string;
+  cell: (row: T) => ReactNode;
+  className?: string;
+  headerClassName?: string;
+}
+
+interface DataTableRowOption<T> {
+  label: string;
+  icon?: ReactNode;
+  onClick: (row: T) => void;
+  isDestructive?: boolean;
+  disabled?: (row: T) => boolean;
+}
+
+interface DataTableProps<T> extends HTMLAttributes<HTMLDivElement> {
+  data: T[];
+  columns: DataTableColumn<T>[];
+  rowOptions?: DataTableRowOption<T>[];
+  rowKey?: keyof T | ((row: T) => string | number);
+  isLoading?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
+}
+
+export type { DataTableColumn, DataTableRowOption, DataTableProps };
+```
+
+#### AdminDashboard Integration Example
+
+```tsx
+// src/components/organisms/AdminDashboard/AdminDashboard.tsx
+import { useState, useEffect } from "react";
+import { Calendar, Eye, Layers } from "lucide-react";
+import { toast } from "sonner";
+import { Badge } from "@/components/atoms/Badge";
+import { DataTable } from "@/components/organisms/DataTable";
+import { getElectionsApi, type ElectionListItem } from "@/services/election.service";
+import { formatDate } from "@/lib/utils";
+import type { AdminDashboardProps } from "./AdminDashboard.types";
+
+const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [elections, setElections] = useState<ElectionListItem[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadAssignedElections = async () => {
+      try {
+        const data = await getElectionsApi();
+        if (isMounted) setElections(data);
+      } catch (err) {
+        if (isMounted) {
+          const message = err instanceof Error ? err.message : "Gagal memuat pemilihan.";
+          toast.error(message);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    void loadAssignedElections();
+    return () => { isMounted = false; };
+  }, []);
+
+  const columns = [
+    {
+      key: "title",
+      header: "Judul",
+      cell: (row: ElectionListItem) => <span className="font-medium text-foreground">{row.title}</span>,
+    },
+    {
+      key: "description",
+      header: "Deskripsi",
+      cell: (row: ElectionListItem) => <p className="text-muted-foreground line-clamp-2">{row.description || "Tidak ada deskripsi."}</p>,
+    },
+    {
+      key: "candidates",
+      header: "Kandidat",
+      cell: (row: ElectionListItem) => <Badge variant="warning">{row._count?.candidates || 0} Kandidat</Badge>,
+      className: "text-center",
+    },
+    {
+      key: "createdAt",
+      header: "Dibuat",
+      cell: (row: ElectionListItem) => (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Calendar className="w-3.5 h-3.5" />
+          <span>{formatDate(row.createdAt)}</span>
+        </div>
+      ),
+    },
+  ];
+
+  const rowOptions = [
+    {
+      label: "Lihat Detail",
+      icon: <Eye className="w-4 h-4" />,
+      onClick: (row: ElectionListItem) => { /* handle view */ },
+    },
+    {
+      label: "Kelola Kandidat",
+      icon: <Layers className="w-4 h-4" />,
+      onClick: (row: ElectionListItem) => { /* handle manage */ },
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Card */}
+      <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
+        <h1 className="font-sans text-2xl sm:text-3xl font-bold text-foreground">Dashboard Admin</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Selamat datang, <strong>{displayName}</strong>.
+        </p>
+      </div>
+
+      {/* Elections Table */}
+      <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
+        <h2 className="font-sans text-xl font-bold text-card-foreground mb-4">
+          Pemilihan yang Ditugaskan ({elections.length})
+        </h2>
+        <DataTable<ElectionListItem>
+          data={elections}
+          columns={columns}
+          rowOptions={rowOptions}
+          isLoading={isLoading}
+          emptyTitle="Belum Ada Penugasan Pemilihan"
+          emptyDescription="Super Admin belum menugaskan pemilihan kepada akun Anda."
+        />
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+```
+
+---
+
 ## 14. Naming Convention Summary
 
 | Entitas | Konvensi | Contoh |
 | :--- | :--- | :--- |
-| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge` |
+| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu` |
 | File komponen | PascalCase.tsx (export default di bawah) | `LoginForm.tsx` |
 | File types | PascalCase.types.ts (export type {...}) | `LoginForm.types.ts` |
 | File schema | PascalCase.schema.ts | `LoginForm.schema.ts` |

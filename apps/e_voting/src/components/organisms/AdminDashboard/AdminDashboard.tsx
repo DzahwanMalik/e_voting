@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Eye, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/atoms/Badge";
+import { DataTable } from "@/components/organisms/DataTable";
 import {
   getElectionsApi,
   type ElectionListItem,
 } from "@/services/election.service";
 import { formatDate } from "@/lib/utils";
-import { LoadingState } from "@/components/molecules/LoadingState";
-import { EmptyState } from "@/components/molecules/EmptyState";
 import type { AdminDashboardProps } from "./AdminDashboard.types";
 
 const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
@@ -44,11 +43,65 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
     };
   }, []);
 
+  const columns = [
+    {
+      key: "title",
+      header: "Judul Pemilihan",
+      cell: (row: ElectionListItem) => (
+        <div className="font-medium text-foreground">{row.title}</div>
+      ),
+    },
+    {
+      key: "description",
+      header: "Deskripsi",
+      cell: (row: ElectionListItem) => (
+        <p className="text-muted-foreground line-clamp-2">
+          {row.description || "Tidak ada deskripsi rinci."}
+        </p>
+      ),
+    },
+    {
+      key: "candidates",
+      header: "Kandidat",
+      cell: (row: ElectionListItem) => (
+        <Badge variant="info">{row._count?.candidates || 0} Kandidat</Badge>
+      ),
+      className: "text-center",
+    },
+    {
+      key: "createdAt",
+      header: "Tanggal Dibuat",
+      cell: (row: ElectionListItem) => (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Calendar className="w-3.5 h-3.5" />
+          <span>{formatDate(row.createdAt)}</span>
+        </div>
+      ),
+    },
+  ];
+
+  const rowOptions = [
+    {
+      label: "Lihat Detail",
+      icon: <Eye className="w-4 h-4" />,
+      onClick: (row: ElectionListItem) => {
+        toast.info(`Membuka detail: ${row.title}`);
+      },
+    },
+    {
+      label: "Kelola Kandidat",
+      icon: <Layers className="w-4 h-4" />,
+      onClick: (row: ElectionListItem) => {
+        toast.info(`Kelola kandidat: ${row.title}`);
+      },
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Admin Hero Card */}
       <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-1">
               Panel Kontrol
@@ -64,9 +117,9 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
         </div>
       </div>
 
-      {/* Assigned Elections List */}
-      <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      {/* Assigned Elections Table */}
+      <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-border">
           <div>
             <h2 className="font-sans text-xl font-bold text-card-foreground">
               Pemilihan yang Ditugaskan ({elections.length})
@@ -78,39 +131,14 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
           </div>
         </div>
 
-        {isLoading ? (
-          <LoadingState message="Memuat daftar pemilihan..." />
-        ) : elections.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {elections.map((elec) => (
-              <div
-                key={elec.id}
-                className="p-5 rounded-2xl bg-muted border border-border hover:border-border-hover transition-colors space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-sans font-bold text-base text-card-foreground">
-                    {elec.title}
-                  </h3>
-                  <Badge variant="warning">
-                    {elec._count?.candidates || 0} Kandidat
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                  {elec.description || "Tidak ada deskripsi rinci."}
-                </p>
-                <div className="pt-2 border-t border-border flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Dibuat: {formatDate(elec.createdAt)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            title="Belum Ada Penugasan Pemilihan"
-            description="Super Admin belum menugaskan pemilihan kepada akun Anda. Hubungi Super Administrator untuk penugasan scope election."
-          />
-        )}
+        <DataTable<ElectionListItem>
+          data={elections}
+          columns={columns}
+          rowOptions={rowOptions}
+          isLoading={isLoading}
+          emptyTitle="Belum Ada Penugasan Pemilihan"
+          emptyDescription="Super Admin belum menugaskan pemilihan kepada akun Anda. Hubungi Super Administrator untuk penugasan scope election."
+        />
       </div>
     </div>
   );
