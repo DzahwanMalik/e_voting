@@ -11,10 +11,11 @@ None. Self-contained guard wrapper.
 
 ## Code Example
 ```tsx
-import { PublicRoute } from "@/components/layouts/PublicRoute";
+import PublicRoute from "@/components/layouts/PublicRoute";
 import { Route } from "react-router";
 
 <Route element={<PublicRoute />}>
   <Route path="/login" element={<LoginPage />} />
 </Route>
 ```
+

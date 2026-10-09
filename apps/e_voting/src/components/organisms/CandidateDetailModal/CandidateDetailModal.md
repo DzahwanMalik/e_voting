@@ -22,7 +22,7 @@ Dialog modal displaying complete candidate details per PRD Section 5. Displays f
 
 ## Code Example
 ```tsx
-import { CandidateDetailModal } from "@/components/organisms/CandidateDetailModal";
+import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
 
 <CandidateDetailModal
   candidate={selectedCandidate}
@@ -32,3 +32,4 @@ import { CandidateDetailModal } from "@/components/organisms/CandidateDetailModa
   onVote={(candidate) => handleVote(candidate)}
 />
 ```
+

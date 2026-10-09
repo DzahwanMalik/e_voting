@@ -43,8 +43,9 @@ Delete is guarded by `window.confirm()` and shows per-row loading (`isDeletingId
 ## Code Example
 
 ```tsx
-import { ElectionPage } from "@/components/pages/ElectionPage";
+import ElectionPage from "@/components/pages/ElectionPage";
 
 // Inside <Routes> in main.tsx
 <Route path="/admin/elections" element={<ElectionPage />} />
 ```
+

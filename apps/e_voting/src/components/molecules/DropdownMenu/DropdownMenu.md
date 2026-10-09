@@ -35,7 +35,7 @@ Reusable floating action menu triggered by a button. Renders a list of options e
 
 ```tsx
 import { MoreHorizontal } from "lucide-react";
-import { DropdownMenu } from "@/components/molecules/DropdownMenu";
+import DropdownMenu from "@/components/molecules/DropdownMenu";
 
 const menus = [
   { label: "Edit", onClick: () => console.log("edit") },
@@ -44,3 +44,4 @@ const menus = [
 
 <DropdownMenu options={menus} triggerIcon={<MoreHorizontal className="w-4 h-4" />} />
 ```
+

@@ -24,7 +24,7 @@ The `Button` component provides standard interactive trigger elements with suppo
 
 ## Code Example
 ```tsx
-import { Button } from "@/components/atoms/Button";
+import Button from "@/components/atoms/Button";
 import { LogIn } from "lucide-react";
 
 <Button
@@ -37,3 +37,4 @@ import { LogIn } from "lucide-react";
   Masuk
 </Button>
 ```
+

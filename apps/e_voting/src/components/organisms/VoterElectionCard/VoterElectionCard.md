@@ -19,7 +19,7 @@ Comprehensive card container representing a single election per voter requiremen
 
 ## Code Example
 ```tsx
-import { VoterElectionCard } from "@/components/organisms/VoterElectionCard";
+import VoterElectionCard from "@/components/organisms/VoterElectionCard";
 
 <VoterElectionCard
   election={election}
@@ -27,3 +27,4 @@ import { VoterElectionCard } from "@/components/organisms/VoterElectionCard";
   onViewCandidateDetail={handleOpenDetail}
 />
 ```
+

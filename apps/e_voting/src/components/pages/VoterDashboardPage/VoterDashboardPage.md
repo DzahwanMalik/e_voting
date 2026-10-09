@@ -22,8 +22,9 @@ None. Self-contained page component yang membaca Zustand store untuk `user` dan 
 ## Code Example
 
 ```tsx
-import { VoterDashboardPage } from "@/components/pages/VoterDashboardPage";
+import VoterDashboardPage from "@/components/pages/VoterDashboardPage";
 
 // In router configuration
 <Route path="/voter/dashboard" element={<VoterDashboardPage />} />
 ```
+

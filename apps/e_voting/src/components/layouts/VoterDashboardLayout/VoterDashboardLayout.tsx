@@ -1,6 +1,6 @@
 import { Vote, LogOut } from "lucide-react";
-import { Badge } from "@/components/atoms/Badge";
-import { Button } from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 import type { VoterDashboardLayoutProps } from "./VoterDashboardLayout.types";
 
 const VoterDashboardLayout = ({
@@ -61,3 +61,4 @@ const VoterDashboardLayout = ({
 };
 
 export default VoterDashboardLayout;
+

@@ -19,7 +19,7 @@ The `Label` component provides accessible form input descriptions formatted with
 
 ## Code Example
 ```tsx
-import { Label } from "@/components/atoms/Label";
+import Label from "@/components/atoms/Label";
 
 {/* Required Field */}
 <Label htmlFor="username" required>
@@ -31,3 +31,4 @@ import { Label } from "@/components/atoms/Label";
   Deskripsi
 </Label>
 ```
+

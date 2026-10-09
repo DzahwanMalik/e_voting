@@ -63,10 +63,9 @@ export default LoginPage;
   - File service & utilitas (`*.service.ts`, `lib/axios.ts`): Menggunakan named export `export { fn1, fn2 };` di baris paling akhir.
   - File store Zustand (`use*Store.ts`): Menggunakan `export { use*Store };` dan `export type { ... };` di baris paling akhir.
 - **Aturan untuk Barrel Re-Export Komponen (`index.ts`)**:
-  - Setiap folder komponen mere-export default export dari file `.tsx` sekaligus menyediakan alias named export untuk fleksibilitas konsumen:
+  - Setiap folder komponen mere-export default export dari file `.tsx`:
     ```ts
     export { default } from "./ComponentName";
-    export { default as ComponentName } from "./ComponentName";
     export * from "./ComponentName.types";
     ```
 
@@ -348,7 +347,7 @@ src/components/{level}/{ComponentName}/
 ├── {ComponentName}.types.ts    # Interface, type alias, variant union types
 ├── {ComponentName}.md          # Dokumentasi co-located: purpose, props, tokens, code example
 ├── {ComponentName}.schema.ts   # (Opsional) Zod schema — hanya untuk form organisms
-└── index.ts                    # Centralized re-export (export { default } & export { default as Name })
+└── index.ts                    # Centralized re-export (export { default })
 ```
 
 ### 4.1 File `index.ts` — Centralized Re-Export
@@ -358,7 +357,6 @@ Setiap folder komponen **WAJIB** memiliki `index.ts` yang mere-export default ex
 ```ts
 // src/components/atoms/Badge/index.ts
 export { default } from "./Badge";
-export { default as Badge } from "./Badge";
 export * from "./Badge.types";
 ```
 
@@ -366,22 +364,22 @@ Untuk organism dengan schema:
 ```ts
 // src/components/organisms/LoginForm/index.ts
 export { default } from "./LoginForm";
-export { default as LoginForm } from "./LoginForm";
 export * from "./LoginForm.types";
 export * from "./LoginForm.schema";
 ```
 
 ### 4.2 Import Path — Selalu dari Folder Komponen
 
-Konsumen dapat mengimpor menggunakan gaya named import maupun default import langsung dari folder komponen:
+Konsumen dapat mengimpor menggunakan gaya default import untuk komponen dan named import untuk types langsung dari folder komponen:
 
 ```tsx
-// ✅ BENAR — Named import dari folder komponen
-import { Badge, type BadgeProps } from "@/components/atoms/Badge";
-import { LoginForm, type LoginCredentials } from "@/components/organisms/LoginForm";
-
-// ✅ BENAR — Default import dari folder komponen
+// ✅ BENAR — Default import untuk komponen
 import Badge from "@/components/atoms/Badge";
+import LoginForm from "@/components/organisms/LoginForm";
+
+// ✅ BENAR — Named import untuk types
+import { type BadgeProps } from "@/components/atoms/Badge";
+import { type LoginCredentials } from "@/components/organisms/LoginForm";
 
 // ❌ SALAH — Import langsung dari file internal
 import Badge from "@/components/atoms/Badge/Badge";
@@ -829,7 +827,7 @@ Inline status indicator pill for role badges, election status, and semantic labe
 
 ## Code Example
 \```tsx
-import { Badge } from "@/components/atoms/Badge";
+import Badge from "@/components/atoms/Badge";
 
 <Badge variant="success">Active</Badge>
 \```
@@ -953,7 +951,7 @@ export default Button;
 
 ```tsx
 import { AlertCircle } from "lucide-react";
-import { Label } from "@/components/atoms/Label";
+import Label from "@/components/atoms/Label";
 import type { FormFieldProps } from "./FormField.types";
 
 const FormField = ({
@@ -1023,8 +1021,8 @@ export default ProtectedRoute;
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { AuthLayout } from "@/components/layouts/AuthLayout";
-import { LoginForm, type LoginCredentials } from "@/components/organisms/LoginForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import LoginForm, { type LoginCredentials } from "@/components/organisms/LoginForm";
 import { loginApi } from "@/services/auth.service";
 
 const LoginPage = () => {
@@ -1158,9 +1156,9 @@ Reusable table component for displaying fetched data passed via props. Composes 
 ```tsx
 // src/components/organisms/DataTable/DataTable.tsx
 import { MoreHorizontal } from "lucide-react";
-import { DropdownMenu } from "@/components/molecules/DropdownMenu";
-import { LoadingState } from "@/components/molecules/LoadingState";
-import { EmptyState } from "@/components/molecules/EmptyState";
+import DropdownMenu from "@/components/molecules/DropdownMenu";
+import LoadingState from "@/components/molecules/LoadingState";
+import EmptyState from "@/components/molecules/EmptyState";
 import type { DataTableProps } from "./DataTable.types";
 
 const DataTable = <T,>({
@@ -1317,8 +1315,8 @@ export type { DataTableColumn, DataTableRowOption, DataTableProps };
 import { useState, useEffect } from "react";
 import { Calendar, Eye, Layers } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/atoms/Badge";
-import { DataTable } from "@/components/organisms/DataTable";
+import Badge from "@/components/atoms/Badge";
+import DataTable from "@/components/organisms/DataTable";
 import { getElectionsApi, type ElectionListItem } from "@/services/election.service";
 import { formatDate } from "@/lib/utils";
 import type { AdminDashboardProps } from "./AdminDashboard.types";
@@ -1430,7 +1428,7 @@ export default AdminDashboard;
 | File types | PascalCase.types.ts (export type {...}) | `LoginForm.types.ts` |
 | File schema | PascalCase.schema.ts | `LoginForm.schema.ts` |
 | File docs | PascalCase.md | `LoginForm.md` |
-| File barrel index | index.ts (export { default } & export { default as Name }) | `index.ts` |
+| File barrel index | index.ts (export { default }) | `index.ts` |
 | Zustand store | camelCase `use*Store` | `useUserStore.ts` |
 | Service file | camelCase `*.service.ts` | `auth.service.ts` |
 | Library file | camelCase | `axios.ts` |

@@ -17,7 +17,8 @@ None. Self-contained page component.
 
 ## Code Example
 ```tsx
-import { NotFoundPage } from "@/components/pages/NotFoundPage";
+import NotFoundPage from "@/components/pages/NotFoundPage";
 
 <Route path="*" element={<NotFoundPage />} />
 ```
+

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
+import Button from "@/components/atoms/Button";
 import type { DropdownMenuProps } from "./DropdownMenu.types";
 
 const OFFSET = 8;
@@ -146,3 +146,4 @@ const DropdownMenuSeparator = () => {
 
 export default DropdownMenu;
 export { DropdownMenuSeparator };
+

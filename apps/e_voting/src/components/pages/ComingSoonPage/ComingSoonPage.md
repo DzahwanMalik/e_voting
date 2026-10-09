@@ -22,7 +22,8 @@ Placeholder page displayed for admin/super admin navigation items that are not y
 ## Code Example
 
 ```tsx
-import { ComingSoonPage } from "@/components/pages/ComingSoonPage";
+import ComingSoonPage from "@/components/pages/ComingSoonPage";
 
 <ComingSoonPage title="Manajemen Pemilihan" />
 ```
+

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { AdminDashboardLayout } from "@/components/layouts/AdminDashboardLayout";
+import AdminDashboardLayout from "@/components/layouts/AdminDashboardLayout";
 import { useUserStore } from "@/stores/useUserStore";
 import { logoutApi } from "@/services/auth.service";
 
@@ -45,3 +45,4 @@ const AdminShellPage = () => {
 };
 
 export default AdminShellPage;
+

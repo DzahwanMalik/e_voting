@@ -27,7 +27,7 @@ Layout shell khusus untuk **Voter** — menyediakan top sticky navbar dengan bra
 ## Code Example
 
 ```tsx
-import { VoterDashboardLayout } from "@/components/layouts/VoterDashboardLayout";
+import VoterDashboardLayout from "@/components/layouts/VoterDashboardLayout";
 
 <VoterDashboardLayout
   roleName="Voter"
@@ -38,3 +38,4 @@ import { VoterDashboardLayout } from "@/components/layouts/VoterDashboardLayout"
   <VoterDashboard displayName="Budi" />
 </VoterDashboardLayout>
 ```
+

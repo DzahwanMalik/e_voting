@@ -21,7 +21,7 @@ Reusable loading state component displaying a spinning indicator with an optiona
 ## Code Example
 
 ```tsx
-import { LoadingState } from "@/components/molecules/LoadingState";
+import LoadingState from "@/components/molecules/LoadingState";
 
 // Simple usage (inside a card)
 <LoadingState message="Memuat daftar pemilihan..." />
@@ -29,3 +29,4 @@ import { LoadingState } from "@/components/molecules/LoadingState";
 // With large spinner
 <LoadingState message="Memuat data Anda..." spinnerSize="lg" />
 ```
+

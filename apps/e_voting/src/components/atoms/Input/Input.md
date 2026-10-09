@@ -23,7 +23,7 @@ The `Input` component renders standard textual input fields with integrated supp
 
 ## Code Example
 ```tsx
-import { Input } from "@/components/atoms/Input";
+import Input from "@/components/atoms/Input";
 import { User } from "lucide-react";
 
 <Input
@@ -32,3 +32,4 @@ import { User } from "lucide-react";
   isInvalid={Boolean(errors.username)}
 />
 ```
+

@@ -1,5 +1,5 @@
 import { AlertCircle } from "lucide-react";
-import { Label } from "@/components/atoms/Label";
+import Label from "@/components/atoms/Label";
 import type { FormFieldProps } from "./FormField.types";
 
 const FormField = ({
@@ -39,3 +39,4 @@ const FormField = ({
 };
 
 export default FormField;
+

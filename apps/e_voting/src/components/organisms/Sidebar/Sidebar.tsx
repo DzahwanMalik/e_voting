@@ -10,7 +10,7 @@ import {
   LogOut,
   Menu,
 } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
+import Button from "@/components/atoms/Button";
 import type { SidebarNavItem, SidebarProps } from "./Sidebar.types";
 
 const sidebarNavItems: SidebarNavItem[] = [
@@ -207,3 +207,4 @@ const Sidebar = ({
 };
 
 export default Sidebar;
+

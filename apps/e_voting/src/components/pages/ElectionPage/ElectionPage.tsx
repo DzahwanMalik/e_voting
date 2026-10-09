@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Calendar, Layers, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/atoms/Badge";
-import { DataTable } from "@/components/organisms/DataTable";
-import { LoadingState } from "@/components/molecules/LoadingState";
+import Badge from "@/components/atoms/Badge";
+import DataTable from "@/components/organisms/DataTable";
+import LoadingState from "@/components/molecules/LoadingState";
 import { useUserStore } from "@/stores/useUserStore";
 import {
   getElectionsApi,
@@ -196,3 +196,4 @@ const ElectionPage = () => {
 };
 
 export default ElectionPage;
+

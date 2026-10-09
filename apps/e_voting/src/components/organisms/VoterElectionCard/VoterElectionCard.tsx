@@ -7,10 +7,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/atoms/Badge";
-import { Button } from "@/components/atoms/Button";
-import { CandidateRadioCard } from "@/components/molecules/CandidateRadioCard";
-import { VoteConfirmModal } from "@/components/organisms/VoteConfirmModal";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import CandidateRadioCard from "@/components/molecules/CandidateRadioCard";
+import VoteConfirmModal from "@/components/organisms/VoteConfirmModal";
 import {
   castVoteApi,
   getElectionByIdApi,
@@ -274,3 +274,4 @@ const VoterElectionCard = ({
 };
 
 export default VoterElectionCard;
+

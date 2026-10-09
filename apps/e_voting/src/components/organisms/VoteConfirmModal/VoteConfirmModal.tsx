@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { AlertCircle, Vote, X } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Badge } from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 import type { VoteConfirmModalProps } from "./VoteConfirmModal.types";
 
 const VoteConfirmModal = ({
@@ -115,3 +115,4 @@ const VoteConfirmModal = ({
 };
 
 export default VoteConfirmModal;
+

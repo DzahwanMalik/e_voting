@@ -3,14 +3,14 @@ import { createRoot } from "react-dom/client";
 import "./global.css";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Toaster } from "sonner";
-import { PublicRoute } from "@/components/layouts/PublicRoute";
-import { ProtectedRoute } from "@/components/layouts/ProtectedRoute";
-import { LoginPage } from "@/components/pages/LoginPage";
-import { VoterDashboardPage } from "@/components/pages/VoterDashboardPage";
-import { AdminShellPage } from "@/components/pages/AdminShellPage";
-import { ElectionPage } from "@/components/pages/ElectionPage";
-import { ComingSoonPage } from "@/components/pages/ComingSoonPage";
-import { NotFoundPage } from "@/components/pages/NotFoundPage";
+import PublicRoute from "@/components/layouts/PublicRoute";
+import ProtectedRoute from "@/components/layouts/ProtectedRoute";
+import LoginPage from "@/components/pages/LoginPage";
+import VoterDashboardPage from "@/components/pages/VoterDashboardPage";
+import AdminShellPage from "@/components/pages/AdminShellPage";
+import ElectionPage from "@/components/pages/ElectionPage";
+import ComingSoonPage from "@/components/pages/ComingSoonPage";
+import NotFoundPage from "@/components/pages/NotFoundPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -65,3 +65,4 @@ createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+

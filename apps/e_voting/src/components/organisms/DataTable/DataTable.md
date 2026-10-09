@@ -44,7 +44,7 @@ Generic, reusable table component for displaying fetched data passed via props. 
 ## Code Example
 
 ```tsx
-import { DataTable } from "@/components/organisms/DataTable";
+import DataTable from "@/components/organisms/DataTable";
 import type { ElectionListItem } from "@/services/election.service";
 
 const columns = [
@@ -92,3 +92,4 @@ const rowOptions = [
   isLoading={isLoading}
 />
 ```
+

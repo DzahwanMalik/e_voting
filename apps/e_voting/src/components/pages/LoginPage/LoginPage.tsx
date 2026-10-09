@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { AuthLayout } from "@/components/layouts/AuthLayout";
-import { LoginForm, type LoginCredentials } from "@/components/organisms/LoginForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import LoginForm, { type LoginCredentials } from "@/components/organisms/LoginForm";
 import { loginApi } from "@/services/auth.service";
 
 const LoginPage = () => {
@@ -87,3 +87,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

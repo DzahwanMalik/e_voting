@@ -1,5 +1,5 @@
 import { Vote, ShieldCheck } from "lucide-react";
-import { Badge } from "@/components/atoms/Badge";
+import Badge from "@/components/atoms/Badge";
 import type { AuthLayoutProps } from "./AuthLayout.types";
 
 const AuthLayout = ({
@@ -67,3 +67,4 @@ const AuthLayout = ({
 };
 
 export default AuthLayout;
+

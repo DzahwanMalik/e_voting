@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { VoterDashboardLayout } from "@/components/layouts/VoterDashboardLayout";
-import { VoterDashboard } from "@/components/organisms/VoterDashboard";
+import VoterDashboardLayout from "@/components/layouts/VoterDashboardLayout";
+import VoterDashboard from "@/components/organisms/VoterDashboard";
 import { useUserStore } from "@/stores/useUserStore";
 import { logoutApi } from "@/services/auth.service";
 
@@ -42,3 +42,4 @@ const VoterDashboardPage = () => {
 };
 
 export default VoterDashboardPage;
+

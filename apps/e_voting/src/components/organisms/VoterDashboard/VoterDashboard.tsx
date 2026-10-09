@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/atoms/Badge";
-import { VoterElectionCard } from "@/components/organisms/VoterElectionCard";
-import { CandidateDetailModal } from "@/components/organisms/CandidateDetailModal";
+import Badge from "@/components/atoms/Badge";
+import VoterElectionCard from "@/components/organisms/VoterElectionCard";
+import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
 import {
   getElectionsApi,
   type ElectionListItem,
   type Candidate,
 } from "@/services/election.service";
-import { LoadingState } from "@/components/molecules/LoadingState";
-import { EmptyState } from "@/components/molecules/EmptyState";
+import LoadingState from "@/components/molecules/LoadingState";
+import EmptyState from "@/components/molecules/EmptyState";
 import type { VoterDashboardProps } from "./VoterDashboard.types";
 
 const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
@@ -129,3 +129,4 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
 };
 
 export default VoterDashboard;
+

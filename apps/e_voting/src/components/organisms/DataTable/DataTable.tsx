@@ -1,7 +1,7 @@
 import { MoreHorizontal } from "lucide-react";
-import { DropdownMenu } from "@/components/molecules/DropdownMenu";
-import { LoadingState } from "@/components/molecules/LoadingState";
-import { EmptyState } from "@/components/molecules/EmptyState";
+import DropdownMenu from "@/components/molecules/DropdownMenu";
+import LoadingState from "@/components/molecules/LoadingState";
+import EmptyState from "@/components/molecules/EmptyState";
 import type { DataTableProps } from "./DataTable.types";
 
 const DataTable = <T,>({
@@ -114,3 +114,4 @@ const DataTable = <T,>({
 };
 
 export default DataTable;
+

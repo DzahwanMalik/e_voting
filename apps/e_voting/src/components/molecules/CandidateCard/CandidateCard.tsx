@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Vote, FileText, CheckCircle2, User } from "lucide-react";
-import { Badge } from "@/components/atoms/Badge";
-import { Button } from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 import type { CandidateCardProps } from "./CandidateCard.types";
 
 const CandidateCard = ({
@@ -104,3 +104,4 @@ const CandidateCard = ({
 };
 
 export default CandidateCard;
+

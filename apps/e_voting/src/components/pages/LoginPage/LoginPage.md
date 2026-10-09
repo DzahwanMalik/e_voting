@@ -17,10 +17,11 @@ None. This component is completely self-contained.
 
 ## Code Example
 ```tsx
-import { LoginPage } from "@/components/pages/LoginPage";
+import LoginPage from "@/components/pages/LoginPage";
 
 // Standard route usage without props
 export default function App() {
   return <LoginPage />;
 }
 ```
+

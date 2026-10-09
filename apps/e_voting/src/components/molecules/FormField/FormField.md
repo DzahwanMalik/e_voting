@@ -23,8 +23,8 @@ The `FormField` component composes an input element with its corresponding `Labe
 
 ## Code Example
 ```tsx
-import { FormField } from "@/components/molecules/FormField";
-import { Input } from "@/components/atoms/Input";
+import FormField from "@/components/molecules/FormField";
+import Input from "@/components/atoms/Input";
 
 {/* Required Field */}
 <FormField id="username" label="Username" required error={errors.username}>
@@ -36,3 +36,4 @@ import { Input } from "@/components/atoms/Input";
   <Input id="description" placeholder="Masukkan deskripsi opsional" />
 </FormField>
 ```
+

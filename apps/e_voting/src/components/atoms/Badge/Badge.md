@@ -22,10 +22,11 @@ The `Badge` component displays compact status indicators, pills, and role tags u
 
 ## Code Example
 ```tsx
-import { Badge } from "@/components/atoms/Badge";
+import Badge from "@/components/atoms/Badge";
 import { ShieldCheck } from "lucide-react";
 
 <Badge variant="secondary" icon={<ShieldCheck className="w-3.5 h-3.5" />}>
   MVP v0.1.0
 </Badge>
 ```
+

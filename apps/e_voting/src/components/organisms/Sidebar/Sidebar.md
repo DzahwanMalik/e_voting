@@ -38,7 +38,7 @@ Vertical navigation rail for the Admin and Super Admin shell layouts. Provides r
 ## Code Example
 
 ```tsx
-import { Sidebar } from "@/components/organisms/Sidebar";
+import Sidebar from "@/components/organisms/Sidebar";
 
 <Sidebar
   roleName="Super Admin"
@@ -47,3 +47,4 @@ import { Sidebar } from "@/components/organisms/Sidebar";
   isLoggingOut={false}
 />
 ```
+

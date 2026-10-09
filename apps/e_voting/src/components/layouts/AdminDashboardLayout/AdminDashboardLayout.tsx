@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/organisms/Sidebar";
+import Sidebar from "@/components/organisms/Sidebar";
 import type { AdminDashboardLayoutProps } from "./AdminDashboardLayout.types";
 
 const AdminDashboardLayout = ({
@@ -29,3 +29,4 @@ const AdminDashboardLayout = ({
 };
 
 export default AdminDashboardLayout;
+

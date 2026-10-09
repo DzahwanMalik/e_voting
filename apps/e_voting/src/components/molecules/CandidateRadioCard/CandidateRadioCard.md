@@ -23,7 +23,7 @@ Compact, thin horizontal candidate row molecule that functions as an interactive
 
 ## Code Example
 ```tsx
-import { CandidateRadioCard } from "@/components/molecules/CandidateRadioCard";
+import CandidateRadioCard from "@/components/molecules/CandidateRadioCard";
 
 <CandidateRadioCard
   candidate={candidate}
@@ -34,3 +34,4 @@ import { CandidateRadioCard } from "@/components/molecules/CandidateRadioCard";
   onViewDetail={() => handleOpenDetail(candidate)}
 />
 ```
+

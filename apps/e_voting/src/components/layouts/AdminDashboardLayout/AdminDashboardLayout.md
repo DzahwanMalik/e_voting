@@ -32,7 +32,7 @@ Layout shell for all Admin and Super Admin section pages. Uses a vertical Sideba
 ## Code Example
 
 ```tsx
-import { AdminDashboardLayout } from "@/components/layouts/AdminDashboardLayout";
+import AdminDashboardLayout from "@/components/layouts/AdminDashboardLayout";
 
 <AdminDashboardLayout
   roleName="Super Admin"
@@ -43,3 +43,4 @@ import { AdminDashboardLayout } from "@/components/layouts/AdminDashboardLayout"
   <YourAdminContent />
 </AdminDashboardLayout>
 ```
+

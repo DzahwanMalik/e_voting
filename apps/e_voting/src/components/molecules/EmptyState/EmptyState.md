@@ -22,10 +22,11 @@ Reusable empty state component displayed when no data is available (e.g., no ele
 ## Code Example
 
 ```tsx
-import { EmptyState } from "@/components/molecules/EmptyState";
+import EmptyState from "@/components/molecules/EmptyState";
 
 <EmptyState
   title="Belum Ada Pemilihan Aktif"
   description="Akun Anda belum terdaftar dalam pemilihan aktif manapun."
 />
 ```
+

@@ -44,7 +44,7 @@ export const loginSchema = z.object({
 
 ## Code Example
 ```tsx
-import { LoginForm } from "@/components/organisms/LoginForm";
+import LoginForm from "@/components/organisms/LoginForm";
 
 <LoginForm
   isLoading={isSubmitting}
@@ -53,3 +53,4 @@ import { LoginForm } from "@/components/organisms/LoginForm";
   }}
 />
 ```
+

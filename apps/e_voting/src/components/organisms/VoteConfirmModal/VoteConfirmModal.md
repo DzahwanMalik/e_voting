@@ -22,7 +22,7 @@ Confirmation dialog prompt before casting a vote per PRD BR-10 and Section 7. Pr
 
 ## Code Example
 ```tsx
-import { VoteConfirmModal } from "@/components/organisms/VoteConfirmModal";
+import VoteConfirmModal from "@/components/organisms/VoteConfirmModal";
 
 <VoteConfirmModal
   candidate={selectedCandidate}
@@ -33,3 +33,4 @@ import { VoteConfirmModal } from "@/components/organisms/VoteConfirmModal";
   onConfirm={handleConfirmVote}
 />
 ```
+

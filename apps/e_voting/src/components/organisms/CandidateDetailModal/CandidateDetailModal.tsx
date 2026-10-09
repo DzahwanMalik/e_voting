@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Calendar, Compass, Target, Vote, User } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Badge } from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 import type { CandidateDetailModalProps } from "./CandidateDetailModal.types";
 
 const CandidateDetailModal = ({
@@ -165,3 +165,4 @@ const CandidateDetailModal = ({
 };
 
 export default CandidateDetailModal;
+

@@ -17,7 +17,8 @@ Modular view organism for the Voter role. Encapsulates eligible elections retrie
 
 ## Code Example
 ```tsx
-import { VoterDashboard } from "@/components/organisms/VoterDashboard";
+import VoterDashboard from "@/components/organisms/VoterDashboard";
 
 <VoterDashboard displayName="Andi Saputra" />
 ```
+

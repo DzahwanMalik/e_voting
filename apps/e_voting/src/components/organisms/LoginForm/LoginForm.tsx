@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Lock, Eye, EyeOff, LogIn, Info } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
-import { FormField } from "@/components/molecules/FormField";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import FormField from "@/components/molecules/FormField";
 import { loginSchema, type LoginFormData } from "./LoginForm.schema";
 import type { LoginFormProps } from "./LoginForm.types";
 
@@ -123,3 +123,4 @@ const LoginForm = ({
 };
 
 export default LoginForm;
+

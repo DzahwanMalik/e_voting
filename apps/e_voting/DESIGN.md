@@ -109,7 +109,8 @@ Each component must centralize all its exports (the component implementation and
 - **Clean Imports**: Consumers import directly from the component folder rather than reaching into internal files:
   ```tsx
   // Directly from component folder
-  import { Badge, type BadgeProps } from "@/components/atoms/Badge";
+  import Badge from "@/components/atoms/Badge";
+  import { type BadgeProps } from "@/components/atoms/Badge";
   ```
 - **No Root Components Index**: A root `src/components/index.ts` is intentionally **not** used. Consumers import directly from each component's folder to ensure optimal tree-shaking, clear module boundaries, and no monolithic re-export bottlenecks.
 

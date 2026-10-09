@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { Wrench } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
+import Button from "@/components/atoms/Button";
 import type { ComingSoonPageProps } from "./ComingSoonPage.types";
 
 const ComingSoonPage = ({
@@ -44,3 +44,4 @@ const ComingSoonPage = ({
 };
 
 export default ComingSoonPage;
+

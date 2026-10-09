@@ -22,10 +22,11 @@ The `AuthLayout` component provides the outer responsive container for authentic
 
 ## Code Example
 ```tsx
-import { AuthLayout } from "@/components/layouts/AuthLayout";
-import { LoginForm } from "@/components/organisms/LoginForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import LoginForm from "@/components/organisms/LoginForm";
 
 <AuthLayout title="Selamat Datang" subtitle="Masuk untuk mengakses sistem pemilihan">
   <LoginForm onSubmit={handleLogin} />
 </AuthLayout>
 ```
+

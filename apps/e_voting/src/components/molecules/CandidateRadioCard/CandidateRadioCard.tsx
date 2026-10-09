@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FileText } from "lucide-react";
-import { Badge } from "@/components/atoms/Badge";
-import { Button } from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 import type { CandidateRadioCardProps } from "./CandidateRadioCard.types";
 
 const CandidateRadioCard = ({
@@ -116,3 +116,4 @@ const CandidateRadioCard = ({
 };
 
 export default CandidateRadioCard;
+

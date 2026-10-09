@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { FileQuestion, Home, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Badge } from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 import { useUserStore } from "@/stores/useUserStore";
 import { getAuthToken } from "@/services/auth.service";
 
@@ -85,3 +85,4 @@ const NotFoundPage = () => {
 };
 
 export default NotFoundPage;
+

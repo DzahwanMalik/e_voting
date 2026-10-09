@@ -21,7 +21,7 @@ Displays individual candidate cards for eligible elections per PRD Section 5. Di
 
 ## Code Example
 ```tsx
-import { CandidateCard } from "@/components/molecules/CandidateCard";
+import CandidateCard from "@/components/molecules/CandidateCard";
 
 <CandidateCard
   candidate={candidate}
@@ -31,3 +31,4 @@ import { CandidateCard } from "@/components/molecules/CandidateCard";
   onSelectVote={(c) => handleVote(c)}
 />
 ```
+
