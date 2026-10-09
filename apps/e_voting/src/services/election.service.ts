@@ -1,6 +1,18 @@
 import axios from "axios";
 import { api } from "@/lib/axios";
 
+interface ElectionAdmin {
+  id: number;
+  userId: number;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+    name: string | null;
+    role: string;
+  };
+}
+
 interface ElectionListItem {
   id: number;
   title: string;
@@ -11,8 +23,11 @@ interface ElectionListItem {
     hasVoted: boolean;
   }>;
   candidates?: Candidate[];
+  electionAdmins?: ElectionAdmin[];
   _count?: {
     candidates: number;
+    electionVoters?: number;
+    electionAdmins?: number;
   };
 }
 
@@ -64,6 +79,23 @@ interface VotingStatusResult {
 interface VotingStatusResponse {
   message: string;
   status: VotingStatusResult;
+}
+
+interface AdminUser {
+  id: number;
+  username: string;
+  name: string | null;
+  role: string;
+}
+
+interface AssignAdminsPayload {
+  electionId: number;
+  adminIds: number[];
+}
+
+interface AdminAssignmentResponse {
+  message: string;
+  electionAdmins: AdminUser[];
 }
 
 const getElectionsApi = async (): Promise<ElectionListItem[]> => {
@@ -136,14 +168,94 @@ const getVotingStatusApi = async (
   }
 };
 
+const deleteElectionApi = async (id: number): Promise<void> => {
+  try {
+    await api.delete<{ message: string }>(`/elections/${id}`);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const updateElectionApi = async (
+  id: number,
+  payload: { title?: string; description?: string | null },
+): Promise<ElectionListItem> => {
+  try {
+    const response = await api.put<{ message: string; election: ElectionListItem }>(
+      `/elections/${id}`,
+      payload,
+    );
+    return response.data.election;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const assignAdminsApi = async (
+  payload: AssignAdminsPayload,
+): Promise<AdminAssignmentResponse> => {
+  try {
+    const response = await api.post<AdminAssignmentResponse>(
+      `/elections/${payload.electionId}/admins`,
+      { adminIds: payload.adminIds },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const getElectionAdminsApi = async (electionId: number): Promise<AdminUser[]> => {
+  try {
+    const response = await api.get<{ admins: AdminUser[] }>(
+      `/elections/${electionId}/admins`,
+    );
+    return response.data.admins;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const removeAdminApi = async (
+  electionId: number,
+  adminId: number,
+): Promise<void> => {
+  try {
+    await api.delete<{ message: string }>(
+      `/elections/${electionId}/admins/${adminId}`,
+    );
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
 export type {
   ElectionListItem,
   Candidate,
   ElectionDetail,
+  ElectionAdmin,
   CastVotePayload,
   CastVoteResult,
   VotingStatusResult,
   VotingStatusResponse,
+  AdminUser,
+  AssignAdminsPayload,
+  AdminAssignmentResponse,
 };
 
 export {
@@ -152,4 +264,9 @@ export {
   getCandidatesByElectionApi,
   castVoteApi,
   getVotingStatusApi,
+  deleteElectionApi,
+  updateElectionApi,
+  assignAdminsApi,
+  getElectionAdminsApi,
+  removeAdminApi,
 };

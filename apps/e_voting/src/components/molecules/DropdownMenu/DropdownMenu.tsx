@@ -110,7 +110,7 @@ const DropdownMenu = ({
           ref={menuRef}
           role="menu"
           aria-orientation="vertical"
-          className="fixed z-40 min-w-44 bg-card border border-border rounded-xl shadow-lg py-1"
+          className="fixed z-40 min-w-44 bg-card border border-border rounded-xl shadow-lg overflow-hidden"
           style={{ top: `${position.top}px`, left: `${position.left}px` }}
         >
           {options.map((option) => {

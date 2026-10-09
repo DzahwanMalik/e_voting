@@ -198,9 +198,9 @@ Konsisten menggunakan skala `rounded-*` sesuai hierarki elemen:
 
 | Elemen | Class | Ukuran |
 | :--- | :--- | :--- |
-| Shell / Outer Dashboard | `rounded-3xl` | 24–28px |
-| Cards & Widgets | `rounded-2xl` | 16–20px |
-| Inputs & Controls | `rounded-xl` | 12px |
+| Shell / Outer Dashboard | `rounded-3xl` | 12–16px |
+| Cards & Widgets | `rounded-2xl` | 10–12px |
+| Inputs & Controls | `rounded-xl` | 8px |
 | Pills, Badges & Avatars | `rounded-full` | 9999px |
 
 ---

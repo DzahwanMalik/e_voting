@@ -61,9 +61,9 @@ All components **MUST** strictly consume these semantic tokens. **Never use arbi
 - **Interface / Content**: `font-sans` (*Plus Jakarta Sans* / *Inter*, Sans-serif) — General UI, navigation, tables, controls.
 
 ### 2.6 Border Radius Scale
-- **Shell / Outer Dashboard**: `rounded-3xl` (`24px` – `28px`)
-- **Cards & Widgets**: `rounded-2xl` (`16px` – `20px`)
-- **Inputs & Controls**: `rounded-xl` (`12px`)
+- **Shell / Outer Dashboard**: `rounded-3xl` (`12px` – `16px`)
+- **Cards & Widgets**: `rounded-2xl` (`10px` – `12px`)
+- **Inputs & Controls**: `rounded-xl` (`8px`)
 - **Pills, Badges & Avatars**: `rounded-full` (`9999px`)
 
 ---
