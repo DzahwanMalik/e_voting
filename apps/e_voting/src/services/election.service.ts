@@ -98,6 +98,34 @@ interface AdminAssignmentResponse {
   electionAdmins: AdminUser[];
 }
 
+interface CandidateVoteResult {
+  candidateId: number;
+  name: string;
+  photoUrl: string | null;
+  description: string | null;
+  birthday: string;
+  vision: string;
+  mission: string;
+  voteCount: number;
+  percentage: number;
+}
+
+interface ElectionResultData {
+  election: {
+    id: number;
+    title: string;
+    description: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+  totalVoters: number;
+  votedCount: number;
+  unvotedCount: number;
+  totalVotes: number;
+  turnoutPercentage: number;
+  results: CandidateVoteResult[];
+}
+
 const getElectionsApi = async (): Promise<ElectionListItem[]> => {
   try {
     const response = await api.get<{ elections: ElectionListItem[] }>("/elections");
@@ -214,9 +242,9 @@ const assignAdminsApi = async (
   }
 };
 
-const getElectionAdminsApi = async (electionId: number): Promise<AdminUser[]> => {
+const getElectionAdminsApi = async (electionId: number): Promise<ElectionAdmin[]> => {
   try {
-    const response = await api.get<{ admins: AdminUser[] }>(
+    const response = await api.get<{ admins: ElectionAdmin[] }>(
       `/elections/${electionId}/admins`,
     );
     return response.data.admins;
@@ -244,6 +272,22 @@ const removeAdminApi = async (
   }
 };
 
+const getElectionResultApi = async (
+  electionId: number,
+): Promise<ElectionResultData> => {
+  try {
+    const response = await api.get<{ data: ElectionResultData }>(
+      `/elections/${electionId}/results`,
+    );
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
 export type {
   ElectionListItem,
   Candidate,
@@ -256,6 +300,8 @@ export type {
   AdminUser,
   AssignAdminsPayload,
   AdminAssignmentResponse,
+  CandidateVoteResult,
+  ElectionResultData,
 };
 
 export {
@@ -269,4 +315,5 @@ export {
   assignAdminsApi,
   getElectionAdminsApi,
   removeAdminApi,
+  getElectionResultApi,
 };

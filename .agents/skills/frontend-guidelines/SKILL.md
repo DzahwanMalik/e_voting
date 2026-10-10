@@ -314,10 +314,10 @@ const handleAction = async () => {
 ```text
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
-├── molecules/    # Kombinasi 2+ atom (FormField, SearchInput, NavItem, StatItem, LoadingState, EmptyState)
-├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, AdminDashboard, VoterDashboard)
+├── molecules/    # Kombinasi 2+ atom (FormField, SearchInput, NavItem, StatItem, LoadingState, EmptyState, Modal, ConfirmModal)
+├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidateDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, AdminDashboard, VoterDashboard)
 ├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
-└── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, NotFoundPage)
+└── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, ElectionPage, NotFoundPage)
 ```
 
 ### Tanggung Jawab per Level
@@ -389,6 +389,17 @@ import { BadgeProps } from "@/components/atoms/Badge/Badge.types";
 ### 4.3 Tidak Ada Root `components/index.ts`
 
 **DILARANG** membuat file `src/components/index.ts` monolithic barrel export. Consumer import langsung dari folder masing-masing komponen untuk tree-shaking optimal dan batas modul yang jelas.
+
+### 4.4 Wajib Sinkronisasi Dokumentasi (`{ComponentName}.md`)
+
+Setiap kali terjadi **perubahan kode pada file komponen** (`.tsx`, `.types.ts`, atau `.schema.ts`):
+1. **Perubahan Props & Types**: Perbarui tabel **Props** di file `.md` jika ada penambahan, perubahan, atau penghapusan props/tipe.
+2. **Perubahan Komposisi & Dependencies**: Jika komponen mulai menggunakan atom/molecule/organism baru (seperti `EmptyState`, `Badge`, `Modal`), cantumkan di bagian **Purpose** atau deskripsi komposisi komponen.
+3. **Perubahan Behavior & Flow**: Jika alur kerja, penanganan async, validasi, atau interaksi user berubah, perbarui bagian **Behavior**.
+4. **Perubahan Semantic Tokens**: Jika styling atau kelas semantic token diperbarui, sinkronkan daftar **Semantic Tokens Used**.
+5. **Code Example**: Pastikan contoh penggunaan pada bagian **Code Example** tetap valid dan mencerminkan cara konsumsi terbaru.
+
+> **PENTING:** File `{ComponentName}.md` adalah *living documentation*. Dilarang membiarkan file dokumentasi out-of-sync dengan kode implementasi terkini. Setiap PR atau edit komponen harus menyertakan pembaruan file `.md`-nya.
 
 ---
 
@@ -1423,7 +1434,7 @@ export default AdminDashboard;
 
 | Entitas | Konvensi | Contoh |
 | :--- | :--- | :--- |
-| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu` |
+| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu`, `Modal`, `ConfirmModal` |
 | File komponen | PascalCase.tsx (export default di bawah) | `LoginForm.tsx` |
 | File types | PascalCase.types.ts (export type {...}) | `LoginForm.types.ts` |
 | File schema | PascalCase.schema.ts | `LoginForm.schema.ts` |
@@ -1438,3 +1449,156 @@ export default AdminDashboard;
 | Variant type | PascalCase `*Variant` | `ButtonVariant`, `BadgeVariant` |
 | Handler functions | camelCase `handle*` | `handleLogout`, `handleLoginSubmit` |
 | API functions | camelCase `*Api` | `loginApi`, `logoutApi` |
+
+---
+
+## 15. Modal System
+
+### 15.1 Base Modal Component (Molecule)
+
+A general-purpose `<Modal>` molecule provides reusable overlay, backdrop, escape-key, accessibility scaffolding, and a built-in header with title badge and close button. It is placed at the **molecule** level (`src/components/molecules/Modal/`) because it encapsulates minimal lifecycle logic (escape-key listener).
+
+**Props:**
+
+| Prop | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `isOpen` | `boolean` | required | Controls modal visibility |
+| `onClose` | `() => void` | required | Dismiss callback (backdrop click, escape, close button) |
+| `title` | `ReactNode` | `undefined` | Renders a header bar with title (typically `<Badge>`) + close button |
+| `size` | `ModalSize` | `"lg"` | Max-width: `sm` \| `md` \| `lg` \| `xl` \| `2xl` \| `3xl` \| `4xl` \| `5xl` \| `6xl` \| `7xl` \| `full` |
+| `showCloseButton` | `boolean` | `true` | Renders an `X` close button in the header |
+| `closeButtonDisabled` | `boolean` | `false` | Disables the close button (for async operations) |
+| `closeOnEscape` | `boolean` | `true` | Dismiss on `Escape` key |
+| `closeOnBackdropClick` | `boolean` | `true` | Dismiss on backdrop click |
+| `className` | `string` | `""` | Additional class for container |
+| `children` | `ReactNode` | required | Modal body content (body + footer) |
+
+**Key behaviors:**
+- Returns `null` when `isOpen` is `false` — no DOM output.
+- `role="dialog"` and `aria-modal="true"` for accessibility.
+- When `title` is provided, renders a header bar (`px-6 py-4 border-b bg-muted/30`) with title on the left and close button on the right.
+- When `title` is not provided and `showCloseButton` is true, closes button is rendered as `absolute top-4 right-4`.
+- Backdrop click and escape key are configurable via `closeOnBackdropClick` / `closeOnEscape`.
+- `closeButtonDisabled` adds `disabled` + opacity + cursor-not-allowed to the close button.
+- Container is `bg-card`, `border-border`, `rounded-3xl`, `shadow-xl`, with `animate-in fade-in zoom-in-95`.
+- Children render directly inside the container — body and footer are composed by the consumer.
+
+```tsx
+// src/components/molecules/Modal/Modal.tsx
+const Modal = ({ isOpen, onClose, title, size = "lg", showCloseButton = true,
+  closeButtonDisabled = false, closeOnEscape = true, closeOnBackdropClick = true,
+  className = "", children, }: ModalProps) => {
+  useEffect(() => {
+    if (!isOpen || !closeOnEscape) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose, closeOnEscape]);
+
+  if (!isOpen) return null;
+
+  const backdropClick = closeOnBackdropClick ? { onClick: onClose } : {};
+  // ... render backdrop + container (with optional title header) + children
+};
+```
+
+### 15.2 ConfirmModal (Molecule)
+
+A `<ConfirmModal>` molecule wraps `<Modal>` for confirmation dialogs. It replaces all `window.confirm()` and `window.alert()` calls (Aturan 8 — strictly prohibited). Uses the Modal's built-in `title` (string + conditional icon) and `closeButtonDisabled` for async states. The message body is plain text with no icon.
+
+**Props:**
+
+| Prop | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `isOpen` | `boolean` | required | Modal visibility |
+| `onClose` | `() => void` | required | Dismiss callback |
+| `onConfirm` | `() => void` | required | Confirm action handler |
+| `message` | `string` | required | Confirmation message body (no icon) |
+| `confirmLabel` | `string` | `"Konfirmasi"` | Confirm button text |
+| `cancelLabel` | `string` | `"Batal"` | Cancel button text |
+| `isDestructive` | `boolean` | `false` | Destructive variant; title icon is `AlertTriangle` (red), title text is "Konfirmasi Penghapusan" |
+| `isSubmitting` | `boolean` | `false` | Disables close/backdrop during async |
+| `size` | `ModalSize` | `"md"` | Modal width |
+
+**Title & Icon (composed internally):**
+
+| Mode | Icon | Title Text | Confirm Button |
+| :--- | :--- | :--- | :--- |
+| Non-destructive | `<AlertCircle>` `text-warning` | `"Konfirmasi"` | `primary` |
+| Destructive | `<AlertTriangle>` `text-destructive` | `"Konfirmasi Penghapusan"` | `destructive` |
+
+```tsx
+import ConfirmModal from "@/components/molecules/ConfirmModal";
+
+<ConfirmModal
+  isOpen={isConfirmOpen}
+  message="Apakah Anda yakin? Tindakan ini tidak dapat dibatalkan."
+  confirmLabel="Hapus"
+  isDestructive
+  onConfirm={handleDelete}
+  onClose={() => setIsConfirmOpen(false)}
+/>
+```
+
+### 15.3 Organism-Level Modal Composites
+
+Organism-level modal components (`CandidateDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`) compose `<Modal>` as their container. They pass a `<Badge>` as the `title` prop and rely on the Modal's built-in close button.
+
+**Pattern — use `title` + built-in close button:**
+
+```tsx
+// Good — compose the base Modal with title
+const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
+  if (!candidate) return null;
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="2xl"
+      title={<Badge variant="info">Profil Lengkap Kandidat</Badge>}
+    >
+      {/* Body (Scrollable) */}
+      <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        ...
+      </div>
+      {/* Footer */}
+      <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30">
+        ...
+      </div>
+    </Modal>
+  );
+};
+```
+
+**Guidelines for organism-level modals:**
+- Pass a string or `<Badge>` element as the `title` prop to render the header bar with the built-in close button.
+- For async operations (submitting, saving), set `closeButtonDisabled={isSubmitting}` alongside `closeOnEscape={!isSubmitting}` and `closeOnBackdropClick={!isSubmitting}` to prevent accidental dismissal.
+- Keep `isOpen` and `onClose` as required props.
+- Return `null` only for missing data (e.g., no candidate), not for `!isOpen` — the base `Modal` handles that.
+- Do **not** create custom close buttons outside of `<Modal>` — use the built-in `showCloseButton` and `closeButtonDisabled`.
+
+### 15.4 Components Using the Modal System
+
+| Component | Level | Modal Props Used |
+| :--- | :--- | :--- |
+| `CandidateDetailModal` | Organism | `title={Badge info}`, `size="2xl"` |
+| `VoteConfirmModal` | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled`, `closeOnEscape`/`closeOnBackdropClick` gated by `isSubmitting` |
+| `AdminAssignmentModal` | Organism | `title="Penugasan Admin"`, `size="2xl"`, `closeButtonDisabled` gated by `isSaving` |
+| `ElectionResultModal` | Organism | `title={Badge success}`, `size="4xl"` |
+| `ConfirmModal` | Molecule | `title={Badge}`, `closeButtonDisabled` gated by `isSubmitting` |
+| `ElectionPage` | Page | Renders AdminAssignmentModal, ElectionResultModal, ConfirmModal |
+| `VoterDashboard` | Organism | Renders CandidateDetailModal |
+| `VoterElectionCard` | Organism | Renders VoteConfirmModal |
+| `CandidateCard` | Molecule | `onViewDetail` callback → parent modal |
+| `CandidateRadioCard` | Molecule | `onViewDetail` callback → parent modal |
+
+### 15.5 Modal Anti-Patterns
+
+- **DILARANG** menggunakan `window.confirm()`, `window.alert()`, atau `alert()` — gunakan `ConfirmModal`.
+- **DILARANG** me-render modal dengan inline styles untuk posisi/backdrop — gunakan `<Modal>` sebagai container.
+- **DILARANG** menduplikat escape-key atau backdrop-click logic — `<Modal>` menanganinya.
+- **DILARANG** membuat custom close button di organism-level modals — gunakan `title` + `showCloseButton` + `closeButtonDisabled` dari `<Modal>`.
+- **DILARANG** me-letakkan `<Modal>` (molecule) di dalam `components/atoms/` — tempatkan di `components/molecules/`.
+- **DILARANG** me-letakkan organism-level modal di luar `components/organisms/`.

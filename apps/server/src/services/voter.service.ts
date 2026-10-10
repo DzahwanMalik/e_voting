@@ -2,6 +2,9 @@ import { prisma } from "../lib/prisma";
 import { UserRole } from "../generated/prisma/enums";
 import { AppError } from "../utils/app-error";
 import { hashPassword } from "../utils/password";
+import type { PaginationMeta } from "../types/pagination";
+
+const VOTER_PAGE_SIZE = 10;
 
 interface CreateVoterInput {
   username: string;
@@ -19,6 +22,7 @@ interface UpdateVoterInput {
 interface GetVotersOptions {
   electionId?: number | undefined;
   search?: string | undefined;
+  page?: number | undefined;
 }
 
 const createVoter = async (
@@ -149,13 +153,15 @@ const getVoters = async (
   userId: number,
   role: UserRole,
   options?: GetVotersOptions,
-): Promise<unknown[]> => {
+): Promise<{ voters: unknown[]; meta: PaginationMeta }> => {
   if (role === UserRole.VOTER) {
     throw new AppError(
       "Forbidden: Anda tidak memiliki akses ke resource ini.",
       403,
     );
   }
+
+  const page = options?.page && options.page > 1 ? options.page : 1;
 
   if (role === UserRole.ADMIN && options?.electionId) {
     const isAssigned = await prisma.electionAdmin.findUnique({
@@ -232,43 +238,62 @@ const getVoters = async (
     }
   }
 
-  return prisma.user.findMany({
-    where: whereClause,
-    select: {
-      id: true,
-      username: true,
-      name: true,
-      role: true,
-      createdById: true,
-      createdAt: true,
-      updatedAt: true,
-      createdBy: {
-        select: {
-          id: true,
-          username: true,
-          name: true,
-          role: true,
-        },
-      },
-      electionVoters: {
-        select: {
-          id: true,
-          electionId: true,
-          hasVoted: true,
-          createdAt: true,
-          election: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-            },
+  const skip = (page - 1) * VOTER_PAGE_SIZE;
+
+  const [voters, total] = await Promise.all([
+    prisma.user.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        role: true,
+        createdById: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            role: true,
           },
         },
-        orderBy: { createdAt: "asc" },
+        electionVoters: {
+          select: {
+            id: true,
+            electionId: true,
+            hasVoted: true,
+            createdAt: true,
+            election: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "asc" },
+        },
       },
+      orderBy: { createdAt: "desc" },
+      take: VOTER_PAGE_SIZE,
+      skip,
+    }),
+    prisma.user.count({ where: whereClause }),
+  ]);
+
+  const totalPages = Math.ceil(total / VOTER_PAGE_SIZE);
+
+  return {
+    voters,
+    meta: {
+      total,
+      totalPages,
+      page,
+      limit: VOTER_PAGE_SIZE,
     },
-    orderBy: { createdAt: "desc" },
-  });
+  };
 };
 
 const getVoterById = async (

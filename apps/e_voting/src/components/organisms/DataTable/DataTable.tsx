@@ -1,4 +1,6 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Search } from "lucide-react";
+import Input from "@/components/atoms/Input";
+import Pagination from "@/components/molecules/Pagination";
 import DropdownMenu from "@/components/molecules/DropdownMenu";
 import LoadingState from "@/components/molecules/LoadingState";
 import EmptyState from "@/components/molecules/EmptyState";
@@ -12,6 +14,8 @@ const DataTable = <T,>({
   isLoading = false,
   emptyTitle = "Tidak Ada Data",
   emptyDescription = "Tidak ada data untuk ditampilkan saat ini.",
+  searchProps,
+  paginationProps,
   className = "",
   ...props
 }: DataTableProps<T>) => {
@@ -19,6 +23,39 @@ const DataTable = <T,>({
     if (typeof rowKey === "function") return String(rowKey(row));
     const val = row[rowKey];
     return val != null ? String(val) : String(index);
+  };
+
+  const hasControls = Boolean(searchProps || paginationProps);
+
+  const renderToolbar = () => {
+    if (!hasControls) return null;
+
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1 pb-3">
+        {searchProps && (
+          <div className="w-full sm:flex-1 sm:max-w-sm">
+            <Input
+              type="search"
+              placeholder={searchProps.placeholder ?? "Cari..."}
+              value={searchProps.value}
+              onChange={(e) => searchProps.onChange(e.target.value)}
+              leftElement={<Search className="w-4 h-4" />}
+              disabled={searchProps.isLoading}
+            />
+          </div>
+        )}
+        {paginationProps && (
+          <Pagination
+            currentPage={paginationProps.currentPage}
+            totalPages={paginationProps.totalPages}
+            onPageChange={paginationProps.onPageChange}
+            totalItems={paginationProps.meta?.total}
+            itemsPerPage={paginationProps.meta?.limit ?? 10}
+            isLoading={paginationProps.isLoading ?? isLoading}
+          />
+        )}
+      </div>
+    );
   };
 
   const renderOptionsMenu = (row: T) => {
@@ -47,6 +84,7 @@ const DataTable = <T,>({
         className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
         {...props}
       >
+        {renderToolbar()}
         <LoadingState message="Memuat data..." />
       </div>
     );
@@ -58,6 +96,7 @@ const DataTable = <T,>({
         className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
         {...props}
       >
+        {renderToolbar()}
         <EmptyState title={emptyTitle} description={emptyDescription} />
       </div>
     );
@@ -68,6 +107,7 @@ const DataTable = <T,>({
       className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
       {...props}
     >
+      {renderToolbar()}
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr>

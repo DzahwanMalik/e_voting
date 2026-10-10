@@ -27,29 +27,15 @@ createRoot(document.getElementById("root")!).render(
         <Route
           element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}
         >
-           <Route element={<AdminShellPage />}>
-             <Route path="/admin/elections" element={<ElectionPage />} />
-             <Route
+          <Route element={<AdminShellPage />}>
+            <Route path="/admin/elections" element={<ElectionPage />} />
+            <Route
               path="/admin/candidates"
               element={<ComingSoonPage title="Manajemen Kandidat" />}
             />
             <Route
               path="/admin/voters"
               element={<ComingSoonPage title="Manajemen Pemilih" />}
-            />
-          </Route>
-        </Route>
-
-        {/* Rute khusus Super Admin (Penugasan Admin & Hasil Voting) */}
-        <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
-          <Route element={<AdminShellPage />}>
-            <Route
-              path="/admin/admin-assignment"
-              element={<ComingSoonPage title="Penugasan Admin" />}
-            />
-            <Route
-              path="/admin/results"
-              element={<ComingSoonPage title="Hasil Voting" />}
             />
           </Route>
         </Route>

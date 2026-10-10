@@ -36,9 +36,13 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | Action | Super Admin | Admin |
 | :--- | :--- | :--- |
 | Lihat Detail | ✓ | ✓ |
+| Penugasan Admin | ✓ (modal) | ✗ (hidden) |
+| Hasil Voting | ✓ (modal) | ✗ (hidden) |
 | Hapus Pemilihan | ✓ | ✗ (hidden) |
 
-Delete is guarded by `window.confirm()` and shows per-row loading (`isDeletingId`).
+> **Penugasan Admin** dan **Hasil Voting** hanya tersedia untuk Super Admin dan ditampilkan melalui **modal** yang di-trigger dari opsi pada *datatable menu* Election page (bukan sebagai menu navigasi terpisah atau route terpisah). Modal ini merender `AdminAssignmentModal` dan `ElectionResultModal` secara inline di dalam halaman Election.
+
+Delete is guarded by `ConfirmModal` (replaces `window.confirm()`) and shows per-row loading (`isDeletingId`).
 
 ## Code Example
 

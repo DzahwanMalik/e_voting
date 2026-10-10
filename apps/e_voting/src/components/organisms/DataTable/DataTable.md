@@ -16,6 +16,23 @@ Generic, reusable table component for displaying fetched data passed via props. 
 - `isLoading`: `boolean` (optional) — shows `LoadingState` when true
 - `emptyTitle`: `string` (optional) — title shown when data is empty
 - `emptyDescription`: `string` (optional) — description shown when data is empty
+- `searchProps`: `DataTableSearchProps` (optional) — enables search Input in the toolbar with `leftElement={<Search />}`
+- `paginationProps`: `DataTablePaginationProps` (optional) — enables the `Pagination` molecule in the toolbar
+
+### DataTableSearchProps
+
+- `value`: `string` — controlled search input value
+- `onChange`: `(value: string) => void` — called on input change (consumer handles debouncing)
+- `placeholder`: `string` (optional, default `"Cari..."`)
+- `isLoading`: `boolean` (optional) — disables the search input during async requests
+
+### DataTablePaginationProps
+
+- `currentPage`: `number` — current 1-indexed page
+- `totalPages`: `number` — total number of pages
+- `onPageChange`: `(page: number) => void` — callback when a page button is clicked
+- `meta`: `PaginationMeta` (optional) — provides `total`/`limit` for the "Menampilkan X–Y dari Z" summary
+- `isLoading`: `boolean` (optional) — disables pagination buttons during async requests
 - `className`: `string` (optional) — container class
 
 ### DataTableColumn\<T\>
@@ -91,5 +108,71 @@ const rowOptions = [
   rowOptions={rowOptions}
   isLoading={isLoading}
 />
+```
+
+#### With Search & Pagination (DataTable with Pagination)
+
+```tsx
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import DataTable from "@/components/organisms/DataTable";
+import { useDebounce } from "@/hooks/useDebounce";
+import { getVotersApi, type VoterListItem } from "@/services/voter.service";
+
+const VoterManagement = () => {
+  const [voters, setVoters] = useState<VoterListItem[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta>({ total: 0, totalPages: 0, page: 1, limit: 10 });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  useEffect(() => {
+    const loadVoters = async () => {
+      setIsLoading(true);
+      try {
+        const { voters: data, meta: paginationMeta } = await getVotersApi({
+          search: debouncedSearch,
+          page: currentPage,
+        });
+        setVoters(data);
+        setMeta(paginationMeta);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Gagal memuat data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void loadVoters();
+  }, [debouncedSearch, currentPage]);
+
+  const columns = [
+    { key: "username", header: "Username", cell: (row) => row.username },
+    { key: "name", header: "Nama", cell: (row) => row.name },
+    { key: "createdAt", header: "Dibuat", cell: (row) => formatDate(row.createdAt) },
+  ];
+
+  return (
+    <DataTable<VoterListItem>
+      data={voters}
+      columns={columns}
+      isLoading={isLoading}
+      searchProps={{
+        value: searchQuery,
+        onChange: setSearchQuery,
+        placeholder: "Cari pemilih...",
+        isLoading,
+      }}
+      paginationProps={{
+        currentPage: meta.page,
+        totalPages: meta.totalPages,
+        onPageChange: setCurrentPage,
+        meta,
+        isLoading,
+      }}
+    />
+  );
+};
 ```
 

@@ -4,8 +4,6 @@ import {
   Layers,
   Award,
   Users,
-  Shield,
-  BarChart3,
   Vote,
   LogOut,
   Menu,
@@ -28,18 +26,6 @@ const sidebarNavItems: SidebarNavItem[] = [
     label: "Pemilih",
     icon: Users,
     href: "/admin/voters",
-  },
-  {
-    label: "Penugasan Admin",
-    icon: Shield,
-    href: "/admin/admin-assignment",
-    isSuperAdminOnly: true,
-  },
-  {
-    label: "Hasil Voting",
-    icon: BarChart3,
-    href: "/admin/results",
-    isSuperAdminOnly: true,
   },
 ];
 

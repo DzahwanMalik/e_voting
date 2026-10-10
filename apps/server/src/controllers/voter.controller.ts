@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { isAppError } from "../utils/app-error";
 import { parsePositiveInt } from "../utils/parser";
+import type { PaginationMeta } from "../types/pagination";
 import * as voterService from "../services/voter.service";
 
 const createVoter = async (req: Request, res: Response): Promise<void> => {
@@ -86,19 +87,23 @@ const getVoters = async (req: Request, res: Response): Promise<void> => {
     const electionId = parsePositiveInt(
       req.query.electionId as string | string[] | undefined,
     );
+    const page = parsePositiveInt(
+      req.query.page as string | string[] | undefined,
+    );
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
-    const voters = await voterService.getVoters(
+    const { voters, meta } = (await voterService.getVoters(
       req.user.userId,
       req.user.role,
       {
         electionId: electionId ?? undefined,
         search,
+        page: page ?? undefined,
       },
-    );
+    )) as { voters: unknown[]; meta: PaginationMeta };
 
-    res.status(200).json({ voters });
+    res.status(200).json({ voters, meta });
   } catch (error) {
     if (isAppError(error)) {
       res.status(error.statusCode).json({ message: error.message });
