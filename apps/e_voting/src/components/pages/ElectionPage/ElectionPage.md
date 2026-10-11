@@ -17,18 +17,26 @@ Elections are fetched via `getElectionsApi()` from `/services/election.service.t
 - `SUPER_ADMIN` → returns all elections with `electionAdmins` and `_count` aggregation.
 - `ADMIN` → returns only elections where `electionAdmins` includes the current user's `userId`.
 
-This component is self-contained — it reads user role and display name directly from `useUserStore`, following the same pattern as `VoterDashboardPage`.
+This component is self-contained — it reads user role directly from `useUserStore`, following the same pattern as `VoterDashboardPage`.
+
+Page layout uses `<SectionCard>` (from `molecules/SectionCard`) for both the page header banner and the elections table section, ensuring a consistent card surface (`bg-card`, `border-border`, `shadow-sm`, `rounded-3xl`) across all admin pages.
 
 ## Props
 
 None. Self-contained page component that reads all state from `useUserStore`.
 
+## Layout Sections
+
+| Section | Component | Pattern |
+| :--- | :--- | :--- |
+| Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, and role-based subtitle |
+| Elections Table | `<SectionCard title="Daftar Pemilihan (n)" padding="none">` | Header via `title` prop; body wraps `DataTable` or `LoadingState` |
+
 ## Semantic Tokens Used
 
 - Page Canvas: `bg-background`, `text-foreground` (via `AdminDashboardLayout`)
-- Card Surface: `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl` (shell), `rounded-2xl` (sections)
+- Card Surface (via `SectionCard`): `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl`
 - Status Badges: `bg-info-subtle`, `bg-secondary`, `text-secondary-foreground`
-- Role Notice: `bg-secondary/30`, `border-secondary`, `text-secondary-foreground`
 - Icon Accent: `bg-secondary`, `text-primary`, `rounded-xl`
 
 ## Row Actions (per role)

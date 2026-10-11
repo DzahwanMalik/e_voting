@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import DataTable from "@/components/organisms/DataTable";
 import LoadingState from "@/components/molecules/LoadingState";
+import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import AdminAssignmentModal from "@/components/organisms/AdminAssignmentModal";
 import ElectionResultModal from "@/components/organisms/ElectionResultModal";
@@ -168,56 +169,55 @@ const ElectionPage = () => {
     <>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
-                  Manajemen Pemilihan
-                </h1>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  {isSuperAdmin
-                    ? "Kelola seluruh pemilihan dalam sistem."
-                    : "Pemilihan yang ditugaskan kepada Anda."}
-                </p>
-              </div>
+        <SectionCard padding="default">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+                Manajemen Pemilihan
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {isSuperAdmin
+                  ? "Kelola seluruh pemilihan dalam sistem."
+                  : "Pemilihan yang ditugaskan kepada Anda."}
+              </p>
             </div>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Elections Table Section */}
-        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
-          <h2 className="font-sans text-xl font-bold text-card-foreground mb-4">
-            Daftar Pemilihan ({elections.length})
-          </h2>
-
-          {isLoading ? (
-            <LoadingState
-              message="Memuat daftar pemilihan..."
-              textSize="lg"
-            />
-          ) : (
-            <DataTable<ElectionListItem>
-              data={elections}
-              columns={columns}
-              rowOptions={rowOptions}
-              isLoading={isLoading}
-              emptyTitle={
-                isSuperAdmin
-                  ? "Belum Ada Pemilihan"
-                  : "Belum Ada Penugasan Pemilihan"
-              }
-              emptyDescription={
-                isSuperAdmin
-                  ? "Belum ada pemilihan yang dibuat."
-                  : "Super Admin belum menugaskan pemilihan kepada akun Anda."
-              }
-            />
-          )}
-        </div>
+        <SectionCard
+          title={`Daftar Pemilihan (${elections.length})`}
+          padding="none"
+        >
+          <div className="p-6 sm:p-8">
+            {isLoading ? (
+              <LoadingState
+                message="Memuat daftar pemilihan..."
+                textSize="lg"
+              />
+            ) : (
+              <DataTable<ElectionListItem>
+                data={elections}
+                columns={columns}
+                rowOptions={rowOptions}
+                isLoading={isLoading}
+                emptyTitle={
+                  isSuperAdmin
+                    ? "Belum Ada Pemilihan"
+                    : "Belum Ada Penugasan Pemilihan"
+                }
+                emptyDescription={
+                  isSuperAdmin
+                    ? "Belum ada pemilihan yang dibuat."
+                    : "Super Admin belum menugaskan pemilihan kepada akun Anda."
+                }
+              />
+            )}
+          </div>
+        </SectionCard>
       </div>
 
       <AdminAssignmentModal
