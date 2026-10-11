@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Reusable empty state component displayed when no data is available (e.g., no elections assigned, no elections created). Replaces duplicated inline empty-state markup across dashboard organisms.
+Reusable empty state component displayed when no data is available (e.g., no elections assigned, no elections created). Follows the same principle as `<LoadingState>` — a pure content molecule without its own card shell. Does not require a `SectionCard` wrapper; renders as a centered content block within its parent container.
 
 ## Props
 
@@ -15,8 +15,8 @@ Reusable empty state component displayed when no data is available (e.g., no ele
 
 ## Semantic Tokens Used
 
-- `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl` — card surface
 - `bg-muted`, `text-muted-foreground` — icon container
+- `text-card-foreground` — title text
 - `text-sm`, `text-muted-foreground` — description text
 
 ## Code Example
@@ -27,6 +27,13 @@ import EmptyState from "@/components/molecules/EmptyState";
 <EmptyState
   title="Belum Ada Pemilihan Aktif"
   description="Akun Anda belum terdaftar dalam pemilihan aktif manapun."
+/>
+
+{/* Inline usage inside a table container */}
+<EmptyState
+  title="Tidak Ada Admin"
+  description="Tidak ada admin yang cocok dengan pencarian Anda."
+  icon={<Search className="w-8 h-8" />}
 />
 ```
 

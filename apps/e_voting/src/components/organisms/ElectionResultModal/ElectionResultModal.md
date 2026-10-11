@@ -9,7 +9,7 @@ Modal dialog for Super Admin to view vote results for a specific election. Repla
 
 Uses `getElectionResultApi` to fetch `ElectionResultData` containing per-candidate vote counts, percentages, turnout, and totals. Access is enforced server-side (Super Admin only); Admin and Voter receive 403.
 
-This component composes the base `<Modal>` molecule (size `"4xl"`) for backdrop/escape-key/visibility handling and the `<EmptyState>` molecule for no-data conditions. The Modal's built-in title (`"Hasil Voting"`) and close button are used with no custom overrides.
+This component composes the base `<Modal>` molecule (size `"4xl"`) for backdrop/escape-key/visibility handling, the `<EmptyState>` molecule for no-data conditions, and the `<StatCard>` molecule for summary stat cards (Total Pemilih, Suara Masuk, Tingkat Partisipasi). The Modal's built-in title (`"Hasil Voting"`) and close button are used with no custom overrides.
 
 ## Props
 

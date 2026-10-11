@@ -35,14 +35,16 @@ None. Self-contained page component that reads all state from `useUserStore`.
 
 | Action | Super Admin | Admin |
 | :--- | :--- | :--- |
-| Lihat Detail | ✓ | ✓ |
+| Lihat Detail | ✓ (modal: `ElectionDetailModal`) | ✓ (modal: `ElectionDetailModal`) |
 | Penugasan Admin | ✓ (modal) | ✗ (hidden) |
 | Hasil Voting | ✓ (modal) | ✗ (hidden) |
-| Hapus Pemilihan | ✓ | ✗ (hidden) |
+| Hapus Pemilihan | ✓ (modal: `ConfirmModal`) | ✗ (hidden) |
 
 > **Penugasan Admin** dan **Hasil Voting** hanya tersedia untuk Super Admin dan ditampilkan melalui **modal** yang di-trigger dari opsi pada *datatable menu* Election page (bukan sebagai menu navigasi terpisah atau route terpisah). Modal ini merender `AdminAssignmentModal` dan `ElectionResultModal` secara inline di dalam halaman Election.
 
 Delete is guarded by `ConfirmModal` (replaces `window.confirm()`) and shows per-row loading (`isDeletingId`).
+
+"Lihat Detail" opens `ElectionDetailModal` (an organism-level modal composing `<Modal>`), showing election summary stats (candidate/voter/admin counts), timeline, and optional candidate/admin lists.
 
 ## Code Example
 

@@ -1,22 +1,13 @@
 import { Vote, LogOut } from "lucide-react";
-import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import type { VoterDashboardLayoutProps } from "./VoterDashboardLayout.types";
 
 const VoterDashboardLayout = ({
   children,
-  roleName,
   displayName,
   onLogout,
   isLoggingOut = false,
 }: VoterDashboardLayoutProps) => {
-  const badgeVariant =
-    roleName === "Super Admin"
-      ? "info"
-      : roleName === "Admin"
-      ? "warning"
-      : "success";
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       {/* Top Navbar */}
@@ -36,12 +27,11 @@ const VoterDashboardLayout = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <Badge variant={badgeVariant}>{roleName}</Badge>
           <span className="text-sm font-medium text-muted-foreground hidden sm:inline">
             {displayName}
           </span>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={onLogout}
             isLoading={isLoggingOut}

@@ -7,6 +7,7 @@ import LoadingState from "@/components/molecules/LoadingState";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import AdminAssignmentModal from "@/components/organisms/AdminAssignmentModal";
 import ElectionResultModal from "@/components/organisms/ElectionResultModal";
+import ElectionDetailModal from "@/components/organisms/ElectionDetailModal";
 import { useUserStore } from "@/stores/useUserStore";
 import {
   getElectionsApi,
@@ -24,6 +25,9 @@ const ElectionPage = () => {
   const [adminAssignmentElection, setAdminAssignmentElection] =
     useState<ElectionListItem | null>(null);
   const [resultElection, setResultElection] = useState<ElectionListItem | null>(
+    null,
+  );
+  const [detailElection, setDetailElection] = useState<ElectionListItem | null>(
     null,
   );
 
@@ -135,7 +139,7 @@ const ElectionPage = () => {
     {
       label: "Lihat Detail",
       icon: <Layers className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: (row: ElectionListItem) => setDetailElection(row),
     },
     ...(isSuperAdmin
       ? [
@@ -193,7 +197,7 @@ const ElectionPage = () => {
           {isLoading ? (
             <LoadingState
               message="Memuat daftar pemilihan..."
-              spinnerSize="lg"
+              textSize="lg"
             />
           ) : (
             <DataTable<ElectionListItem>
@@ -228,6 +232,12 @@ const ElectionPage = () => {
         electionTitle={resultElection?.title ?? ""}
         isOpen={resultElection !== null}
         onClose={() => setResultElection(null)}
+      />
+
+      <ElectionDetailModal
+        election={detailElection}
+        isOpen={detailElection !== null}
+        onClose={() => setDetailElection(null)}
       />
 
       <ConfirmModal

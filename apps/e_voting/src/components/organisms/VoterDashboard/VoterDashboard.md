@@ -10,10 +10,15 @@ Modular view organism for the Voter role. Encapsulates eligible elections retrie
 - `displayName`: `string` - The formatted display name of the logged-in voter.
 
 ## Semantic Tokens Used
-- Card Surface: `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl`
+- Card Surface: `bg-card`, `border-border`, `text-card-foreground`, `rounded-3xl` (via `SectionCard`)
 - Status Callouts: `bg-success-subtle`, `text-success-subtle-foreground`, `bg-secondary`, `text-secondary-foreground`
 - Badges: `bg-primary`, `bg-muted`
 - Buttons: `bg-primary`, `text-primary-foreground`
+
+## Component Composition
+- Uses `<SectionCard>` molecule for the welcome banner card shell
+- Composes `<VoterElectionCard>` organisms (each using SectionCard internally) in a responsive grid
+- Uses `<LoadingState>` and `<EmptyState>` molecules directly (no card wrapper) for async/empty states
 
 ## Code Example
 ```tsx

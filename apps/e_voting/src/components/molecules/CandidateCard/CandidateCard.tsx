@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Vote, FileText, CheckCircle2, User } from "lucide-react";
-import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import type { CandidateCardProps } from "./CandidateCard.types";
 
 const CandidateCard = ({
   candidate,
-  candidateNumber,
   hasVotedInElection,
   onViewDetail,
   onSelectVote,
@@ -46,12 +44,6 @@ const CandidateCard = ({
             </div>
           )}
 
-          {/* Number Tag */}
-          <div className="absolute top-3 left-3">
-            <Badge variant="secondary" className="shadow-xs">
-              Kandidat #{candidateNumber}
-            </Badge>
-          </div>
         </div>
 
         {/* Name and Summary */}

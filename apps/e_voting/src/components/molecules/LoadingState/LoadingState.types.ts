@@ -1,8 +1,8 @@
-type LoadingSpinnerSize = "sm" | "md" | "lg";
+type LoadingTextSize = "sm" | "md" | "lg";
 
 interface LoadingStateProps {
   message?: string;
-  spinnerSize?: LoadingSpinnerSize;
+  textSize?: LoadingTextSize;
 }
 
-export type { LoadingSpinnerSize, LoadingStateProps };
+export type { LoadingTextSize, LoadingStateProps };

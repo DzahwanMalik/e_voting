@@ -1,6 +1,5 @@
 import { AlertCircle, Vote } from "lucide-react";
 import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
 import Modal from "@/components/molecules/Modal";
 import type { VoteConfirmModalProps } from "./VoteConfirmModal.types";
 
@@ -19,7 +18,7 @@ const VoteConfirmModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
-      title={<Badge variant="warning">Konfirmasi Pilihan Suara</Badge>}
+      title="Konfirmasi Pilihan Suara"
       closeButtonDisabled={isSubmitting}
       closeOnEscape={!isSubmitting}
       closeOnBackdropClick={!isSubmitting}

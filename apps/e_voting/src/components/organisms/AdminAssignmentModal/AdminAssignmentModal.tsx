@@ -149,7 +149,7 @@ const AdminAssignmentModal = ({
         />
 
         {isLoadingAdmins ? (
-          <LoadingState message="Memuat daftar admin..." spinnerSize="md" />
+          <LoadingState message="Memuat daftar admin..." textSize="md" />
         ) : (
           <div className="space-y-2">
             {filteredAdmins.length === 0 ? (

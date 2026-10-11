@@ -31,7 +31,6 @@ const VoterDashboardPage = () => {
 
   return (
     <VoterDashboardLayout
-      roleName="Voter"
       displayName={displayName}
       onLogout={handleLogout}
       isLoggingOut={isLoggingOut}

@@ -5,28 +5,23 @@
 
 ## Purpose
 
-Reusable loading state component displaying a spinning indicator with an optional message. Used across page organisms (e.g., VoterDashboard and admin section pages) to replace duplicated inline spinner markup.
+Reusable loading state component displaying a text ellipsis pulse animation ("Memuat" → "Memuat." → "Memuat.." → "Memuat..."). Used across page organisms and modal bodies to replace duplicated inline loading markup.
 
 ## Props
 
-- `message`: `string` (optional) — Loading description text. Defaults to `"Memuat..."`.
-- `spinnerSize`: `"sm" | "md" | "lg"` (optional) — Spinner diameter and border width. Defaults to `"md"`.
+- `message`: `string` (optional) — Loading description text (without trailing dots). Defaults to `"Memuat"`.
+- `textSize`: `"sm" \| "md" \| "lg"` (optional) — Text size variant. Defaults to `"md"`.
 
 ## Semantic Tokens Used
 
-- `border-primary` — spinner track color
-- `border-t-transparent` — creates the spin animation gap
-- `text-muted-foreground` — message text
+- `text-muted-foreground` — loading text color
 
 ## Code Example
 
 ```tsx
 import LoadingState from "@/components/molecules/LoadingState";
 
-// Simple usage (inside a card)
-<LoadingState message="Memuat daftar pemilihan..." />
-
-// With large spinner
-<LoadingState message="Memuat data Anda..." spinnerSize="lg" />
+// Simple usage
+<LoadingState message="Memuat daftar pemilihan..." textSize="lg" />
 ```
 

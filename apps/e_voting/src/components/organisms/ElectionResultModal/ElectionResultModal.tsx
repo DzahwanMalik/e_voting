@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import Button from "@/components/atoms/Button";
 import LoadingState from "@/components/molecules/LoadingState";
 import EmptyState from "@/components/molecules/EmptyState";
+import StatCard from "@/components/molecules/StatCard";
 import Modal from "@/components/molecules/Modal";
 import {
   getElectionResultApi,
@@ -59,7 +60,7 @@ const ElectionResultModal = ({
         </h2>
 
         {isLoading ? (
-          <LoadingState message="Memuat hasil..." spinnerSize="lg" />
+          <LoadingState message="Memuat hasil..." textSize="lg" />
         ) : !resultData ? (
           <EmptyState
             title="Tidak Ada Data Hasil"
@@ -69,35 +70,24 @@ const ElectionResultModal = ({
         ) : (
           <div className="space-y-6 pt-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-secondary/30 rounded-2xl border border-secondary/50 p-4 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-secondary-foreground mb-1 uppercase tracking-wider">
-                  <Users className="w-4 h-4" />
-                  <span>Total Pemilih</span>
-                </div>
-                <p className="font-sans text-3xl font-bold text-secondary-foreground">
-                  {resultData.totalVoters}
-                </p>
-              </div>
-
-              <div className="bg-info-subtle/30 rounded-2xl border border-info-subtle/50 p-4 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-info-subtle-foreground mb-1 uppercase tracking-wider">
-                  <Vote className="w-4 h-4" />
-                  <span>Suara Masuk</span>
-                </div>
-                <p className="font-sans text-3xl font-bold text-info-subtle-foreground">
-                  {resultData.votedCount}
-                </p>
-              </div>
-
-              <div className="bg-warning-subtle/30 rounded-2xl border border-warning-subtle/50 p-4 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-warning-subtle-foreground mb-1 uppercase tracking-wider">
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Tingkat Partisipasi</span>
-                </div>
-                <p className="font-sans text-3xl font-bold text-warning-subtle-foreground">
-                  {resultData.turnoutPercentage.toFixed(1)}%
-                </p>
-              </div>
+              <StatCard
+                icon={<Users className="w-4 h-4" />}
+                label="Total Pemilih"
+                value={resultData.totalVoters}
+                variant="secondary"
+              />
+              <StatCard
+                icon={<Vote className="w-4 h-4" />}
+                label="Suara Masuk"
+                value={resultData.votedCount}
+                variant="info"
+              />
+              <StatCard
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Tingkat Partisipasi"
+                value={`${resultData.turnoutPercentage.toFixed(1)}%`}
+                variant="warning"
+              />
             </div>
 
             <div className="space-y-3 pt-2">

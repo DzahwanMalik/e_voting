@@ -314,8 +314,8 @@ const handleAction = async () => {
 ```text
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
-├── molecules/    # Kombinasi 2+ atom (FormField, SearchInput, NavItem, StatItem, LoadingState, EmptyState, Modal, ConfirmModal)
-├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidateDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, AdminDashboard, VoterDashboard)
+├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, LoadingState, EmptyState, Modal, ConfirmModal)
+├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidateDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, ElectionDetailModal, AdminDashboard, VoterDashboard)
 ├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
 └── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, ElectionPage, NotFoundPage)
 ```
@@ -1074,38 +1074,50 @@ export default LoginPage;
 
 ### E. Molecule: LoadingState (`src/components/molecules/LoadingState/`)
 
-Reusable loading state component — replaces duplicated inline spinner markup across dashboard organisms. Uses CSS border animation (no icon dependency for the spinner itself).
+Reusable loading state component — replaces duplicated inline loading markup across dashboard organisms. Uses a text ellipsis pulse animation ("Memuat" → "Memuat." → "Memuat.." → "Memuat...") with no icon dependencies.
 
 ```tsx
 // LoadingState.types.ts
-type LoadingSpinnerSize = "sm" | "md" | "lg";
+type LoadingTextSize = "sm" | "md" | "lg";
 
 interface LoadingStateProps {
   message?: string;
-  spinnerSize?: LoadingSpinnerSize;
+  textSize?: LoadingTextSize;
 }
 
-export type { LoadingSpinnerSize, LoadingStateProps };
+export type { LoadingTextSize, LoadingStateProps };
 ```
 
 ```tsx
 // LoadingState.tsx
-const spinnerClasses: Record<"sm" | "md" | "lg", string> = {
-  sm: "w-5 h-5 border-2",
-  md: "w-8 h-8 border-2",
-  lg: "w-10 h-10 border-3",
-};
+import { useEffect, useState } from "react";
+import type { LoadingStateProps } from "./LoadingState.types";
 
 const LoadingState = ({
-  message = "Memuat...",
-  spinnerSize = "md",
+  message = "Memuat",
+  textSize = "md",
 }: LoadingStateProps) => {
+  const [dotCount, setDotCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev + 1) % 4);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const sizeClasses: Record<"sm" | "md" | "lg", string> = {
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-8">
-      <div
-        className={`${spinnerClasses[spinnerSize]} border-primary border-t-transparent rounded-full animate-spin`}
-      />
-      <p className="text-sm text-muted-foreground font-medium">{message}</p>
+    <div className="flex flex-col items-center justify-center gap-4 py-8">
+      <p className={`text-muted-foreground font-medium ${sizeClasses[textSize]}`}>
+        {message}
+        {".".repeat(dotCount)}
+      </p>
     </div>
   );
 };
@@ -1115,7 +1127,7 @@ export default LoadingState;
 
 ### F. Molecule: EmptyState (`src/components/molecules/EmptyState/`)
 
-Reusable empty state component — replaces duplicated inline "no data" markup across dashboard organisms.
+Reusable empty state component — replaces duplicated inline "no data" markup across dashboard organisms. Follows the same principle as `<LoadingState>` — a pure content molecule **without its own card shell**. Renders as a centered content block within its parent container; no `SectionCard` wrapper needed.
 
 ```tsx
 // EmptyState.types.ts
@@ -1141,11 +1153,11 @@ const EmptyState = ({
   icon,
 }: EmptyStateProps) => {
   return (
-    <div className="bg-card rounded-3xl border border-border p-12 text-center space-y-4 shadow-sm">
+    <div className="flex flex-col items-center justify-center gap-4 text-center py-8">
       <div className="w-16 h-16 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center mx-auto">
         {icon || <Layers className="w-8 h-8" />}
       </div>
-      <div className="space-y-1 max-w-md mx-auto">
+      <div className="space-y-1 max-w-md">
         <h2 className="font-sans text-lg font-bold text-card-foreground">{title}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
       </div>
@@ -1544,7 +1556,7 @@ import ConfirmModal from "@/components/molecules/ConfirmModal";
 
 ### 15.3 Organism-Level Modal Composites
 
-Organism-level modal components (`CandidateDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`) compose `<Modal>` as their container. They pass a `<Badge>` as the `title` prop and rely on the Modal's built-in close button.
+Organism-level modal components (`CandidateDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`, `ElectionDetailModal`) compose `<Modal>` as their container. They pass a title (string or `<Badge>`) and rely on the Modal's built-in close button.
 
 **Pattern — use `title` + built-in close button:**
 
@@ -1584,11 +1596,12 @@ const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
 | Component | Level | Modal Props Used |
 | :--- | :--- | :--- |
 | `CandidateDetailModal` | Organism | `title={Badge info}`, `size="2xl"` |
-| `VoteConfirmModal` | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled`, `closeOnEscape`/`closeOnBackdropClick` gated by `isSubmitting` |
+| `VoteConfirmModal` | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled` gated by `isSubmitting` |
 | `AdminAssignmentModal` | Organism | `title="Penugasan Admin"`, `size="2xl"`, `closeButtonDisabled` gated by `isSaving` |
-| `ElectionResultModal` | Organism | `title={Badge success}`, `size="4xl"` |
-| `ConfirmModal` | Molecule | `title={Badge}`, `closeButtonDisabled` gated by `isSubmitting` |
-| `ElectionPage` | Page | Renders AdminAssignmentModal, ElectionResultModal, ConfirmModal |
+| `ElectionResultModal` | Organism | `title="Hasil Voting"`, `size="4xl"` |
+| `ElectionDetailModal` | Organism | `title="Detail Pemilihan"`, `size="2xl"`, renders `StatCard` for counts |
+| `ConfirmModal` | Molecule | `title={Badge + conditional icon}`, `closeButtonDisabled` gated by `isSubmitting` |
+| `ElectionPage` | Page | Renders ElectionDetailModal, AdminAssignmentModal, ElectionResultModal, ConfirmModal |
 | `VoterDashboard` | Organism | Renders CandidateDetailModal |
 | `VoterElectionCard` | Organism | Renders VoteConfirmModal |
 | `CandidateCard` | Molecule | `onViewDetail` callback → parent modal |
@@ -1602,3 +1615,77 @@ const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
 - **DILARANG** membuat custom close button di organism-level modals — gunakan `title` + `showCloseButton` + `closeButtonDisabled` dari `<Modal>`.
 - **DILARANG** me-letakkan `<Modal>` (molecule) di dalam `components/atoms/` — tempatkan di `components/molecules/`.
 - **DILARANG** me-letakkan organism-level modal di luar `components/organisms/`.
+
+---
+
+## 16. SectionCard — Molecule Wrapper Pattern
+
+The `<SectionCard>` molecule provides a standardized card container with optional header, body, and footer sections. It follows the same wrapper pattern as `<Modal>` — the card's interior content is provided entirely by the consuming parent component as `children`.
+
+### When to Use
+
+Replace duplicated `bg-card rounded-3xl border border-border shadow-sm` patterns with `<SectionCard>`. Use it for any page section that needs a consistent card shell.
+
+### Wrapper Props
+
+| Prop | Tipe | Default | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `title` | `ReactNode` | — | Optional header title. Ignored when `header` is provided. |
+| `subtitle` | `ReactNode` | — | Optional header subtitle text. Ignored when `header` is provided. |
+| `header` | `ReactNode` | — | Custom header content. Takes precedence over `title`/`subtitle`. |
+| `footer` | `ReactNode` | — | Optional footer bar content (e.g., action buttons). |
+| `padding` | `"default"` \| `"none"` | `"default"` | Body padding variant. `default` = `p-6`, `none` = no padding. |
+| `className` | `string` | `""` | Additional classes for the container. |
+| `children` | `ReactNode` | — | Body content provided by the parent. |
+
+### Code Example
+
+```tsx
+import SectionCard from "@/components/molecules/SectionCard";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+
+<SectionCard
+  title="Daftar Pemilihan"
+  subtitle="Kelola semua pemilihan Anda"
+  footer={
+    <div className="flex items-center justify-end gap-3">
+      <Button variant="outline" size="sm">Batal</Button>
+      <Button variant="primary" size="sm">Simpan</Button>
+    </div>
+  }
+>
+  {/* Parent provides the actual card content */}
+  <div className="space-y-4">
+    {items.map((item) => (
+      <div key={item.id} className="flex items-center justify-between">
+        <span className="font-medium text-foreground">{item.title}</span>
+        <Badge variant="info">{item.status}</Badge>
+      </div>
+    ))}
+  </div>
+</SectionCard>
+```
+
+### Custom Header Variant
+
+```tsx
+<SectionCard
+  header={
+    <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+      <h2 className="font-sans text-xl font-bold text-card-foreground">Custom Header</h2>
+      <Badge variant="warning">Draft</Badge>
+    </div>
+  }
+>
+  <div className="p-6">
+    <p>Content with custom header layout.</p>
+  </div>
+</SectionCard>
+```
+
+### SectionCard Anti-Patterns
+
+- **DILARANG** hardcode `bg-card rounded-3xl border border-border shadow-sm` in organism/page components — use `<SectionCard>` instead.
+- **DILARANG** meletakkan `<SectionCard>` di `components/atoms/` — tempatkan di `components/molecules/`.
+- **DILARANG** menambahkan props domain-specific (e.g., `electionTitle`, `candidate`) ke `<SectionCard>` — keep it a pure wrapper.

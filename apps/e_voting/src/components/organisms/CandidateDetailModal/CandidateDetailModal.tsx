@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Calendar, Compass, Target, Vote, User } from "lucide-react";
 import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
 import Modal from "@/components/molecules/Modal";
 import type { CandidateDetailModalProps } from "./CandidateDetailModal.types";
 
@@ -48,7 +47,7 @@ const CandidateDetailModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="2xl"
-      title={<Badge variant="info">Profil Lengkap Kandidat</Badge>}
+      title="Profil Lengkap Kandidat"
     >
       {/* Modal Body (Scrollable) */}
       <div className="p-6 overflow-y-auto space-y-6 flex-1">

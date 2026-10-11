@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import Badge from "@/components/atoms/Badge";
 import VoterElectionCard from "@/components/organisms/VoterElectionCard";
 import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
 import {
@@ -10,6 +9,7 @@ import {
 } from "@/services/election.service";
 import LoadingState from "@/components/molecules/LoadingState";
 import EmptyState from "@/components/molecules/EmptyState";
+import SectionCard from "@/components/molecules/SectionCard";
 import type { VoterDashboardProps } from "./VoterDashboard.types";
 
 const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
@@ -68,10 +68,12 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
   return (
     <div className="space-y-8">
       {/* Voter Welcome Banner */}
-      <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8 relative overflow-hidden">
+      <SectionCard
+        className="relative overflow-hidden"
+        padding="default"
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
-            <Badge variant="success">Portal Pemilih (Voter)</Badge>
             <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
               Selamat Datang, {displayName}!
             </h1>
@@ -80,16 +82,14 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
             </p>
           </div>
         </div>
-      </div>
+      </SectionCard>
 
       {/* Loading Initial State */}
       {isLoadingElections && (
-        <div className="bg-card rounded-3xl border border-border p-12">
-          <LoadingState
-            message="Memuat data pemilihan Anda..."
-            spinnerSize="lg"
-          />
-        </div>
+        <LoadingState
+          message="Memuat data pemilihan Anda..."
+          textSize="lg"
+        />
       )}
 
       {/* Empty State: Voter not enrolled in any election */}

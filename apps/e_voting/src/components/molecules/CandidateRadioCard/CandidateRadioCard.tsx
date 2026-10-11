@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { FileText } from "lucide-react";
-import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import type { CandidateRadioCardProps } from "./CandidateRadioCard.types";
 
 const CandidateRadioCard = ({
   candidate,
-  candidateNumber,
   isSelected,
   disabled = false,
   onSelect,
@@ -66,17 +64,9 @@ const CandidateRadioCard = ({
 
       {/* Middle: Candidate Info */}
       <div className="flex-1 min-w-0 space-y-0.5">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <Badge
-            variant={isSelected ? "default" : "secondary"}
-            className="text-[10px] px-1.5 py-0 font-medium"
-          >
-            #{candidateNumber}
-          </Badge>
-          <h4 className="font-sans font-bold text-sm sm:text-base text-card-foreground truncate">
-            {candidate.name}
-          </h4>
-        </div>
+        <h4 className="font-sans font-bold text-sm sm:text-base text-card-foreground truncate">
+          {candidate.name}
+        </h4>
         <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed">
           {candidate.description || "Tidak ada ringkasan profil."}
         </p>
