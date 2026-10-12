@@ -3,7 +3,6 @@ import multer from "multer";
 import { AppError } from "../utils/app-error";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB per file
-const MAX_FILE_COUNT = 1;
 
 const ALLOWED_MIME_TYPES: readonly string[] = [
   "image/jpeg",
@@ -29,13 +28,18 @@ const fileFilter = (
   );
 };
 
-const uploadHandler = multer({
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: MAX_FILE_SIZE,
-    files: MAX_FILE_COUNT,
   },
   fileFilter,
 });
 
-export { uploadHandler };
+const uploadCandidatePhotos = upload.fields([
+  { name: "candidatePhoto", maxCount: 1 },
+  { name: "vicePhoto", maxCount: 1 },
+  { name: "pairPhoto", maxCount: 1 },
+]);
+
+export { uploadCandidatePhotos };

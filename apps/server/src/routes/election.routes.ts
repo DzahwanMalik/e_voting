@@ -2,6 +2,7 @@ import { Router } from "express";
 import { UserRole } from "../generated/prisma/enums";
 import { authenticate } from "../middlewares/auth.middleware";
 import { requireRole } from "../middlewares/role.middleware";
+import { uploadCandidatePhotos } from "../middlewares/upload.middleware";
 import {
   createElection,
   getElections,
@@ -75,6 +76,7 @@ router.post(
   "/:electionId/candidate-pairs",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  uploadCandidatePhotos,
   createCandidatePair,
 );
 router.get("/:electionId/candidate-pairs/:id", authenticate, getCandidatePairById);
@@ -82,6 +84,7 @@ router.put(
   "/:electionId/candidate-pairs/:id",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  uploadCandidatePhotos,
   updateCandidatePair,
 );
 router.delete(

@@ -8,6 +8,7 @@ import voterRoutes from "./routes/voter.routes";
 import voteRoutes from "./routes/vote.routes";
 import resultRoutes from "./routes/result.routes";
 import userRoutes from "./routes/user.routes";
+import { errorHandler } from "./middlewares/error.middleware";
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,9 @@ app.use("/api/users", userRoutes);
 app.get("/", (req: Request, res: Response): void => {
   res.send("Hello World!");
 });
+
+// Error handler
+app.use(errorHandler);
 
 app.listen(PORT, (): void => {
   console.log("Server listen on port " + PORT);

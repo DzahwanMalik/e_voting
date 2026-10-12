@@ -160,28 +160,28 @@ interface ElectionResultData {
 interface CreateCandidatePairPayload {
   electionId: number;
   candidateName: string;
-  candidatePhotoUrl?: string | null;
+  candidatePhoto?: File | null;
   candidateDescription?: string | null;
   candidateBirthday: string;
   viceName: string;
-  vicePhotoUrl?: string | null;
+  vicePhoto?: File | null;
   viceDescription?: string | null;
   viceBirthday: string;
-  pairPhotoUrl?: string | null;
+  pairPhoto?: File | null;
   vision: string;
   mission: string;
 }
 
 interface UpdateCandidatePairPayload {
   candidateName?: string;
-  candidatePhotoUrl?: string | null;
+  candidatePhoto?: File | null;
   candidateDescription?: string | null;
   candidateBirthday?: string;
   viceName?: string;
-  vicePhotoUrl?: string | null;
+  vicePhoto?: File | null;
   viceDescription?: string | null;
   viceBirthday?: string;
-  pairPhotoUrl?: string | null;
+  pairPhoto?: File | null;
   vision?: string;
   mission?: string;
 }
@@ -231,13 +231,85 @@ const getCandidatePairsByElectionApi = async (
   }
 };
 
+const buildCandidatePairFormData = (payload: {
+  electionId?: number;
+  candidateName?: string;
+  candidatePhoto?: File | null;
+  candidateDescription?: string | null;
+  candidateBirthday?: string;
+  viceName?: string;
+  vicePhoto?: File | null;
+  viceDescription?: string | null;
+  viceBirthday?: string;
+  pairPhoto?: File | null;
+  vision?: string;
+  mission?: string;
+}): FormData => {
+  const formData = new FormData();
+
+  if (payload.electionId !== undefined) {
+    formData.append("electionId", String(payload.electionId));
+  }
+  if (payload.candidateName !== undefined) {
+    formData.append("candidateName", payload.candidateName);
+  }
+  if (payload.candidateDescription !== undefined) {
+    formData.append("candidateDescription", payload.candidateDescription ?? "");
+  }
+  if (payload.candidateBirthday !== undefined) {
+    formData.append("candidateBirthday", payload.candidateBirthday);
+  }
+  if (payload.viceName !== undefined) {
+    formData.append("viceName", payload.viceName);
+  }
+  if (payload.viceDescription !== undefined) {
+    formData.append("viceDescription", payload.viceDescription ?? "");
+  }
+  if (payload.viceBirthday !== undefined) {
+    formData.append("viceBirthday", payload.viceBirthday);
+  }
+  if (payload.vision !== undefined) {
+    formData.append("vision", payload.vision);
+  }
+  if (payload.mission !== undefined) {
+    formData.append("mission", payload.mission);
+  }
+
+  // Handle photo fields: File → upload, null → "null" string (removal), undefined → skip
+  if (payload.candidatePhoto instanceof File) {
+    formData.append("candidatePhoto", payload.candidatePhoto);
+  } else if (payload.candidatePhoto === null) {
+    formData.append("candidatePhoto", "null");
+  }
+
+  if (payload.vicePhoto instanceof File) {
+    formData.append("vicePhoto", payload.vicePhoto);
+  } else if (payload.vicePhoto === null) {
+    formData.append("vicePhoto", "null");
+  }
+
+  if (payload.pairPhoto instanceof File) {
+    formData.append("pairPhoto", payload.pairPhoto);
+  } else if (payload.pairPhoto === null) {
+    formData.append("pairPhoto", "null");
+  }
+
+  return formData;
+};
+
 const createCandidatePairApi = async (
   payload: CreateCandidatePairPayload,
 ): Promise<CandidatePair> => {
   try {
+    const formData = buildCandidatePairFormData(payload);
     const response = await api.post<{ message: string; candidatePair: CandidatePair }>(
       "/candidate-pairs",
-      payload,
+      formData,
+      {
+        headers: {
+          "Content-Type": null,
+        },
+      },
     );
     return response.data.candidatePair;
   } catch (error) {
@@ -253,9 +325,15 @@ const updateCandidatePairApi = async (
   payload: UpdateCandidatePairPayload,
 ): Promise<CandidatePair> => {
   try {
+    const formData = buildCandidatePairFormData(payload);
     const response = await api.put<{ message: string; candidatePair: CandidatePair }>(
       `/candidate-pairs/${pairId}`,
-      payload,
+      formData,
+      {
+        headers: {
+          "Content-Type": null,
+        },
+      },
     );
     return response.data.candidatePair;
   } catch (error) {

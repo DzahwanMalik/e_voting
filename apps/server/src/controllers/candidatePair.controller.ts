@@ -2,8 +2,55 @@ import type { Request, Response } from "express";
 import { isAppError } from "../utils/app-error";
 import { parsePositiveInt } from "../utils/parser";
 import * as candidatePairService from "../services/candidatePair.service";
+import { uploadToCloudinary } from "../services/upload.service";
 
-const createCandidatePair = async (req: Request, res: Response): Promise<void> => {
+const processPhotoUploads = async (
+  req: Request,
+): Promise<{
+  candidatePhotoUrl?: string | null;
+  vicePhotoUrl?: string | null;
+  pairPhotoUrl?: string | null;
+}> => {
+  const result: {
+    candidatePhotoUrl?: string | null;
+    vicePhotoUrl?: string | null;
+    pairPhotoUrl?: string | null;
+  } = {};
+
+  const files = req.files;
+  if (files && !Array.isArray(files)) {
+    if (files.candidatePhoto?.[0]) {
+      result.candidatePhotoUrl = await uploadToCloudinary(
+        files.candidatePhoto[0].buffer,
+      );
+    } else if (req.body.candidatePhoto === "null") {
+      result.candidatePhotoUrl = null;
+    }
+
+    if (files.vicePhoto?.[0]) {
+      result.vicePhotoUrl = await uploadToCloudinary(
+        files.vicePhoto[0].buffer,
+      );
+    } else if (req.body.vicePhoto === "null") {
+      result.vicePhotoUrl = null;
+    }
+
+    if (files.pairPhoto?.[0]) {
+      result.pairPhotoUrl = await uploadToCloudinary(
+        files.pairPhoto[0].buffer,
+      );
+    } else if (req.body.pairPhoto === "null") {
+      result.pairPhotoUrl = null;
+    }
+  }
+
+  return result;
+};
+
+const createCandidatePair = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
@@ -23,14 +70,11 @@ const createCandidatePair = async (req: Request, res: Response): Promise<void> =
 
     const {
       candidateName,
-      candidatePhotoUrl,
       candidateDescription,
       candidateBirthday,
       viceName,
-      vicePhotoUrl,
       viceDescription,
       viceBirthday,
-      pairPhotoUrl,
       vision,
       mission,
     } = req.body;
@@ -84,34 +128,12 @@ const createCandidatePair = async (req: Request, res: Response): Promise<void> =
 
     // Optional fields
     if (
-      candidatePhotoUrl !== undefined &&
-      candidatePhotoUrl !== null &&
-      typeof candidatePhotoUrl !== "string"
-    ) {
-      res.status(400).json({
-        message: "candidatePhotoUrl harus berupa string atau null.",
-      });
-      return;
-    }
-
-    if (
       candidateDescription !== undefined &&
       candidateDescription !== null &&
       typeof candidateDescription !== "string"
     ) {
       res.status(400).json({
         message: "candidateDescription harus berupa string atau null.",
-      });
-      return;
-    }
-
-    if (
-      vicePhotoUrl !== undefined &&
-      vicePhotoUrl !== null &&
-      typeof vicePhotoUrl !== "string"
-    ) {
-      res.status(400).json({
-        message: "vicePhotoUrl harus berupa string atau null.",
       });
       return;
     }
@@ -127,29 +149,21 @@ const createCandidatePair = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (
-      pairPhotoUrl !== undefined &&
-      pairPhotoUrl !== null &&
-      typeof pairPhotoUrl !== "string"
-    ) {
-      res.status(400).json({
-        message: "pairPhotoUrl harus berupa string atau null.",
-      });
-      return;
-    }
+    // Handle photo uploads via Multer + Cloudinary
+    const photoUrls = await processPhotoUploads(req);
 
     const candidatePair = await candidatePairService.createCandidatePair(
       {
         electionId,
         candidateName,
-        candidatePhotoUrl,
+        candidatePhotoUrl: photoUrls.candidatePhotoUrl,
         candidateDescription,
         candidateBirthday: new Date(candidateBirthday),
         viceName,
-        vicePhotoUrl,
+        vicePhotoUrl: photoUrls.vicePhotoUrl,
         viceDescription,
         viceBirthday: new Date(viceBirthday),
-        pairPhotoUrl,
+        pairPhotoUrl: photoUrls.pairPhotoUrl,
         vision,
         mission,
       },
@@ -171,7 +185,10 @@ const createCandidatePair = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-const getCandidatePairs = async (req: Request, res: Response): Promise<void> => {
+const getCandidatePairs = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
@@ -210,7 +227,10 @@ const getCandidatePairs = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-const getCandidatePairById = async (req: Request, res: Response): Promise<void> => {
+const getCandidatePairById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
@@ -243,7 +263,10 @@ const getCandidatePairById = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-const updateCandidatePair = async (req: Request, res: Response): Promise<void> => {
+const updateCandidatePair = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
@@ -260,17 +283,18 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
 
     const {
       candidateName,
-      candidatePhotoUrl,
       candidateDescription,
       candidateBirthday,
       viceName,
-      vicePhotoUrl,
       viceDescription,
       viceBirthday,
-      pairPhotoUrl,
       vision,
       mission,
     } = req.body;
+
+    // Handle photo uploads via Multer + Cloudinary
+    const photoUrls = await processPhotoUploads(req);
+    const { candidatePhotoUrl, vicePhotoUrl, pairPhotoUrl } = photoUrls;
 
     const hasAnyField =
       candidateName !== undefined ||
@@ -287,7 +311,8 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
 
     if (!hasAnyField) {
       res.status(400).json({
-        message: "Setidaknya satu field harus disediakan untuk diperbarui.",
+        message:
+          "Setidakatan satu field atau file foto harus disediakan untuk diperbarui.",
       });
       return;
     }
@@ -322,8 +347,7 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
 
     if (
       viceBirthday !== undefined &&
-      (typeof viceBirthday !== "string" ||
-        isNaN(Date.parse(viceBirthday)))
+      (typeof viceBirthday !== "string" || isNaN(Date.parse(viceBirthday)))
     ) {
       res.status(400).json({
         message:
@@ -337,19 +361,11 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (mission !== undefined && (typeof mission !== "string" || mission === "")) {
-      res.status(400).json({ message: "Misi paslon tidak boleh kosong." });
-      return;
-    }
-
     if (
-      candidatePhotoUrl !== undefined &&
-      candidatePhotoUrl !== null &&
-      typeof candidatePhotoUrl !== "string"
+      mission !== undefined &&
+      (typeof mission !== "string" || mission === "")
     ) {
-      res.status(400).json({
-        message: "candidatePhotoUrl harus berupa string atau null.",
-      });
+      res.status(400).json({ message: "Misi paslon tidak boleh kosong." });
       return;
     }
 
@@ -365,17 +381,6 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
     }
 
     if (
-      vicePhotoUrl !== undefined &&
-      vicePhotoUrl !== null &&
-      typeof vicePhotoUrl !== "string"
-    ) {
-      res.status(400).json({
-        message: "vicePhotoUrl harus berupa string atau null.",
-      });
-      return;
-    }
-
-    if (
       viceDescription !== undefined &&
       viceDescription !== null &&
       typeof viceDescription !== "string"
@@ -386,33 +391,22 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (
-      pairPhotoUrl !== undefined &&
-      pairPhotoUrl !== null &&
-      typeof pairPhotoUrl !== "string"
-    ) {
-      res.status(400).json({
-        message: "pairPhotoUrl harus berupa string atau null.",
-      });
-      return;
-    }
-
     const candidatePair = await candidatePairService.updateCandidatePair(
       pairId,
       req.user.userId,
       req.user.role,
       {
         candidateName,
-        candidatePhotoUrl,
+        candidatePhotoUrl: photoUrls.candidatePhotoUrl,
         candidateDescription,
         candidateBirthday: candidateBirthday
           ? new Date(candidateBirthday)
           : undefined,
         viceName,
-        vicePhotoUrl,
+        vicePhotoUrl: photoUrls.vicePhotoUrl,
         viceDescription,
         viceBirthday: viceBirthday ? new Date(viceBirthday) : undefined,
-        pairPhotoUrl,
+        pairPhotoUrl: photoUrls.pairPhotoUrl,
         vision,
         mission,
       },
@@ -433,7 +427,10 @@ const updateCandidatePair = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-const deleteCandidatePair = async (req: Request, res: Response): Promise<void> => {
+const deleteCandidatePair = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ message: "User belum terautentikasi." });
