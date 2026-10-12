@@ -25,36 +25,39 @@ const DataTable = <T,>({
     return val != null ? String(val) : String(index);
   };
 
-  const hasControls = Boolean(searchProps || paginationProps);
+  const hasSearch = Boolean(searchProps);
 
-  const renderToolbar = () => {
-    if (!hasControls) return null;
+  const renderSearchToolbar = () => {
+    if (!hasSearch) return null;
 
     return (
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1 pb-3">
-        {searchProps && (
-          <div className="w-full sm:flex-1 sm:max-w-sm">
-            <Input
-              type="search"
-              placeholder={searchProps.placeholder ?? "Cari..."}
-              value={searchProps.value}
-              onChange={(e) => searchProps.onChange(e.target.value)}
-              leftElement={<Search className="w-4 h-4" />}
-              disabled={searchProps.isLoading}
-            />
-          </div>
-        )}
-        {paginationProps && (
-          <Pagination
-            currentPage={paginationProps.currentPage}
-            totalPages={paginationProps.totalPages}
-            onPageChange={paginationProps.onPageChange}
-            totalItems={paginationProps.meta?.total}
-            itemsPerPage={paginationProps.meta?.limit ?? 10}
-            isLoading={paginationProps.isLoading ?? isLoading}
+      <div className="p-3">
+        <div className="w-full sm:max-w-sm">
+          <Input
+            type="search"
+            placeholder={searchProps!.placeholder ?? "Cari..."}
+            value={searchProps!.value}
+            onChange={(e) => searchProps!.onChange(e.target.value)}
+            leftElement={<Search className="w-4 h-4" />}
+            disabled={searchProps!.isLoading}
+            autoFocus
           />
-        )}
+        </div>
       </div>
+    );
+  };
+
+  const renderPagination = () => {
+    if (!paginationProps) return null;
+
+    return (
+      <Pagination
+        currentPage={paginationProps.currentPage}
+        totalPages={paginationProps.totalPages}
+        onPageChange={paginationProps.onPageChange}
+        isLoading={paginationProps.isLoading ?? isLoading}
+        className="mt-4 pt-4 border-t border-border"
+      />
     );
   };
 
@@ -79,79 +82,76 @@ const DataTable = <T,>({
   };
 
   if (isLoading) {
-    return (
-      <div
-        className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
-        {...props}
-      >
-        {renderToolbar()}
-        <LoadingState message="Memuat data..." />
-      </div>
-    );
+    return <LoadingState message="Memuat data..." />;
   }
 
   if (data.length === 0) {
     return (
-      <div
-        className={`bg-card rounded-2xl border border-border p-6 ${className}`.trim()}
-        {...props}
-      >
-        {renderToolbar()}
-        <EmptyState title={emptyTitle} description={emptyDescription} />
-      </div>
+      <>
+        <div
+          className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
+          {...props}
+        >
+          {renderSearchToolbar()}
+          <EmptyState title={emptyTitle} description={emptyDescription} />
+        </div>
+        {renderPagination()}
+      </>
     );
   }
 
   return (
-    <div
-      className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
-      {...props}
-    >
-      {renderToolbar()}
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={`text-left font-sans font-semibold text-xs text-muted-foreground uppercase tracking-wider px-4 py-3 border-b border-border whitespace-nowrap ${
-                  col.headerClassName ?? ""
-                }`}
-              >
-                {col.header}
-              </th>
-            ))}
-            {rowOptions && rowOptions.length > 0 && (
-              <th className="border-b border-border" />
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr
-              key={getKey(row, index)}
-              className="border-b border-border last:border-0"
-            >
+    <>
+      <div
+        className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
+        {...props}
+      >
+        {renderSearchToolbar()}
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr>
               {columns.map((col) => (
-                <td
-                  key={`${getKey(row, index)}-${col.key}`}
-                  className={`px-4 py-3 text-foreground align-center ${col.className ?? ""}`}
+                <th
+                  key={col.key}
+                  className={`text-left font-sans font-semibold text-xs text-muted-foreground uppercase tracking-wider px-4 py-3 border-b border-border whitespace-nowrap ${
+                    col.headerClassName ?? ""
+                  }`}
                 >
-                  {col.cell(row)}
-                </td>
+                  {col.header}
+                </th>
               ))}
-            {rowOptions && rowOptions.length > 0 && (
-              <td className="px-2 py-3 text-right">
-                {renderOptionsMenu(row)}
-              </td>
-            )}
+              {rowOptions && rowOptions.length > 0 && (
+                <th className="border-b border-border" />
+              )}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr
+                key={getKey(row, index)}
+                className="border-b border-border last:border-0"
+              >
+                {columns.map((col) => (
+                  <td
+                    key={`${getKey(row, index)}-${col.key}`}
+                    className={`px-4 py-3 text-foreground align-top ${col.className ?? ""}`}
+                  >
+                    {col.cell(row)}
+                  </td>
+                ))}
+                {rowOptions && rowOptions.length > 0 && (
+                  <td className="px-2 py-3 text-right">
+                    {renderOptionsMenu(row)}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {renderPagination()}
+    </>
   );
 };
 
 export default DataTable;
-

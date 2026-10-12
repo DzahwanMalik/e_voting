@@ -7,6 +7,10 @@
 
 Generic, reusable table component for displaying fetched data passed via props. Supports column-based rendering, per-row action options menu (using `DropdownMenu` molecule), and loading/empty states. Designed for admin section use (Admin & Super Admin) to simplify Developer Experience.
 
+When both `searchProps` and `paginationProps` are provided:
+- **Search Input** is rendered in a toolbar above the table.
+- **Pagination** (page info on left, page controls on right) is rendered **below** the table container, separated by a subtle top border.
+
 ## Props
 
 - `data`: `T[]` — the fetched data array to render
@@ -51,12 +55,21 @@ Generic, reusable table component for displaying fetched data passed via props. 
 - `isDestructive`: `boolean` (optional)
 - `disabled`: `(row: T) => boolean` (optional)
 
+## Layout Structure
+
+When `searchProps` and/or `paginationProps` are provided, the layout is:
+
+1. **Toolbar (top)**: Search Input only.
+2. **Table container**: `<table>` with bordered header and row action menu.
+3. **Pagination (bottom)**: `Pagination` molecule rendered as a sibling **below** the table container, with `className="mt-4 pt-4 border-t border-border"` for visual separation. The page summary ("Menampilkan X–Y dari Z") is left-aligned; page controls are right-aligned.
+
 ## Semantic Tokens Used
 
 - Container: `bg-card`, `border-border`, `rounded-2xl`, `shadow-sm`
 - Table header: `text-muted-foreground`, `border-border`
 - Table rows: `border-border`, `hover:bg-accent` (group hover)
 - Loading/Empty: composes `LoadingState` and `EmptyState` molecules
+- Pagination separator: `border-border`, `mt-4`, `pt-4`
 
 ## Code Example
 

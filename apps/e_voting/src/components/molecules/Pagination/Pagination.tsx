@@ -5,8 +5,6 @@ const Pagination = ({
   currentPage,
   totalPages,
   onPageChange,
-  totalItems,
-  itemsPerPage = 10,
   isLoading = false,
   className = "",
 }: PaginationProps) => {
@@ -46,24 +44,11 @@ const Pagination = ({
 
   const hasPrevious = currentPage > 1;
   const hasNext = currentPage < totalPages;
-  const startIndex = totalItems ? (currentPage - 1) * itemsPerPage + 1 : 0;
-  const endIndex = totalItems
-    ? Math.min(currentPage * itemsPerPage, totalItems)
-    : 0;
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-center justify-between gap-4 ${className}`.trim()}
+      className={`flex flex-col sm:flex-row items-center justify-end gap-4 ${className}`.trim()}
     >
-      {totalItems !== undefined && (
-        <p className="text-sm text-muted-foreground">
-          Menampilkan{" "}
-          <span className="font-medium text-foreground">{startIndex}</span>–
-          <span className="font-medium text-foreground">{endIndex}</span> dari{" "}
-          <span className="font-medium text-foreground">{totalItems}</span>
-        </p>
-      )}
-
       <div className="flex items-center gap-1">
         <button
           type="button"

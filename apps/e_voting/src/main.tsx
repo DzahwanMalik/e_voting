@@ -9,6 +9,7 @@ import LoginPage from "@/components/pages/LoginPage";
 import VoterDashboardPage from "@/components/pages/VoterDashboardPage";
 import AdminShellPage from "@/components/pages/AdminShellPage";
 import ElectionPage from "@/components/pages/ElectionPage";
+import VoterPage from "@/components/pages/VoterPage";
 import ComingSoonPage from "@/components/pages/ComingSoonPage";
 import NotFoundPage from "@/components/pages/NotFoundPage";
 
@@ -35,7 +36,7 @@ createRoot(document.getElementById("root")!).render(
             />
             <Route
               path="/admin/voters"
-              element={<ComingSoonPage title="Manajemen Pemilih" />}
+              element={<VoterPage />}
             />
           </Route>
         </Route>
