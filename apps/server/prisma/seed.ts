@@ -5,9 +5,10 @@ async function main() {
   console.log("Starting database cleanup...");
   // Clean up existing data in reverse order of foreign key dependencies
   await prisma.vote.deleteMany();
+  await prisma.candidatePair.deleteMany();
+  await prisma.candidate.deleteMany();
   await prisma.electionVoter.deleteMany();
   await prisma.electionAdmin.deleteMany();
-  await prisma.candidate.deleteMany();
   await prisma.election.deleteMany();
   await prisma.user.deleteMany();
 
@@ -65,12 +66,12 @@ async function main() {
   });
 
   console.log("Seeding Election 1: Pemilihan Ketua Organisasi Mahasiswa 2026...");
-  // 4. Election 1 (Primary Election with 4 rich candidates)
+  // 4. Election 1 (Primary Election with 2 candidate pairs)
   const election1 = await prisma.election.create({
     data: {
       title: "Pemilihan Ketua Organisasi 2026",
       description:
-        "Pemilihan umum ketua dan formatur organisasi periode 2026/2027. Silakan pelajari profil, visi, dan misi setiap kandidat sebelum memberikan suara.",
+        "Pemilihan umum ketua dan formatur organisasi periode 2026/2027. Silakan pelajari profil, visi, dan misi setiap paslon sebelum memberikan suara.",
     },
   });
 
@@ -82,8 +83,8 @@ async function main() {
     },
   });
 
-  // Candidates for Election 1
-  const candidate1 = await prisma.candidate.create({
+  // Candidate Pair 1 for Election 1
+  const pair1_calon = await prisma.candidate.create({
     data: {
       electionId: election1.id,
       name: "Ahmad Fauzi, S.Kom.",
@@ -92,6 +93,30 @@ async function main() {
       description:
         "Mahasiswa berprestasi bidang teknologi & kepemimpinan digital. Berpengalaman memimpin 10+ proyek kolaborasi kampus dan organisasi mahasiswa tingkat nasional.",
       birthday: new Date("2002-05-15"),
+      isVice: false,
+    },
+  });
+
+  const pair1_vice = await prisma.candidate.create({
+    data: {
+      electionId: election1.id,
+      name: "Siti Rahayu, S.Psi.",
+      photoUrl:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+      description:
+        "Ahli komunikasi organisasi dan pengelolaan stakeholder. Mantan ketua organisasi kemahasiswaan tingkat fakultas.",
+      birthday: new Date("2002-11-28"),
+      isVice: true,
+    },
+  });
+
+  const pair1 = await prisma.candidatePair.create({
+    data: {
+      electionId: election1.id,
+      candidateId: pair1_calon.id,
+      viceId: pair1_vice.id,
+      photoUrl:
+        "https://images.unsplash.com/photo-1607746997089-93b8b8d4b1d9?auto=format&fit=crop&w=1200&q=80",
       vision:
         "Mewujudkan tata kelola organisasi yang transparan, adaptif, berbasis digital, dan inklusif demi tercapainya aspirasi seluruh anggota.",
       mission:
@@ -99,7 +124,8 @@ async function main() {
     },
   });
 
-  const candidate2 = await prisma.candidate.create({
+  // Candidate Pair 2 for Election 1
+  const pair2_calon = await prisma.candidate.create({
     data: {
       electionId: election1.id,
       name: "Budi Pratama, S.T.",
@@ -108,42 +134,34 @@ async function main() {
       description:
         "Aktivis kampus dan inovator muda berfokus pada pengembangan riset, kewirausahaan sosial, dan kolaborasi multidisiplin ilmu.",
       birthday: new Date("2001-08-20"),
-      vision:
-        "Menjadikan organisasi sebagai wadah kolaborasi inovatif unggul yang berdaya saing global dan berdampak nyata bagi kesejahteraan masyarakat luas.",
-      mission:
-        "1. Memfasilitasi inkubasi karya riset dan rintisan usaha mahasiswa melalui program pendanaan mandiri.\n2. Membangun ruang kolaborasi lintas divisi guna mempercepat penyelesaian isu-isu strategis kampus.\n3. Menjalin kerja sama pengabdian masyarakat berbasis teknologi di wilayah 3T bersama lembaga nirlaba.\n4. Mengoptimalkan advokasi hak-hak akademik dan fasilitas pendukung prestasi seluruh anggota.",
+      isVice: false,
     },
   });
 
-  const candidate3 = await prisma.candidate.create({
+  const pair2_vice = await prisma.candidate.create({
     data: {
       electionId: election1.id,
       name: "Citra Lestari, S.Si.",
       photoUrl:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
       description:
         "Penggerak pemberdayaan pemuda, advokasi sains terbuka, dan pengabdian masyarakat. Delegasi Konferensi Pemimpin Muda Asia Pasifik 2025.",
       birthday: new Date("2003-01-10"),
-      vision:
-        "Membangun ekosistem kepemimpinan yang berempati, progresif, berintegritas tinggi, dan berkelanjutan bagi seluruh lapisan anggota.",
-      mission:
-        "1. Mengintegrasikan prinsip kesetaraan, keberagaman, dan inklusivitas dalam setiap program kerja organisasi.\n2. Meluncurkan program inkubator kepemimpinan pemuda dan jejaring mentorship karier profesional.\n3. Mendorong riset aksi sosial yang responsif terhadap permasalahan sosial dan lingkungan sekitar kampus.\n4. Meningkatkan transparansi monitoring dan evaluasi kinerja program organisasi melalui pelaporan berkala.",
+      isVice: true,
     },
   });
 
-  const candidate4 = await prisma.candidate.create({
+  const pair2 = await prisma.candidatePair.create({
     data: {
       electionId: election1.id,
-      name: "Dian Paramita, S.E.",
+      candidateId: pair2_calon.id,
+      viceId: pair2_vice.id,
       photoUrl:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
-      description:
-        "Praktisi manajemen organisasi dan tata kelola keuangan nirlaba. Berpengalaman mengelola program sosial berdampak bagi ribuan penerima manfaat.",
-      birthday: new Date("2002-11-28"),
+        "https://images.unsplash.com/photo-1580270724587-75d3ed8c32a1?auto=format&fit=crop&w=1200&q=80",
       vision:
-        "Menciptakan kepemimpinan akuntabel, profesional, berdaya guna, dan responsif terhadap dinamika tantangan zaman.",
+        "Menjadikan organisasi sebagai wadah kolaborasi inovatif unggul yang berdaya saing global dan berdampak nyata bagi kesejahteraan masyarakat luas.",
       mission:
-        "1. Menerapkan sistem pelaporan keuangan digital terintegrasi dan akuntabel yang dapat diaudit publik.\n2. Menyelenggarakan pelatihan tata kelola organisasi modern dan manajemen proyek berbasis standar industri.\n3. Membangun sinergi harmonis antara alumni, dosen, mahasiswa, dan pemangku kepentingan strategis.\n4. Memperkuat program pendampingan beasiswa dan bantuan sosial bagi anggota yang membutuhkan.",
+        "1. Memfasilitasi inkubasi karya riset dan rintisan usaha mahasiswa melalui program pendanaan mandiri.\n2. Membangun ruang kolaborasi lintas divisi guna mempercepat penyelesaian isu-isu strategis kampus.\n3. Menjalin kerja sama pengabdian masyarakat berbasis teknologi di wilayah 3T bersama lembaga nirlaba.\n4. Mengoptimalkan advokasi hak-hak akademik dan fasilitas pendukung prestasi seluruh anggota.",
     },
   });
 
@@ -186,24 +204,21 @@ async function main() {
     },
   });
 
-  // Candidates for Election 2
-  const candidate5 = await prisma.candidate.create({
+  // Candidate Pair 1 for Election 2
+  const pair3_calon = await prisma.candidate.create({
     data: {
       electionId: election2.id,
       name: "Farhan Mahendra, S.H.",
       photoUrl:
         "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80",
       description:
-        "Spesialis advokasi hukum organisasi dan kepatuhan kelembagaan. Mantan koordinator komisi hukum & perundangan mahasiswa.",
+        "Spesialis advokasi hukum organisasi dan kepatuhan lembaga. Mantan koordinator komisi hukum & perundangan mahasiswa.",
       birthday: new Date("2001-04-12"),
-      vision:
-        "Terwujudnya lembaga kemahasiswaan yang bersih, transparan, adil, dan berlandaskan prinsip tata kelola hukum yang baik.",
-      mission:
-        "1. Mengawasi realisasi dan alokasi anggaran belanja organisasi secara independen tanpa intervensi.\n2. Menyediakan saluran pengaduan dan whistleblowing yang aman, terpercaya, dan rahasia bagi seluruh anggota.",
+      isVice: false,
     },
   });
 
-  const candidate6 = await prisma.candidate.create({
+  const pair3_vice = await prisma.candidate.create({
     data: {
       electionId: election2.id,
       name: "Gita Nirmala, S.Sos.",
@@ -212,10 +227,21 @@ async function main() {
       description:
         "Pengamat kebijakan publik kampus dan pegiat transparansi informasi. Aktif dalam advokasi hak-hak mahasiswa.",
       birthday: new Date("2002-09-18"),
+      isVice: true,
+    },
+  });
+
+  const pair3 = await prisma.candidatePair.create({
+    data: {
+      electionId: election2.id,
+      candidateId: pair3_calon.id,
+      viceId: pair3_vice.id,
+      photoUrl:
+        "https://images.unsplash.com/photo-1589351063358-8a950e3f52a7?auto=format&fit=crop&w=1200&q=80",
       vision:
-        "Menjamin akuntabilitas publik dan keberpihakan setiap kebijakan kelembagaan kepada kepentingan segenap mahasiswa.",
+        "Terwujudnya lembaga kemahasiswaan yang bersih, transparan, adil, dan berlandaskan prinsip tata kelola hukum yang baik.",
       mission:
-        "1. Membuka akses publik terhadap risalah rapat pengawasan dan pelaporan kinerja setiap semester.\n2. Menyelenggarakan audit kinerja rutin dan audiensi terbuka bersama seluruh elemen organisasi.",
+        "1. Mengawasi realisasi dan alokasi anggaran belanja organisasi secara independen tanpa intervensi.\n2. Menyediakan saluran pengaduan dan whistleblowing yang aman, terpercaya, dan rahasia bagi seluruh anggota.",
     },
   });
 
@@ -249,10 +275,10 @@ async function main() {
   console.log("--------------------------------------------------------");
   console.log("Elections seeded:");
   console.log(
-    ` - [ID: ${election1.id}] ${election1.title} (${[candidate1.name, candidate2.name, candidate3.name, candidate4.name].length} candidates)`,
+    ` - [ID: ${election1.id}] ${election1.title} (2 candidate pairs)`,
   );
   console.log(
-    ` - [ID: ${election2.id}] ${election2.title} (${[candidate5.name, candidate6.name].length} candidates)`,
+    ` - [ID: ${election2.id}] ${election2.title} (1 candidate pair)`,
   );
   console.log("========================================================\n");
 }

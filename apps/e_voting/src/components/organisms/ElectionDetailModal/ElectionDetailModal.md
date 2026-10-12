@@ -4,39 +4,32 @@
 - **Folder**: `src/components/organisms/ElectionDetailModal/`
 
 ## Purpose
-
-Modal dialog for viewing election details (title, description, candidate/voter/admin counts, timeline, and optional lists). Accessible via the Election page datatable "Lihat Detail" row option for both Admin and Super Admin roles.
-
-Composes the base `<Modal>` molecule (size `"2xl"`) with `title="Detail Pemilihan"`, the `<StatCard>` molecule for summary stat cards (candidate/voter/admin counts), and the `<Button>` atom for the footer close button.
+Modal dialog for viewing election details (title, description, candidate pair/voter/admin counts, timeline, and optional lists). Accessible via the Election page datatable "Lihat Detail" row option for both Admin and Super Admin roles.
 
 ## Props
+- `election`: `ElectionListItem | null` - The election to display. When `null`, the modal renders nothing.
+- `isOpen`: `boolean` - Modal open state.
+- `onClose`: `() => void` - Modal dismissal handler.
 
-| Prop | Tipe | Deskripsi |
-|---|---|---|
-| `election` | `ElectionListItem \| null` | Election data object |
-| `isOpen` | `boolean` | Controls modal visibility |
-| `onClose` | `() => void` | Callback to close the modal |
+## Internal Usage
+Composes the base `<Modal>` molecule (size `"2xl"`) with `title="Detail Pemilihan"`, the `<StatCard>` molecule for summary stat cards (candidate pair/voter/admin counts), and the `<Button>` atom for the footer close button.
 
-## Data Source
+## API Integration
+Uses the `ElectionListItem` type which includes `_count` aggregations and optional `candidatePairs`, `electionAdmins`, and `electionVoters` arrays from the `getElectionsApi()` response. No additional API calls are needed.
 
-Uses the `ElectionListItem` type which includes `_count` aggregations and optional `candidates`, `electionAdmins`, and `electionVoters` arrays from the `getElectionsApi()` response. No additional API calls are needed.
-
-## Displayed Data
-
-- **Election Info**: title, description
-- **Summary Stats**: candidate count (`Layers` icon), voter count (`Users` icon), admin count (`Shield` icon)
-- **Timeline**: created date (`Calendar` icon), updated date (`Clock` icon)
-- **Candidates List**: rendered if `election.candidates` is available
+## Sections
+- **Summary Stats**: candidate pair count (`Layers` icon), voter count (`Users` icon), admin count (`Shield` icon)
+- **Timeline**: created and updated timestamps
+- **Candidate Pairs List**: rendered if `election.candidatePairs` is available (shows calon + wakil names)
 - **Admins List**: rendered if `election.electionAdmins` is available
 
 ## Code Example
-
 ```tsx
 import ElectionDetailModal from "@/components/organisms/ElectionDetailModal";
 
 <ElectionDetailModal
   election={selectedElection}
-  isOpen={isDetailOpen}
-  onClose={() => setIsDetailOpen(false)}
+  isOpen={detailElection !== null}
+  onClose={() => setDetailElection(null)}
 />
 ```

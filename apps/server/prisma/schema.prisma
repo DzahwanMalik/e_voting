@@ -38,6 +38,7 @@ model Election {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   candidates     Candidate[]
+  candidatePairs CandidatePair[]
   electionAdmins ElectionAdmin[]
   electionVoters ElectionVoter[]
 }
@@ -60,12 +61,30 @@ model Candidate {
   photoUrl    String?
   description String?
   birthday    DateTime
+  isVice      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  election    Election         @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  pairAsCalon CandidatePair?   @relation("CalonPair")
+  pairAsVice  CandidatePair?   @relation("VicePair")
+}
+
+model CandidatePair {
+  id          Int      @id @default(autoincrement())
+  electionId  Int
+  candidateId Int      @unique
+  viceId      Int      @unique
+  photoUrl    String?
   vision      String
   mission     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  election    Election @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  election    Election         @relation(fields: [electionId], references: [id], onDelete: Cascade)
+  candidate   Candidate        @relation("CalonPair", fields: [candidateId], references: [id], onDelete: Cascade)
+  vice        Candidate        @relation("VicePair", fields: [viceId], references: [id], onDelete: Cascade)
   votes       Vote[]
+
+  @@unique([electionId, candidateId, viceId])
 }
 
 model ElectionVoter {
@@ -81,8 +100,8 @@ model ElectionVoter {
 }
 
 model Vote {
-  id          Int       @id @default(autoincrement())
-  candidateId Int
-  createdAt   DateTime  @default(now())
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  id            Int            @id @default(autoincrement())
+  candidatePairId Int
+  createdAt     DateTime        @default(now())
+  candidatePair  CandidatePair  @relation(fields: [candidatePairId], references: [id], onDelete: Cascade)
 }

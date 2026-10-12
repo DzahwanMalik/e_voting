@@ -141,42 +141,54 @@ Assignment hanya dapat dilakukan oleh Super Admin. Penugasan Admin dapat dilakuk
 
 ---
 
-## 5. Candidate
+## 5. Candidate (Candidate Pair / Paslon)
 
-Candidate merupakan pilihan dalam suatu election.
+Candidate dalam sistem ini merepresentasikan **sebuah pasangan calon** (candidate pair / paslon) yang terdiri dari **calon utama** dan **wakil calon**. Kedua orang ini adalah satu pilihan tunggal pada suatu election dan **mereka berbagi visi dan misi yang sama**.
 
-Setiap candidate:
+Setiap **Candidate (individu)**:
 
 - hanya dimiliki oleh satu election;
 - memiliki nama (name);
 - memiliki foto profil (photoUrl, opsional);
 - memiliki deskripsi/ringkasan (description, opsional);
 - memiliki tanggal lahir (birthday, wajib);
-- memiliki visi (vision, wajib);
-- memiliki misi (mission, wajib).
+- memiliki flag `isVice` untuk menandai apakah ini calon utama (`false`) atau wakil calon (`true`).
 
-Tampilan awal kartu kandidat menampilkan nama, foto profil (jika tersedia), dan deskripsi ringkas. Terdapat tombol detail untuk membuka modal yang menampilkan seluruh informasi lengkap kandidat (tanggal lahir, visi, misi).
+Setiap **CandidatePair**:
 
-Perolehan suara kandidat (*candidate vote result*) bersifat rahasia dan **hanya dapat diakses oleh Super Admin**. Voter dan Admin tidak dapat melihat jumlah perolehan suara kandidat, baik pada kartu kandidat, modal detail kandidat, maupun endpoint candidate.
+- hanya dimiliki oleh satu election;
+- merujuk ke satu Candidate sebagai calon utama (`candidateId`);
+- merujuk ke satu Candidate sebagai wakil calon (`viceId`);
+- memiliki visi (vision, wajib) — bersifat **shared** untuk keseluruhan pasangan;
+- memiliki misi (mission, wajib) — bersifat **shared** untuk keseluruhan pasangan;
+- menerima vote secara langsung (Vote.candidatePairId).
 
-Candidate dapat dibuat oleh:
+### Tampilan Kandidat (Candidate Pair)
+
+Tampilan awal kartu paslon menampilkan nama **kedua calon**, foto profil keduanya (jika tersedia), dan deskripsi ringkas. Terdapat tombol detail untuk membuka modal yang menampilkan seluruh informasi lengkap kedua calon (nama, tanggal lahir, deskripsi) serta visi dan misi bersama.
+
+Perolehan suara kandidat (*candidate vote result*) bersifat rahasia dan **hanya dapat diakses oleh Super Admin**. Voter dan Admin tidak dapat melihat jumlah perolehan suara, baik pada kartu kandidat, modal detail, maupun endpoint candidate pair.
+
+### Operasi pada Candidate Pair
+
+Candidate pair dapat dibuat oleh:
 
 - Super Admin pada election mana pun;
 - Admin pada election yang diberikan kepadanya.
 
-Candidate dapat diubah oleh Super Admin atau Admin yang memiliki akses terhadap election tersebut.
+Candidate pair dapat diubah (termasuk visi/misi serta data individu calon/wakil) oleh Super Admin atau Admin yang memiliki akses terhadap election tersebut. Vote yang sudah ada tetap berlaku setelah update.
 
-Candidate juga dapat dihapus oleh Super Admin atau Admin yang memiliki akses terhadap election tersebut.
+Candidate pair **dapat dihapus** oleh Super Admin atau Admin yang memiliki akses. Penghapusan hanya dapat dilakukan pada **seluruh pasangan**, bukan pada satu anggota secara terpisah.
 
-Jika candidate yang sudah memiliki vote dihapus:
+Jika candidate pair yang sudah memiliki vote dihapus:
 
-- vote yang terkait dengan candidate tersebut tidak lagi menjadi bagian dari result;
+- vote yang terkait dengan pair tersebut tidak lagi menjadi bagian dari result;
 - status `hasVoted` voter pada election tersebut tetap `true`;
-- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
+- voter yang sudah memilih pair tersebut tidak dapat melakukan voting kembali.
 
-Jika candidate hanya diubah, vote yang sudah ada tetap berlaku.
+Jika candidate pair hanya diubah (bukan dihapus), vote yang sudah ada tetap berlaku.
 
-Voter hanya dapat memilih candidate yang berasal dari election tersebut.
+Voter hanya dapat memilih candidate pair yang berasal dari election tersebut.
 
 ---
 
@@ -265,15 +277,19 @@ Jika voter dihapus setelah melakukan vote:
 
 ## 7. Voting
 
-Voter dapat memberikan satu vote kepada satu candidate dalam election yang diikutinya.
+Voter dapat memberikan satu vote kepada satu candidate pair dalam election yang diikutinya.
 
 Vote hanya dapat dilakukan apabila:
 
 - user sudah login;
 - user adalah Voter;
 - user terdaftar pada election;
-- candidate merupakan bagian dari election;
+- candidate pair merupakan bagian dari election;
 - user belum pernah vote pada election tersebut.
+
+Setelah vote berhasil, voter tidak dapat melakukan vote lagi pada election yang sama.
+
+Vote bersifat **anonim**: record vote hanya menyimpan referensi ke candidate pair, tanpa referensi ke user yang melakukan vote. User yang melakukan vote tidak dapat dilacak.
 
 Setelah vote berhasil, voter tidak dapat melakukan vote lagi pada election yang sama.
 
@@ -408,7 +424,7 @@ Jika Voter dibuat oleh Admin, Voter hanya dapat memiliki akses ke election yang 
 
 ### BR-09 — Candidate Ownership
 
-Candidate yang dipilih harus berasal dari election yang sedang diikuti.
+Candidate pair yang dipilih harus berasal dari election yang sedang diikuti.
 
 ### BR-10 — One Vote Per Election
 
@@ -428,19 +444,24 @@ Data dari satu election tidak boleh digunakan untuk election lain.
 
 ### BR-14 — Candidate Deletion
 
-Candidate dapat dihapus meskipun sudah memiliki vote.
+Candidate pair dapat dihapus meskipun sudah memiliki vote. Penghapusan dilakukan pada **seluruh pasangan** (calon + wakil), bukan pada satu anggota secara terpisah.
 
-Ketika candidate dihapus:
+Ketika candidate pair dihapus:
 
-- vote candidate tersebut ikut dihapus dari result;
+- vote terkait dengan pair tersebut dihapus dari result;
 - `hasVoted` voter pada election tersebut tetap `true`;
-- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
+- voter yang sudah memilih pair tersebut tidak dapat melakukan voting kembali.
 
 ### BR-15 — Candidate Update
 
-Candidate dapat diubah meskipun sudah memiliki vote.
+Candidate pair dapat diubah meskipun sudah memiliki vote. Perubahan meliputi:
 
-Vote yang sudah ada tetap berlaku.
+- data individu calon (nama, foto, deskripsi, tanggal lahir);
+- data individu wakil calon (nama, foto, deskripsi, tanggal lahir);
+- **foto pasangan (photoUrl tingkat paslon)** — foto kampanye bersama calon + wakil;
+- visi dan misi bersama.
+
+Vote yang sudah ada tetap berlaku setelah update.
 
 ### BR-16 — Voter Removal
 
@@ -676,27 +697,27 @@ Terkait: BR-05, BR-06.
 
 ### 15.3 Candidate Management
 
-Kemampuan sistem untuk mengelola kandidat dalam suatu election beserta dampak kaskasinya.
+Kemampuan sistem untuk mengelola pasangan calon (candidate pair) dalam suatu election beserta dampak kaskasinya.
 
-**Candidate Lifecycle**
+**Candidate Pair Lifecycle**
 
-Sistem mampu membuat, mengubah, dan menghapus candidate dalam election. Super Admin dapat mengelola candidate di semua election; Admin hanya pada election yang diberikan. Candidate hanya dimiliki satu election.
+Sistem mampu membuat, mengubah, dan menghapus candidate pair dalam election. Super Admin dapat mengelola candidate pair di semua election; Admin hanya pada election yang diberikan. Setiap candidate pair terdiri dari calon utama dan wakil calon yang berbagi visi dan misi yang sama. Candidate pair hanya dimiliki satu election.
 
 Terkait: BR-09, BR-13, BR-15.
 
 **Vote Cascade on Deletion**
 
-Ketika candidate dihapus:
+Ketika candidate pair dihapus:
 
-- vote terkait dengan candidate tersebut dihapus dari result;
+- vote terkait dengan pair tersebut dihapus dari result;
 - `hasVoted` voter pada election tersebut tetap `true`;
-- voter yang sudah memilih candidate tersebut tidak dapat melakukan voting kembali.
+- voter yang sudah memilih pair tersebut tidak dapat melakukan voting kembali.
 
-Perubahan pada candidate (update) tidak mempengaruhi vote yang sudah ada.
+Perubahan pada candidate pair (update) tidak mempengaruhi vote yang sudah ada.
 
 Terkait: BR-14, BR-15.
 
-Penghapusan candidate bersifat destruktif: vote yang terkait akan ikut terhapus, namun status voting voter tidak berubah.
+Penghapusan candidate pair bersifat destruktif: vote yang terkait akan ikut terhapus, namun status voting voter tidak berubah.
 
 ---
 
@@ -728,7 +749,7 @@ Kemampuan sistem untuk memfasilitasi proses pemungutan suara yang aman, konsiste
 
 **Vote Casting**
 
-Voter dapat memberikan satu vote kepada satu candidate dalam election yang diikutinya.
+Voter dapat memberikan satu vote kepada satu candidate pair dalam election yang diikutinya.
 
 Prasyarat:
 
@@ -767,7 +788,7 @@ Kemampuan sistem untuk mengagregasi dan menyajikan hasil pemungutan suara dengan
 
 **Vote Aggregation**
 
-Sistem mampu menghitung jumlah vote per candidate dalam suatu election. Vote dari candidate yang telah dihapus tidak dihitung dalam result.
+Sistem mampu menghitung jumlah vote per candidate pair dalam suatu election. Vote dari pair yang telah dihapus tidak dihitung dalam result.
 
 Terkait: BR-14.
 

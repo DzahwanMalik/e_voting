@@ -4,14 +4,16 @@ import Modal from "@/components/molecules/Modal";
 import type { VoteConfirmModalProps } from "./VoteConfirmModal.types";
 
 const VoteConfirmModal = ({
-  candidate,
+  candidatePair,
   electionTitle,
   isOpen,
   isSubmitting,
   onClose,
   onConfirm,
 }: VoteConfirmModalProps) => {
-  if (!candidate) return null;
+  if (!candidatePair) return null;
+
+  const { candidate: calon, vice: wakil } = candidatePair;
 
   return (
     <Modal
@@ -40,13 +42,16 @@ const VoteConfirmModal = ({
           </div>
         </div>
 
-        {/* Candidate highlight box */}
+        {/* Candidate pair highlight box */}
         <div className="p-4 rounded-2xl bg-secondary/50 border border-secondary">
           <p className="text-xs uppercase tracking-wider font-semibold text-secondary-foreground mb-1">
-            Kandidat Terpilih
+            Paslon Terpilih
           </p>
           <p className="font-sans font-bold text-lg text-foreground">
-            {candidate.name}
+            {calon.name}
+          </p>
+          <p className="font-sans font-medium text-sm text-muted-foreground">
+            {wakil.name}
           </p>
         </div>
 

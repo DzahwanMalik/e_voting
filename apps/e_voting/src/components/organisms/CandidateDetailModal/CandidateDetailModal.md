@@ -4,14 +4,14 @@
 - **Folder**: `src/components/organisms/CandidateDetailModal/`
 
 ## Purpose
-Dialog modal displaying complete candidate details per PRD Section 5. Displays formatted candidate birth date, full vision, and mission without revealing confidential candidate vote totals (per BR-12). Provides shortcut action to initiate vote selection directly from the modal view.
+Dialog modal displaying complete candidate **pair** details (calon + wakil) per PRD Section 5. Displays formatted candidate pair birth dates, full shared vision, and mission without revealing confidential candidate vote totals (per BR-12). Shows both calon (main candidate) and wakil (vice candidate) profiles with their **individual photos** (`calon.photoUrl` and `vice.photoUrl`), names, birthdays, and descriptions. Provides shortcut action to initiate vote selection directly from the modal view.
 
 ## Props
-- `candidate`: `Candidate | null` the candidate whose profile is being viewed
+- `candidatePair`: `CandidatePair | null` the candidate pair whose profile is being viewed
 - `isOpen`: `boolean` modal open state
 - `hasVotedInElection`: `boolean` whether current voter has voted in the active election
 - `onClose`: `() => void` modal dismissal callback
-- `onVote`: `(candidate: Candidate) => void` callback to initiate voting for this candidate
+- `onVote`: `(candidatePair: CandidatePair) => void` callback to initiate voting for this pair
 
 ## Semantic Tokens Used
 - Backdrop: `bg-foreground/40`, `backdrop-blur-xs`
@@ -25,11 +25,10 @@ Dialog modal displaying complete candidate details per PRD Section 5. Displays f
 import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
 
 <CandidateDetailModal
-  candidate={selectedCandidate}
+  candidatePair={selectedPair}
   isOpen={isModalOpen}
   hasVotedInElection={hasVoted}
   onClose={() => setIsModalOpen(false)}
-  onVote={(candidate) => handleVote(candidate)}
+  onVote={(pair) => handleVote(pair)}
 />
 ```
-

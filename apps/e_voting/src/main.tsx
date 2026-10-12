@@ -30,8 +30,8 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<AdminShellPage />}>
             <Route path="/admin/elections" element={<ElectionPage />} />
             <Route
-              path="/admin/candidates"
-              element={<ComingSoonPage title="Manajemen Kandidat" />}
+              path="/admin/candidate-pairs"
+              element={<ComingSoonPage title="Manajemen Paslon Kandidat" />}
             />
             <Route
               path="/admin/voters"

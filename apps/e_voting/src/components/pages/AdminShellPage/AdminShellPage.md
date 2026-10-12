@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Layout route component for all Admin and Super Admin routes. Wraps child routes (Elections, Candidates, Voters, Admin Assignment, Results) inside the `AdminDashboardLayout` (which includes the Sidebar organism).
+Layout route component for all Admin and Super Admin routes. Wraps child routes (Elections, Paslon, Voters, Admin Assignment, Results) inside the `AdminDashboardLayout` (which includes the Sidebar organism).
 
 This component centralizes:
 - Role resolution from Zustand store (`isSuperAdmin()`)

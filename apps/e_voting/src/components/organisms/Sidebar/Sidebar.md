@@ -10,7 +10,7 @@ Vertical navigation rail for the Admin and Super Admin shell layouts. Provides r
 | Nav Item | Admin | Super Admin | Rationale |
 |---|---|---|---|
 | Pemilihan (Elections) | ✓ | ✓ | BR-05: Admin manages assigned; BR-03/04: Super Admin manages all |
-| Kandidat (Candidates) | ✓ | ✓ | Manage candidates within election scope |
+| Paslon (Candidates) | ✓ | ✓ | Manage candidate pairs within election scope |
 | Pemilih (Voters) | ✓ | ✓ | Create & enroll voters within scope |
 
 > **Catatan Navigasi:** _Penugasan Admin_ dan _Hasil Voting_ tidak tersedia sebagai menu navigasi terpisah. Kedua fitur ini hanya dapat diakses oleh Super Admin melalui opsi pada *datatable menu* Election page (lihat `ElectionPage`).

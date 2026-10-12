@@ -76,9 +76,9 @@ const columns = [
     cell: (row) => row.description || "-",
   },
   {
-    key: "candidates",
-    header: "Kandidat",
-    cell: (row) => row._count?.candidates || 0,
+    key: "candidatePairs",
+    header: "Paslon",
+    cell: (row) => row._count?.candidatePairs || 0,
     className: "text-center",
   },
   {

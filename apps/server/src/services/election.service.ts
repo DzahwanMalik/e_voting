@@ -68,6 +68,7 @@ const getAllElections = async (
         _count: {
           select: {
             candidates: true,
+            candidatePairs: true,
             electionVoters: true,
             electionAdmins: true,
           },
@@ -107,6 +108,7 @@ const getAllElections = async (
         _count: {
           select: {
             candidates: true,
+            candidatePairs: true,
             electionVoters: true,
             electionAdmins: true,
           },
@@ -128,7 +130,30 @@ const getAllElections = async (
       },
     },
     include: {
-      candidates: true,
+      candidatePairs: {
+        include: {
+          candidate: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+          vice: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+        },
+      },
       electionVoters: {
         where: {
           userId,
@@ -140,6 +165,7 @@ const getAllElections = async (
       _count: {
         select: {
           candidates: true,
+          candidatePairs: true,
         },
       },
     },
@@ -157,7 +183,30 @@ const getElectionById = async (
   const election = await prisma.election.findUnique({
     where: { id: electionId },
     include: {
-      candidates: true,
+      candidatePairs: {
+        include: {
+          candidate: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+          vice: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+        },
+      },
       electionAdmins: {
         select: {
           id: true,
@@ -176,6 +225,7 @@ const getElectionById = async (
       _count: {
         select: {
           candidates: true,
+          candidatePairs: true,
           electionVoters: true,
           electionAdmins: true,
         },
@@ -225,6 +275,13 @@ const getElectionById = async (
     );
   }
 
+  // BR-12: Strip vote counts for non-Super Admin
+  const pairsForVoter = election.candidatePairs.map((pair) => ({
+    ...pair,
+    candidate: pair.candidate,
+    vice: pair.vice,
+  }));
+
   return {
     id: election.id,
     title: election.title,
@@ -232,9 +289,10 @@ const getElectionById = async (
     createdAt: election.createdAt,
     updatedAt: election.updatedAt,
     hasVoted: isEnrolled.hasVoted,
-    candidates: election.candidates,
+    candidatePairs: pairsForVoter,
     _count: {
       candidates: election._count.candidates,
+      candidatePairs: election._count.candidatePairs,
     },
   };
 };

@@ -52,7 +52,7 @@ None. Self-contained page component that reads all state from `useUserStore`.
 
 Delete is guarded by `ConfirmModal` (replaces `window.confirm()`) and shows per-row loading (`isDeletingId`).
 
-"Lihat Detail" opens `ElectionDetailModal` (an organism-level modal composing `<Modal>`), showing election summary stats (candidate/voter/admin counts), timeline, and optional candidate/admin lists.
+"Lihat Detail" opens `ElectionDetailModal` (an organism-level modal composing `<Modal>`), showing election summary stats (candidate pair/voter/admin counts), timeline, and optional candidate pair/admin lists.
 
 ## Code Example
 

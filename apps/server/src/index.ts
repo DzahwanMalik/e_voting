@@ -3,7 +3,7 @@ import express, { type Express, type Request, type Response } from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import electionRoutes from "./routes/election.routes";
-import candidateRoutes from "./routes/candidate.routes";
+import candidatePairRoutes from "./routes/candidatePair.routes";
 import voterRoutes from "./routes/voter.routes";
 import voteRoutes from "./routes/vote.routes";
 import resultRoutes from "./routes/result.routes";
@@ -18,7 +18,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/elections", electionRoutes);
-app.use("/api/candidates", candidateRoutes);
+app.use("/api/candidate-pairs", candidatePairRoutes);
 app.use("/api/voters", voterRoutes);
 app.use("/api/votes", voteRoutes);
 app.use("/api/results", resultRoutes);

@@ -4,12 +4,13 @@ import Button from "@/components/atoms/Button";
 import type { CandidateCardProps } from "./CandidateCard.types";
 
 const CandidateCard = ({
-  candidate,
+  candidatePair,
   hasVotedInElection,
   onViewDetail,
   onSelectVote,
 }: CandidateCardProps) => {
   const [imageError, setImageError] = useState(false);
+  const { candidate: calon, vice: wakil } = candidatePair;
 
   const getInitials = (name: string): string => {
     return name
@@ -21,40 +22,66 @@ const CandidateCard = ({
       .toUpperCase();
   };
 
+  const renderPhoto = (
+    photoUrl: string | null,
+    name: string,
+    size: "md" | "lg",
+  ) => {
+    const sizeClass =
+      size === "md"
+        ? "w-14 h-14 sm:w-16 sm:h-16"
+        : "w-24 h-24 sm:w-28 sm:h-28";
+
+    if (photoUrl && !imageError) {
+      return (
+        <img
+          src={photoUrl}
+          alt={name}
+          onError={() => setImageError(true)}
+          className={`${sizeClass} rounded-xl overflow-hidden object-cover object-top`}
+        />
+      );
+    }
+
+    const innerIcon = size === "md" ? "w-8 h-8" : "w-8 h-8 sm:w-10 sm:h-10";
+    const textSize = size === "md" ? "text-sm sm:text-base" : "text-lg sm:text-2xl";
+
+    return (
+      <div
+        className={`${sizeClass} rounded-xl overflow-hidden bg-muted border border-border flex flex-col items-center justify-center text-center`}
+      >
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-secondary flex items-center justify-center mb-1.5 text-primary">
+          <User className={innerIcon} />
+        </div>
+        <span className={`font-heading font-bold ${textSize} tracking-wider`}>
+          {getInitials(name)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-card rounded-2xl border border-border p-5 flex flex-col justify-between shadow-xs hover:border-border-hover transition-all duration-200">
-      <div>
-        {/* Photo with Fallback */}
-        <div className="relative w-full h-52 rounded-xl overflow-hidden bg-muted border border-border mb-4">
-          {candidate.photoUrl && !imageError ? (
-            <img
-              src={candidate.photoUrl}
-              alt={candidate.name}
-              onError={() => setImageError(true)}
-              className="w-full h-full object-cover object-top"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50 text-secondary-foreground p-4 text-center">
-              <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-2 text-primary">
-                <User className="w-8 h-8" />
-              </div>
-              <span className="font-heading font-bold text-2xl tracking-wider">
-                {getInitials(candidate.name)}
-              </span>
-            </div>
-          )}
+      {/* Photo Section — Calon (main) */}
+      <div className="flex justify-center mb-4">
+        {renderPhoto(calon.photoUrl, calon.name, "lg")}
+      </div>
 
-        </div>
-
-        {/* Name and Summary */}
-        <div className="space-y-1.5 mb-4">
+      {/* Names and Summary */}
+      <div className="space-y-1.5 mb-4 text-center">
+        <div className="space-y-0.5">
           <h3 className="font-sans font-bold text-xl text-card-foreground tracking-tight">
-            {candidate.name}
+            {calon.name}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-            {candidate.description || "Tidak ada ringkasan profil kandidat."}
-          </p>
+          <h4 className="font-sans font-medium text-md text-muted-foreground">
+            {wakil.name}
+          </h4>
         </div>
+        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+          {calon.description ||
+            wakil.description ||
+            "Tidak ada ringkasan profil kandidat."}
+        </p>
       </div>
 
       {/* Action Buttons */}
@@ -62,7 +89,7 @@ const CandidateCard = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onViewDetail(candidate)}
+          onClick={() => onViewDetail(candidatePair)}
           icon={<FileText className="w-4 h-4" />}
           className="w-full"
         >
@@ -83,7 +110,7 @@ const CandidateCard = ({
           <Button
             variant="primary"
             size="sm"
-            onClick={() => onSelectVote(candidate)}
+            onClick={() => onSelectVote(candidatePair)}
             icon={<Vote className="w-4 h-4" />}
             className="w-full"
           >
@@ -96,4 +123,3 @@ const CandidateCard = ({
 };
 
 export default CandidateCard;
-

@@ -2,12 +2,20 @@ import { prisma } from "../lib/prisma";
 import { UserRole } from "../generated/prisma/enums";
 import { AppError } from "../utils/app-error";
 
-interface CandidateVoteResult {
-  candidateId: number;
+interface CandidateInfo {
+  id: number;
   name: string;
   photoUrl: string | null;
   description: string | null;
   birthday: Date;
+  isVice: boolean;
+}
+
+interface CandidatePairVoteResult {
+  candidatePairId: number;
+  calon: CandidateInfo;
+  wakil: CandidateInfo;
+  pairPhotoUrl: string | null;
   vision: string;
   mission: string;
   voteCount: number;
@@ -27,12 +35,13 @@ interface ElectionResultData {
   unvotedCount: number;
   totalVotes: number;
   turnoutPercentage: number;
-  results: CandidateVoteResult[];
+  results: CandidatePairVoteResult[];
 }
 
 interface LeadingCandidateInfo {
-  candidateId: number;
-  name: string;
+  candidatePairId: number;
+  calonName: string;
+  wakilName: string;
   voteCount: number;
   percentage: number;
 }
@@ -73,8 +82,28 @@ const getElectionResultById = async (
   const election = await prisma.election.findUnique({
     where: { id: electionId },
     include: {
-      candidates: {
+      candidatePairs: {
         include: {
+          candidate: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+          vice: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
           _count: {
             select: {
               votes: true,
@@ -103,8 +132,8 @@ const getElectionResultById = async (
 
   const totalVoters = election._count.electionVoters;
   const unvotedCount = Math.max(0, totalVoters - votedCount);
-  const totalVotes = election.candidates.reduce(
-    (sum, candidate) => sum + candidate._count.votes,
+  const totalVotes = election.candidatePairs.reduce(
+    (sum, pair) => sum + pair._count.votes,
     0,
   );
 
@@ -113,32 +142,45 @@ const getElectionResultById = async (
       ? Number(((votedCount / totalVoters) * 100).toFixed(2))
       : 0;
 
-  const results: CandidateVoteResult[] = election.candidates
-    .map((candidate) => {
-      const voteCount = candidate._count.votes;
+  const results: CandidatePairVoteResult[] = election.candidatePairs
+    .map((pair) => {
+      const voteCount = pair._count.votes;
       const percentage =
         totalVotes > 0
           ? Number(((voteCount / totalVotes) * 100).toFixed(2))
           : 0;
 
       return {
-        candidateId: candidate.id,
-        name: candidate.name,
-        photoUrl: candidate.photoUrl,
-        description: candidate.description,
-        birthday: candidate.birthday,
-        vision: candidate.vision,
-        mission: candidate.mission,
+        candidatePairId: pair.id,
+        calon: {
+          id: pair.candidate.id,
+          name: pair.candidate.name,
+          photoUrl: pair.candidate.photoUrl,
+          description: pair.candidate.description,
+          birthday: pair.candidate.birthday,
+          isVice: pair.candidate.isVice,
+        },
+        wakil: {
+          id: pair.vice.id,
+          name: pair.vice.name,
+          photoUrl: pair.vice.photoUrl,
+          description: pair.vice.description,
+          birthday: pair.vice.birthday,
+          isVice: pair.vice.isVice,
+        },
+        pairPhotoUrl: pair.photoUrl,
+        vision: pair.vision,
+        mission: pair.mission,
         voteCount,
         percentage,
       };
     })
     .sort((a, b) => {
-      // Sort leader first (highest votes descending), tie-break by candidateId ascending
+      // Sort leader first (highest votes descending), tie-break by candidatePairId ascending
       if (b.voteCount !== a.voteCount) {
         return b.voteCount - a.voteCount;
       }
-      return a.candidateId - b.candidateId;
+      return a.candidatePairId - b.candidatePairId;
     });
 
   return {
@@ -171,8 +213,28 @@ const getAllElectionResults = async (
 
   const elections = await prisma.election.findMany({
     include: {
-      candidates: {
+      candidatePairs: {
         include: {
+          candidate: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
+          vice: {
+            select: {
+              id: true,
+              name: true,
+              photoUrl: true,
+              description: true,
+              birthday: true,
+              isVice: true,
+            },
+          },
           _count: {
             select: {
               votes: true,
@@ -202,8 +264,8 @@ const getAllElectionResults = async (
 
       const totalVoters = election._count.electionVoters;
       const unvotedCount = Math.max(0, totalVoters - votedCount);
-      const totalVotes = election.candidates.reduce(
-        (sum, candidate) => sum + candidate._count.votes,
+      const totalVotes = election.candidatePairs.reduce(
+        (sum, pair) => sum + pair._count.votes,
         0,
       );
 
@@ -212,22 +274,35 @@ const getAllElectionResults = async (
           ? Number(((votedCount / totalVoters) * 100).toFixed(2))
           : 0;
 
-      const results: CandidateVoteResult[] = election.candidates
-        .map((candidate) => {
-          const voteCount = candidate._count.votes;
+      const results: CandidatePairVoteResult[] = election.candidatePairs
+        .map((pair) => {
+          const voteCount = pair._count.votes;
           const percentage =
             totalVotes > 0
               ? Number(((voteCount / totalVotes) * 100).toFixed(2))
               : 0;
 
           return {
-            candidateId: candidate.id,
-            name: candidate.name,
-            photoUrl: candidate.photoUrl,
-            description: candidate.description,
-            birthday: candidate.birthday,
-            vision: candidate.vision,
-            mission: candidate.mission,
+            candidatePairId: pair.id,
+            calon: {
+              id: pair.candidate.id,
+              name: pair.candidate.name,
+              photoUrl: pair.candidate.photoUrl,
+              description: pair.candidate.description,
+              birthday: pair.candidate.birthday,
+              isVice: pair.candidate.isVice,
+            },
+            wakil: {
+              id: pair.vice.id,
+              name: pair.vice.name,
+              photoUrl: pair.vice.photoUrl,
+              description: pair.vice.description,
+              birthday: pair.vice.birthday,
+              isVice: pair.vice.isVice,
+            },
+            vision: pair.vision,
+            mission: pair.mission,
+            pairPhotoUrl: pair.photoUrl,
             voteCount,
             percentage,
           };
@@ -236,7 +311,7 @@ const getAllElectionResults = async (
           if (b.voteCount !== a.voteCount) {
             return b.voteCount - a.voteCount;
           }
-          return a.candidateId - b.candidateId;
+          return a.candidatePairId - b.candidatePairId;
         });
 
       return {
@@ -286,8 +361,9 @@ const getResultSummary = async (
     const leader =
       firstResult && firstResult.voteCount > 0
         ? {
-            candidateId: firstResult.candidateId,
-            name: firstResult.name,
+            candidatePairId: firstResult.candidatePairId,
+            calonName: firstResult.calon.name,
+            wakilName: firstResult.wakil.name,
             voteCount: firstResult.voteCount,
             percentage: firstResult.percentage,
           }
@@ -322,7 +398,8 @@ const getResultSummary = async (
 };
 
 export type {
-  CandidateVoteResult,
+  CandidatePairVoteResult,
+  CandidateInfo,
   ElectionResultData,
   LeadingCandidateInfo,
   ElectionSummaryItem,

@@ -1,7 +1,7 @@
-import type { Candidate } from "@/services/election.service";
+import type { CandidatePair } from "@/services/election.service";
 
 interface CandidateRadioCardProps {
-  candidate: Candidate;
+  candidatePair: CandidatePair;
   isSelected: boolean;
   disabled?: boolean;
   onSelect: () => void;

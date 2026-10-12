@@ -13,12 +13,12 @@ import {
   getElectionAdmins,
 } from "../controllers/election.controller";
 import {
-  createCandidate,
-  getCandidates,
-  getCandidateById,
-  updateCandidate,
-  deleteCandidate,
-} from "../controllers/candidate.controller";
+  createCandidatePair,
+  getCandidatePairs,
+  getCandidatePairById,
+  updateCandidatePair,
+  deleteCandidatePair,
+} from "../controllers/candidatePair.controller";
 import {
   getElectionVoters,
   enrollVoters,
@@ -69,26 +69,26 @@ router.delete(
   removeAdmin,
 );
 
-// Candidate Management (Election-scoped)
-router.get("/:electionId/candidates", authenticate, getCandidates);
+// Candidate Pair Management (Election-scoped)
+router.get("/:electionId/candidate-pairs", authenticate, getCandidatePairs);
 router.post(
-  "/:electionId/candidates",
+  "/:electionId/candidate-pairs",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  createCandidate,
+  createCandidatePair,
 );
-router.get("/:electionId/candidates/:id", authenticate, getCandidateById);
+router.get("/:electionId/candidate-pairs/:id", authenticate, getCandidatePairById);
 router.put(
-  "/:electionId/candidates/:id",
+  "/:electionId/candidate-pairs/:id",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  updateCandidate,
+  updateCandidatePair,
 );
 router.delete(
-  "/:electionId/candidates/:id",
+  "/:electionId/candidate-pairs/:id",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  deleteCandidate,
+  deleteCandidatePair,
 );
 
 // Voter Management (Election-scoped)

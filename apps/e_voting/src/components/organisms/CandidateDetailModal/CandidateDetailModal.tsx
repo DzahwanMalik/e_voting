@@ -5,18 +5,24 @@ import Modal from "@/components/molecules/Modal";
 import type { CandidateDetailModalProps } from "./CandidateDetailModal.types";
 
 const CandidateDetailModal = ({
-  candidate,
+  candidatePair,
   isOpen,
   hasVotedInElection,
   onClose,
   onVote,
 }: CandidateDetailModalProps) => {
-  const [failedCandidateId, setFailedCandidateId] = useState<number | null>(
-    null,
+  const [failedCandidateIds, setFailedCandidateIds] = useState<Set<number>>(
+    new Set(),
   );
-  const imageError = candidate ? failedCandidateId === candidate.id : false;
 
-  if (!candidate) return null;
+  if (!candidatePair) return null;
+
+  const {
+    candidate: calon,
+    vice: wakil,
+    vision,
+    mission,
+  } = candidatePair;
 
   const formatBirthday = (dateString: string): string => {
     try {
@@ -42,68 +48,123 @@ const CandidateDetailModal = ({
       .toUpperCase();
   };
 
+  const renderPhoto = (
+    photoUrl: string | null,
+    id: number,
+    name: string,
+    size: "sm" | "lg",
+  ) => {
+    const sizeClass =
+      size === "sm"
+        ? "w-24 h-24 sm:w-28 sm:h-28"
+        : "w-20 h-20 rounded-xl";
+
+    const hasError = failedCandidateIds.has(id);
+
+    if (photoUrl && !hasError) {
+      return (
+        <div className={sizeClass}>
+          <img
+            src={photoUrl}
+            alt={name}
+            onError={() => setFailedCandidateIds((prev) => new Set([...prev, id]))}
+            className="w-full h-full object-cover object-top rounded-2xl"
+          />
+        </div>
+      );
+    }
+
+    if (size === "lg") {
+      return (
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-muted border border-border flex flex-col items-center justify-center">
+          <User className="w-8 h-8 text-primary mb-1" />
+          <span className="font-heading font-bold text-lg tracking-wider">
+            {getInitials(name)}
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-muted border border-border flex flex-col items-center justify-center">
+        <User className="w-8 h-8 text-primary mb-1" />
+        <span className="font-heading font-bold text-lg tracking-wider">
+          {getInitials(name)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       size="2xl"
-      title="Profil Lengkap Kandidat"
+      title="Profil Lengkap Paslon"
     >
       {/* Modal Body (Scrollable) */}
       <div className="p-6 overflow-y-auto space-y-6 flex-1">
-        {/* Candidate Profile Summary */}
+        {/* Candidate Pair Summary — Calon (main) */}
         <div className="flex flex-col sm:flex-row gap-5 items-start">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-muted border border-border shrink-0">
-            {candidate.photoUrl && !imageError ? (
-              <img
-                src={candidate.photoUrl}
-                alt={candidate.name}
-                onError={() => setFailedCandidateId(candidate.id)}
-                className="w-full h-full object-cover object-top"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50 text-secondary-foreground">
-                <User className="w-8 h-8 text-primary mb-1" />
-                <span className="font-heading font-bold text-lg">
-                  {getInitials(candidate.name)}
-                </span>
-              </div>
-            )}
-          </div>
+          {renderPhoto(calon.photoUrl, calon.id, calon.name, "lg")}
 
           <div className="space-y-2 flex-1">
             <h2 className="font-sans font-bold text-2xl text-card-foreground">
-              {candidate.name}
+              {calon.name}
             </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Calon Utama
+            </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 text-primary" />
-              <span>Lahir: {formatBirthday(candidate.birthday)}</span>
+              <span>Lahir: {formatBirthday(calon.birthday)}</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {candidate.description || "Tidak ada deskripsi singkat."}
+              {calon.description || "Tidak ada deskripsi singkat."}
             </p>
           </div>
         </div>
 
-        {/* Visi Section */}
+        {/* Candidate Pair Summary — Wakil (vice) */}
+        <div className="flex flex-col sm:flex-row gap-5 items-start">
+          {renderPhoto(wakil.photoUrl, wakil.id, wakil.name, "lg")}
+
+          <div className="space-y-2 flex-1">
+            <h2 className="font-sans font-bold text-2xl text-card-foreground">
+              {wakil.name}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Wakil Calon
+            </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4 text-primary" />
+              <span>Lahir: {formatBirthday(wakil.birthday)}</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {wakil.description || "Tidak ada deskripsi singkat."}
+            </p>
+          </div>
+        </div>
+
+        {/* Visi Section (Shared) */}
         <div className="space-y-2.5">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground uppercase tracking-wider">
             <Compass className="w-4 h-4 text-primary" />
             <span>Visi</span>
           </div>
           <div className="p-4 rounded-2xl bg-secondary/40 border border-secondary text-card-foreground text-sm leading-relaxed">
-            {candidate.vision}
+            {vision}
           </div>
         </div>
 
-        {/* Misi Section */}
+        {/* Misi Section (Shared) */}
         <div className="space-y-2.5">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground uppercase tracking-wider">
             <Target className="w-4 h-4 text-primary" />
             <span>Misi</span>
           </div>
           <div className="p-4 rounded-2xl bg-muted border border-border text-card-foreground text-sm leading-relaxed whitespace-pre-line">
-            {candidate.mission}
+            {mission}
           </div>
         </div>
       </div>
@@ -120,11 +181,11 @@ const CandidateDetailModal = ({
             size="sm"
             onClick={() => {
               onClose();
-              onVote(candidate);
+              onVote(candidatePair);
             }}
             icon={<Vote className="w-4 h-4" />}
           >
-            Pilih Kandidat Ini
+            Pilih Paslon Ini
           </Button>
         )}
       </div>

@@ -92,38 +92,48 @@ const ElectionResultModal = ({
 
             <div className="space-y-3 pt-2">
               <h3 className="font-sans text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Perolehan Suara Kandidat
+                Perolehan Suara Paslon
               </h3>
 
               {resultData.results.length === 0 ? (
                 <EmptyState
-                  title="Belum Ada Kandidat"
-                  description="Belum ada kandidat yang menerima suara dalam pemilihan ini."
+                  title="Belum Ada Suara"
+                  description="Belum ada suara yang tercatat untuk paslon manapun dalam pemilihan ini."
                   icon={<Users className="w-8 h-8" />}
                 />
               ) : (
                 <div className="space-y-3">
-                  {resultData.results.map((candidate) => (
+                  {resultData.results.map((pairResult) => (
                     <div
-                      key={candidate.candidateId}
+                      key={pairResult.candidatePairId}
                       className="p-4 rounded-2xl border border-border"
                     >
-                      <div className="flex items-center mb-2">
-                        <span className="font-sans font-semibold text-foreground">
-                          {candidate.name}
+                      {/* Pair header: calon name + wakil name */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex flex-col">
+                          <span className="font-sans font-semibold text-foreground">
+                            {pairResult.calon.name}
+                          </span>
+                          <span className="font-sans font-medium text-sm text-muted-foreground">
+                            — {pairResult.wakil.name}
+                          </span>
+                        </div>
+
+                        <span className="font-sans font-bold text-primary text-lg">
+                          {pairResult.voteCount} suara
                         </span>
                       </div>
 
                       <div className="w-full bg-muted rounded-full h-2 mt-2">
                         <div
                           className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${candidate.percentage}%` }}
+                          style={{ width: `${pairResult.percentage}%` }}
                         />
                       </div>
 
                       <div className="flex justify-between items-center mt-2 text-xs">
                         <span className="text-muted-foreground">
-                          {candidate.percentage.toFixed(1)}%
+                          {pairResult.percentage.toFixed(1)}%
                         </span>
                         <span className="text-muted-foreground">
                           {resultData.totalVotes} total suara

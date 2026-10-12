@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Placeholder page displayed for admin/super admin navigation items that are not yet implemented (Elections, Candidates, Voters, Admin Assignment, Results). Renders within the `AdminDashboardLayout` (Sidebar stays visible).
+Placeholder page displayed for admin/super admin navigation items that are not yet implemented (Elections, Paslon, Voters, Admin Assignment, Results). Renders within the `AdminDashboardLayout` (Sidebar stays visible).
 
 ## Props
 

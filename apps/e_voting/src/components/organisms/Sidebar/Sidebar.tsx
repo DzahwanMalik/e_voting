@@ -18,9 +18,9 @@ const sidebarNavItems: SidebarNavItem[] = [
     href: "/admin/elections",
   },
   {
-    label: "Kandidat",
+    label: "Paslon",
     icon: Award,
-    href: "/admin/candidates",
+    href: "/admin/candidate-pairs",
   },
   {
     label: "Pemilih",

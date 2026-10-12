@@ -98,11 +98,11 @@ const ElectionPage = () => {
       ),
     },
     {
-      key: "candidates",
-      header: "Kandidat",
+      key: "candidatePairs",
+      header: "Paslon",
       cell: (row: ElectionListItem) => (
         <Badge variant="default" className="px-2.5 py-0.5">
-          {row._count?.candidates ?? 0}
+          {row._count?.candidatePairs ?? 0}
         </Badge>
       ),
     },

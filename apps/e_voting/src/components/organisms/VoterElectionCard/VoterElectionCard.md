@@ -4,24 +4,26 @@
 - **Folder**: `src/components/organisms/VoterElectionCard/`
 
 ## Purpose
-Comprehensive card container representing a single election per voter requirements. Encapsulates the election title and description, a status notice banner communicating the voter's voting state (Hak Suara Telah Digunakan / Pilih Kandidat Anda), a candidate list rendered as interactive radio cards, and a dedicated footer containing chosen-candidate feedback and the "Kirim Suara" submission button with confirmation dialog. The voter's voting status is surfaced via the banner and footer rather than a separate vote-status badge, and the election creation date is intentionally not displayed to voters.
+Comprehensive card container representing a single election per voter requirements. Encapsulates the election title and description, a status notice banner communicating the voter's voting state (Hak Suara Telah Digunakan / Pilih Paslon Kandidat Anda), a candidate pair list rendered as interactive radio cards (or grid card layout for single elections), and a dedicated footer containing chosen-pair feedback and the "Kirim Suara" submission button with confirmation dialog. The voter's voting status is surfaced via the banner and footer rather than a separate vote-status badge, and the election creation date is intentionally not displayed to voters.
 
 ## Props
-- `election`: `ElectionListItem` - The election data including candidates and hasVoted state.
-- `onVoteSuccess`: `(electionId: number) => void` - Callback executed after a successful vote.
-- `onViewCandidateDetail`: `(candidate: Candidate) => void` - Callback to view full candidate details.
+- `election`: `ElectionListItem` - The election data including candidate pairs (`candidatePairs`) and `electionVoters` hasVoted state.
+- `onVoteSuccess`: `(electionId: number) => void` - Callback fired after a successful vote submission.
+- `onViewCandidateDetail`: `(candidatePair: CandidatePair) => void` - Callback to view full candidate pair details.
+
+## Notes on View Layout
+- When a voter is enrolled in **multiple elections**, cards render with the compact radio-list layout.
+- When a voter is enrolled in **a single election** (full-width context), the card switches to a grid layout using `<CandidateCard>` for a richer visual experience.
+
+## API Integration
+- Uses `getElectionByIdApi` (from `election.service.ts`) to lazily fetch candidate pairs when not included in the election list response.
+- Uses `castVoteApi` to submit votes with `candidatePairId` in the payload.
 
 ## Semantic Tokens Used
-- Card Surface: `bg-card`, `border-border`, `text-card-foreground`, `rounded-3xl` (via `SectionCard`)
-- Description: `text-muted-foreground`, `border-border` (divider above status banner)
-- Status Notice Banner: `bg-success-subtle/50`, `text-success-subtle-foreground` (voted); `bg-secondary/50`, `text-secondary-foreground` (not voted)
-- Footer Bar: `bg-muted/30`, `border-border` (SectionCard footer shell)
-- Action Button: `bg-primary`, `text-primary-foreground`
-
-## Component Composition
-- Uses `<SectionCard>` molecule for the card shell, passing `title` and structured `footer` props
-- Composes `<CandidateRadioCard>` molecules for candidate selection
-- Uses `<VoteConfirmModal>` organism for vote confirmation
+- Card: `bg-card`, `border-border`, `shadow-xs`
+- Banner Success: `bg-success-subtle/50`, `border-success-subtle`
+- Banner Info: `bg-secondary/50`, `border-secondary`
+- Footer: `bg-muted/30`, `border-border`
 
 ## Code Example
 ```tsx
@@ -30,7 +32,6 @@ import VoterElectionCard from "@/components/organisms/VoterElectionCard";
 <VoterElectionCard
   election={election}
   onVoteSuccess={handleVoteSuccess}
-  onViewCandidateDetail={handleOpenDetail}
+  onViewCandidateDetail={(pair) => setSelectedPair(pair)}
 />
 ```
-

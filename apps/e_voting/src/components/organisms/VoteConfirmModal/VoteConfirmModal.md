@@ -4,33 +4,31 @@
 - **Folder**: `src/components/organisms/VoteConfirmModal/`
 
 ## Purpose
-Confirmation dialog prompt before casting a vote per PRD BR-10 and Section 7. Prevents accidental vote submissions, reinforces the one-vote-per-election rule, and provides loading feedback during atomic vote transaction submission.
+Confirmation dialog prompt before casting a vote per PRD BR-10 and Section 7. Prevents accidental vote submissions, reinforces the one-vote-per-election rule (One-Vote-Per-Election), and provides loading feedback during atomic vote transaction submission. Displays the selected candidate **pair** (calon + wakil) for clarity.
 
 ## Props
-- `candidate`: `Candidate | null` chosen candidate
-- `electionTitle`: `string` title of active election
-- `isOpen`: `boolean` modal visibility
+- `candidatePair`: `CandidatePair | null` chosen candidate pair
+- `electionTitle`: `string` title of the election being voted on
+- `isOpen`: `boolean` modal open state
 - `isSubmitting`: `boolean` loading status of the vote API submission
-- `onClose`: `() => void` cancel / dismiss callback
+- `onClose`: `() => void` modal dismissal callback
 - `onConfirm`: `() => void` vote submission handler
 
 ## Semantic Tokens Used
-- Modal Surface: `bg-card`, `border-border`, `text-card-foreground`, `shadow-xl`, `rounded-3xl`
-- Warning Banner: `bg-warning-subtle`, `text-warning-subtle-foreground`, `text-warning`
-- Candidate Highlight: `bg-secondary`, `text-secondary-foreground`, `border-secondary`
-- Primary CTA: `bg-primary`, `text-primary-foreground`
+- Highlight Box: `bg-secondary/50`, `border-secondary`
+- Warning Banner: `bg-warning-subtle/40`, `border-warning-subtle`, `text-warning-subtle-foreground`
+- Text: `text-foreground`, `text-secondary-foreground`, `text-muted-foreground`
 
 ## Code Example
 ```tsx
 import VoteConfirmModal from "@/components/organisms/VoteConfirmModal";
 
 <VoteConfirmModal
-  candidate={selectedCandidate}
-  electionTitle="Pemilihan Ketua 2026"
+  candidatePair={selectedPair}
+  electionTitle={election.title}
   isOpen={isConfirmOpen}
-  isSubmitting={isVoting}
+  isSubmitting={isSubmitting}
   onClose={() => setIsConfirmOpen(false)}
   onConfirm={handleConfirmVote}
 />
 ```
-

@@ -13,6 +13,35 @@ interface ElectionAdmin {
   };
 }
 
+interface IndividualCandidate {
+  id: number;
+  electionId: number;
+  name: string;
+  photoUrl: string | null;
+  description: string | null;
+  birthday: string;
+  isVice: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CandidatePair {
+  id: number;
+  electionId: number;
+  candidateId: number;
+  viceId: number;
+  photoUrl: string | null;
+  vision: string;
+  mission: string;
+  createdAt: string;
+  updatedAt: string;
+  candidate: IndividualCandidate;
+  vice: IndividualCandidate;
+  _count?: {
+    votes: number;
+  };
+}
+
 interface ElectionListItem {
   id: number;
   title: string;
@@ -22,26 +51,14 @@ interface ElectionListItem {
   electionVoters?: Array<{
     hasVoted: boolean;
   }>;
-  candidates?: Candidate[];
+  candidatePairs?: CandidatePair[];
   electionAdmins?: ElectionAdmin[];
   _count?: {
     candidates: number;
+    candidatePairs: number;
     electionVoters?: number;
     electionAdmins?: number;
   };
-}
-
-interface Candidate {
-  id: number;
-  electionId: number;
-  name: string;
-  photoUrl: string | null;
-  description: string | null;
-  birthday: string;
-  vision: string;
-  mission: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface ElectionDetail {
@@ -51,21 +68,22 @@ interface ElectionDetail {
   createdAt: string;
   updatedAt: string;
   hasVoted: boolean;
-  candidates: Candidate[];
+  candidatePairs: CandidatePair[];
   _count?: {
     candidates: number;
+    candidatePairs: number;
   };
 }
 
 interface CastVotePayload {
   electionId: number;
-  candidateId: number;
+  candidatePairId: number;
 }
 
 interface CastVoteResult {
   message: string;
   electionId: number;
-  candidateId: number;
+  candidatePairId: number;
   hasVoted: boolean;
 }
 
@@ -98,12 +116,25 @@ interface AdminAssignmentResponse {
   electionAdmins: AdminUser[];
 }
 
-interface CandidateVoteResult {
-  candidateId: number;
-  name: string;
-  photoUrl: string | null;
-  description: string | null;
-  birthday: string;
+interface CandidatePairVoteResult {
+  candidatePairId: number;
+  calon: {
+    id: number;
+    name: string;
+    photoUrl: string | null;
+    description: string | null;
+    birthday: string;
+    isVice: boolean;
+  };
+  wakil: {
+    id: number;
+    name: string;
+    photoUrl: string | null;
+    description: string | null;
+    birthday: string;
+    isVice: boolean;
+  };
+  pairPhotoUrl: string | null;
   vision: string;
   mission: string;
   voteCount: number;
@@ -123,7 +154,41 @@ interface ElectionResultData {
   unvotedCount: number;
   totalVotes: number;
   turnoutPercentage: number;
-  results: CandidateVoteResult[];
+  results: CandidatePairVoteResult[];
+}
+
+interface CreateCandidatePairPayload {
+  electionId: number;
+  candidateName: string;
+  candidatePhotoUrl?: string | null;
+  candidateDescription?: string | null;
+  candidateBirthday: string;
+  viceName: string;
+  vicePhotoUrl?: string | null;
+  viceDescription?: string | null;
+  viceBirthday: string;
+  pairPhotoUrl?: string | null;
+  vision: string;
+  mission: string;
+}
+
+interface UpdateCandidatePairPayload {
+  candidateName?: string;
+  candidatePhotoUrl?: string | null;
+  candidateDescription?: string | null;
+  candidateBirthday?: string;
+  viceName?: string;
+  vicePhotoUrl?: string | null;
+  viceDescription?: string | null;
+  viceBirthday?: string;
+  pairPhotoUrl?: string | null;
+  vision?: string;
+  mission?: string;
+}
+
+interface CandidatePairResponse {
+  message: string;
+  candidatePair: CandidatePair;
 }
 
 const getElectionsApi = async (): Promise<ElectionListItem[]> => {
@@ -150,14 +215,60 @@ const getElectionByIdApi = async (id: number): Promise<ElectionDetail> => {
   }
 };
 
-const getCandidatesByElectionApi = async (
+const getCandidatePairsByElectionApi = async (
   electionId: number,
-): Promise<Candidate[]> => {
+): Promise<CandidatePair[]> => {
   try {
-    const response = await api.get<{ candidates: Candidate[] }>(
-      `/elections/${electionId}/candidates`,
+    const response = await api.get<{ candidatePairs: CandidatePair[] }>(
+      `/elections/${electionId}/candidate-pairs`,
     );
-    return response.data.candidates;
+    return response.data.candidatePairs;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const createCandidatePairApi = async (
+  payload: CreateCandidatePairPayload,
+): Promise<CandidatePair> => {
+  try {
+    const response = await api.post<{ message: string; candidatePair: CandidatePair }>(
+      "/candidate-pairs",
+      payload,
+    );
+    return response.data.candidatePair;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const updateCandidatePairApi = async (
+  pairId: number,
+  payload: UpdateCandidatePairPayload,
+): Promise<CandidatePair> => {
+  try {
+    const response = await api.put<{ message: string; candidatePair: CandidatePair }>(
+      `/candidate-pairs/${pairId}`,
+      payload,
+    );
+    return response.data.candidatePair;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const deleteCandidatePairApi = async (pairId: number): Promise<void> => {
+  try {
+    await api.delete<{ message: string }>(`/candidate-pairs/${pairId}`);
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message as string, { cause: error });
@@ -290,7 +401,8 @@ const getElectionResultApi = async (
 
 export type {
   ElectionListItem,
-  Candidate,
+  IndividualCandidate,
+  CandidatePair,
   ElectionDetail,
   ElectionAdmin,
   CastVotePayload,
@@ -300,14 +412,20 @@ export type {
   AdminUser,
   AssignAdminsPayload,
   AdminAssignmentResponse,
-  CandidateVoteResult,
+  CandidatePairVoteResult,
   ElectionResultData,
+  CreateCandidatePairPayload,
+  UpdateCandidatePairPayload,
+  CandidatePairResponse,
 };
 
 export {
   getElectionsApi,
   getElectionByIdApi,
-  getCandidatesByElectionApi,
+  getCandidatePairsByElectionApi,
+  createCandidatePairApi,
+  updateCandidatePairApi,
+  deleteCandidatePairApi,
   castVoteApi,
   getVotingStatusApi,
   deleteElectionApi,

@@ -5,7 +5,7 @@ import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
 import {
   getElectionsApi,
   type ElectionListItem,
-  type Candidate,
+  type CandidatePair,
 } from "@/services/election.service";
 import LoadingState from "@/components/molecules/LoadingState";
 import EmptyState from "@/components/molecules/EmptyState";
@@ -16,8 +16,8 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
   const [isLoadingElections, setIsLoadingElections] = useState(true);
   const [elections, setElections] = useState<ElectionListItem[]>([]);
 
-  // Modal State for inspecting Candidate Profile (Vision, Mission, Birthday)
-  const [detailCandidate, setDetailCandidate] = useState<Candidate | null>(
+  // Modal State for inspecting Candidate Pair Profile (Vision, Mission, Birthday)
+  const [detailCandidatePair, setDetailCandidatePair] = useState<CandidatePair | null>(
     null,
   );
 
@@ -108,8 +108,8 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
               key={election.id}
               election={election}
               onVoteSuccess={handleVoteSuccess}
-              onViewCandidateDetail={(candidate) =>
-                setDetailCandidate(candidate)
+              onViewCandidateDetail={(candidatePair) =>
+                setDetailCandidatePair(candidatePair)
               }
             />
           ))}
@@ -118,10 +118,10 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
 
       {/* Candidate Detail Modal (Inspection only) */}
       <CandidateDetailModal
-        candidate={detailCandidate}
-        isOpen={Boolean(detailCandidate)}
+        candidatePair={detailCandidatePair}
+        isOpen={Boolean(detailCandidatePair)}
         hasVotedInElection={true}
-        onClose={() => setDetailCandidate(null)}
+        onClose={() => setDetailCandidatePair(null)}
         onVote={() => {}}
       />
     </div>
@@ -129,4 +129,3 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
 };
 
 export default VoterDashboard;
-

@@ -13,9 +13,8 @@ const ElectionDetailModal = ({
 }: ElectionDetailModalProps) => {
   if (!election) return null;
 
-  const candidateCount = election._count?.candidates ?? election.candidates?.length ?? 0;
+  const pairCount = election._count?.candidatePairs ?? election.candidatePairs?.length ?? 0;
   const voterCount = election._count?.electionVoters ?? election.electionVoters?.length ?? 0;
-  const adminCount = election._count?.electionAdmins ?? election.electionAdmins?.length ?? 0;
 
   return (
     <Modal
@@ -45,8 +44,8 @@ const ElectionDetailModal = ({
         <div className="grid grid-cols-3 gap-4">
           <StatCard
             icon={<Layers className="w-4 h-4" />}
-            label="Kandidat"
-            value={candidateCount}
+            label="Paslon"
+            value={pairCount}
             variant="secondary"
           />
           <StatCard
@@ -58,7 +57,9 @@ const ElectionDetailModal = ({
           <StatCard
             icon={<Shield className="w-4 h-4" />}
             label="Admin"
-            value={adminCount}
+            value={
+              election._count?.electionAdmins ?? election.electionAdmins?.length ?? 0
+            }
             variant="warning"
           />
         </div>
@@ -80,39 +81,54 @@ const ElectionDetailModal = ({
           </div>
         </div>
 
-        {/* Candidates List */}
-        {election.candidates && election.candidates.length > 0 ? (
+        {/* Candidate Pairs List */}
+        {election.candidatePairs && election.candidatePairs.length > 0 ? (
           <div className="space-y-2.5">
             <h3 className="font-sans text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Daftar Kandidat ({election.candidates.length})
+              Daftar Paslon ({election.candidatePairs.length})
             </h3>
             <div className="space-y-2">
-              {election.candidates.map((candidate) => (
+              {election.candidatePairs.map((pair) => (
                 <div
-                  key={candidate.id}
+                  key={pair.id}
                   className="flex items-center gap-3 p-3 rounded-xl border border-border"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground font-medium text-sm shrink-0">
-                    {candidate.name
-                      .split(" ")
-                      .map((part) => part[0])
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase()}
+                  <div className="flex items-center -space-x-2">
+                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground font-medium text-xs shrink-0 border-2 border-card">
+                      {pair.candidate
+                        ? pair.candidate.name
+                            .split(" ")
+                            .map((part) => part[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()
+                        : "??"}
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-secondary-foreground font-medium text-xs shrink-0 border-2 border-card">
+                      {pair.vice
+                        ? pair.vice.name
+                            .split(" ")
+                            .map((part) => part[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()
+                        : "??"}
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-sans font-medium text-foreground">
-                      {candidate.name}
+                      {pair.candidate?.name} &amp; {pair.vice?.name}
                     </p>
-                    {candidate.description && (
+                    {pair.candidate?.description && (
                       <p className="text-sm text-muted-foreground line-clamp-1">
-                        {candidate.description}
+                        {pair.candidate.description}
                       </p>
                     )}
                   </div>
                   <Badge variant="default" className="text-xs">
-                    No. {candidate.id}
+                    No. {pair.id}
                   </Badge>
                 </div>
               ))}

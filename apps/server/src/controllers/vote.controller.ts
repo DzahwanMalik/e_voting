@@ -22,18 +22,18 @@ const castVote = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const candidateId = parsePositiveInt(req.body.candidateId);
+    const candidatePairId = parsePositiveInt(req.body.candidatePairId);
 
-    if (!candidateId) {
+    if (!candidatePairId) {
       res.status(400).json({
-        message: "ID candidate tidak valid atau wajib diisi.",
+        message: "ID paslon kandidat tidak valid atau wajib diisi.",
       });
       return;
     }
 
     const result = await voteService.castVote({
       electionId,
-      candidateId,
+      candidatePairId,
       userId: req.user.userId,
       role: req.user.role,
     });

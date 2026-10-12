@@ -3,34 +3,39 @@ import { UserRole } from "../generated/prisma/enums";
 import { authenticate } from "../middlewares/auth.middleware";
 import { requireRole } from "../middlewares/role.middleware";
 import {
-  createCandidate,
-  getCandidates,
+  createCandidatePair,
+  getCandidatePairs,
+  getCandidatePairById,
+  updateCandidatePair,
+  deleteCandidatePair,
   getCandidateById,
-  updateCandidate,
-  deleteCandidate,
-} from "../controllers/candidate.controller";
+} from "../controllers/candidatePair.controller";
 
 const router = Router();
 
-router.get("/", authenticate, getCandidates);
+// Candidate Pair CRUD (top-level — Super Admin/Admin only)
+router.get("/", authenticate, getCandidatePairs);
 router.post(
   "/",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  createCandidate,
+  createCandidatePair,
 );
-router.get("/:id", authenticate, getCandidateById);
+router.get("/:id", authenticate, getCandidatePairById);
 router.put(
   "/:id",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  updateCandidate,
+  updateCandidatePair,
 );
 router.delete(
   "/:id",
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  deleteCandidate,
+  deleteCandidatePair,
 );
+
+// Individual candidate lookup (for form pre-fill)
+router.get("/candidate/:id", authenticate, getCandidateById);
 
 export default router;

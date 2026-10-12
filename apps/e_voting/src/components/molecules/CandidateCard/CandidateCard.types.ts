@@ -1,10 +1,10 @@
-import type { Candidate } from "@/services/election.service";
+import type { CandidatePair } from "@/services/election.service";
 
 interface CandidateCardProps {
-  candidate: Candidate;
+  candidatePair: CandidatePair;
   hasVotedInElection: boolean;
-  onViewDetail: (candidate: Candidate) => void;
-  onSelectVote: (candidate: Candidate) => void;
+  onViewDetail: (candidatePair: CandidatePair) => void;
+  onSelectVote: (candidatePair: CandidatePair) => void;
 }
 
 export type { CandidateCardProps };

@@ -4,7 +4,7 @@ import { AppError } from "../utils/app-error";
 
 interface CastVoteInput {
   electionId: number;
-  candidateId: number;
+  candidatePairId: number;
   userId: number;
   role: UserRole;
 }
@@ -12,7 +12,7 @@ interface CastVoteInput {
 interface CastVoteResult {
   message: string;
   electionId: number;
-  candidateId: number;
+  candidatePairId: number;
   hasVoted: boolean;
 }
 
@@ -24,7 +24,7 @@ interface VotingStatusResult {
 }
 
 const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
-  const { electionId, candidateId, userId, role } = input;
+  const { electionId, candidatePairId, userId, role } = input;
 
   // BR-01: Hanya Voter yang dapat memberikan vote
   if (role !== UserRole.VOTER) {
@@ -65,19 +65,19 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
     throw new AppError("Anda sudah melakukan voting pada election ini.", 400);
   }
 
-  // 4. Cek keberadaan Candidate
-  const candidate = await prisma.candidate.findUnique({
-    where: { id: candidateId },
+  // 4. Cek keberadaan CandidatePair (BR-09)
+  const candidatePair = await prisma.candidatePair.findUnique({
+    where: { id: candidatePairId },
   });
 
-  if (!candidate) {
-    throw new AppError("Candidate tidak ditemukan.", 404);
+  if (!candidatePair) {
+    throw new AppError("Paslon kandidat tidak ditemukan.", 404);
   }
 
-  // 5. Cek apakah candidate adalah bagian dari election ini (BR-09, BR-13)
-  if (candidate.electionId !== electionId) {
+  // 5. Cek apakah candidate pair adalah bagian dari election ini (BR-09, BR-13)
+  if (candidatePair.electionId !== electionId) {
     throw new AppError(
-      "Candidate yang dipilih bukan bagian dari election ini.",
+      "Paslon kandidat yang dipilih bukan bagian dari election ini.",
       400,
     );
   }
@@ -102,14 +102,14 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
 
     await tx.vote.create({
       data: {
-        candidateId,
+        candidatePairId,
       },
     });
 
     return {
       message: "Voting berhasil.",
       electionId,
-      candidateId,
+      candidatePairId,
       hasVoted: true,
     };
   });

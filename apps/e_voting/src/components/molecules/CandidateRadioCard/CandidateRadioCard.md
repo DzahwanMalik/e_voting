@@ -4,34 +4,31 @@
 - **Folder**: `src/components/molecules/CandidateRadioCard/`
 
 ## Purpose
-Compact, thin horizontal candidate row molecule that functions as an interactive radio selection item within an election card. Displays candidate photo/thumbnail on the left, candidate number badge, name, and short description in the middle, and detail profile button along with the radio selection indicator on the right.
+Compact, thin horizontal candidate pair row molecule that functions as an interactive radio selection item within an election card. Displays the pair-level campaign photo (`CandidatePair.photoUrl`) on the left, both candidate names (calon + wakil) in the middle, and a detail profile button along with the radio selection indicator on the right. Does not display description text to keep the row compact.
 
 ## Props
-- `candidate`: `Candidate` - The candidate object.
-- `candidateNumber`: `number` - Numerical index of the candidate.
-- `isSelected`: `boolean` - Whether this candidate is currently selected as the active radio choice.
-- `disabled`: `boolean` (optional) - Disables radio selection if user has already voted in this election.
-- `onSelect`: `() => void` - Selection callback.
-- `onViewDetail`: `() => void` - Detail modal trigger callback (stops event propagation).
+- `candidatePair`: `CandidatePair` - The candidate pair object containing calon and wakil.
+- `isSelected`: `boolean` - Whether this candidate pair is currently selected as the active radio choice.
+- `disabled`: `boolean` - Whether the radio card is disabled (e.g., after voting).
+- `onSelect`: `() => void` - Handler when this pair is selected.
+- `onViewDetail`: `() => void` - Handler to view detailed pair profile.
 
-## Layout & Semantic Tokens Used
-- Layout: Thin horizontal flex item (`p-3 sm:p-3.5`, thumbnail `w-14 h-14` / `w-16 h-16` on the left)
-- Surfaces: `bg-card`, `border-border`, `text-card-foreground`, `hover:bg-accent/40`
-- Active State: `bg-secondary/40`, `border-primary`, `ring-primary`
-- Radio Indicator: `border-primary`, `bg-primary`, `text-primary-foreground`
-- Disabled State: `bg-muted/40`, `opacity-75`
+## Semantic Tokens Used
+- Selected: `bg-secondary/40`, `border-primary`, `ring-2`, `ring-primary`, `shadow-xs`
+- Default: `bg-card`, `border-border`, `hover:border-border-hover`, `hover:bg-accent/40`
+- Disabled: `opacity-75`, `cursor-not-allowed`
+- Name: `text-card-foreground`
+- Description: `text-muted-foreground`
 
 ## Code Example
 ```tsx
 import CandidateRadioCard from "@/components/molecules/CandidateRadioCard";
 
 <CandidateRadioCard
-  candidate={candidate}
-  candidateNumber={1}
-  isSelected={selectedCandidateId === candidate.id}
+  candidatePair={pair}
+  isSelected={selectedPairId === pair.id}
   disabled={hasVoted}
-  onSelect={() => setSelectedCandidateId(candidate.id)}
-  onViewDetail={() => handleOpenDetail(candidate)}
+  onSelect={() => setSelectedPairId(pair.id)}
+  onViewDetail={() => handleOpenDetail(pair)}
 />
 ```
-
