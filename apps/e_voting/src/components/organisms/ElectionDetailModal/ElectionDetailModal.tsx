@@ -1,7 +1,9 @@
-import { Calendar, Clock, Users, Shield, Layers } from "lucide-react";
+import { Calendar, Clock, Users, Shield, Layers, Upload } from "lucide-react";
+import { useState } from "react";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import Modal from "@/components/molecules/Modal";
+import ImportVotersModal from "@/components/organisms/ImportVotersModal";
 import StatCard from "@/components/molecules/StatCard";
 import type { ElectionDetailModalProps } from "./ElectionDetailModal.types";
 import { formatDate } from "@/lib/utils";
@@ -10,11 +12,22 @@ const ElectionDetailModal = ({
   election,
   isOpen,
   onClose,
+  currentUserRole,
+  onImportSuccess,
 }: ElectionDetailModalProps) => {
-  if (!election) return null;
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  const pairCount = election._count?.candidatePairs ?? election.candidatePairs?.length ?? 0;
-  const voterCount = election._count?.electionVoters ?? election.electionVoters?.length ?? 0;
+  if (!election) {
+    return null;
+  }
+
+  const pairCount =
+    election._count?.candidatePairs ?? election.candidatePairs?.length ?? 0;
+  const voterCount =
+    election._count?.electionVoters ?? election.electionVoters?.length ?? 0;
+
+  const canImportVoters =
+    currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN";
 
   return (
     <Modal
@@ -58,7 +71,9 @@ const ElectionDetailModal = ({
             icon={<Shield className="w-4 h-4" />}
             label="Admin"
             value={
-              election._count?.electionAdmins ?? election.electionAdmins?.length ?? 0
+              election._count?.electionAdmins ??
+              election.electionAdmins?.length ??
+              0
             }
             variant="warning"
           />
@@ -170,11 +185,29 @@ const ElectionDetailModal = ({
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-border flex items-center justify-end bg-muted/30">
+      <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30">
+        {canImportVoters && (
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<Upload className="w-4 h-4" />}
+            onClick={() => setIsImportModalOpen(true)}
+          >
+            Import Voter
+          </Button>
+        )}
         <Button variant="outline" size="sm" onClick={onClose}>
           Tutup
         </Button>
       </div>
+
+      <ImportVotersModal
+        electionId={election.id}
+        electionTitle={election.title}
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportSuccess={onImportSuccess}
+      />
     </Modal>
   );
 };

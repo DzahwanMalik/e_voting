@@ -33,6 +33,7 @@ const ElectionPage = () => {
   );
 
   const isSuperAdmin = useUserStore((state) => state.isSuperAdmin());
+  const currentUserRole = useUserStore((state) => state.user?.role);
 
   useEffect(() => {
     let isMounted = true;
@@ -82,6 +83,19 @@ const ElectionPage = () => {
   const handleConfirmDelete = () => {
     if (deleteConfirmElection) {
       void handleDeleteElection(deleteConfirmElection);
+    }
+  };
+
+  const handleRefreshElections = async () => {
+    try {
+      const data = await getElectionsApi();
+      setElections(data);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Gagal memperbarui daftar pemilihan.";
+      toast.error(message);
     }
   };
 
@@ -238,6 +252,8 @@ const ElectionPage = () => {
         election={detailElection}
         isOpen={detailElection !== null}
         onClose={() => setDetailElection(null)}
+        currentUserRole={currentUserRole}
+        onImportSuccess={handleRefreshElections}
       />
 
       <ConfirmModal

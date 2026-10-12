@@ -206,37 +206,36 @@ const VoterPage = () => {
       <div className="space-y-6">
         {/* Page Header */}
         <SectionCard padding="default">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
-                  Manajemen Pemilih
-                </h1>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  {isSuperAdmin
-                    ? "Kelola seluruh pemilih dalam sistem."
-                    : "Pemilih yang terdaftar pada election yang Anda kelola."}
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
+              <Users className="w-5 h-5" />
             </div>
-
-            <Button
-              variant="primary"
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={handleCreate}
-            >
-              Tambah Voter
-            </Button>
+            <div>
+              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+                Manajemen Pemilih
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {isSuperAdmin
+                  ? "Kelola seluruh pemilih dalam sistem."
+                  : "Pemilih yang terdaftar pada election yang Anda kelola."}
+              </p>
+            </div>
           </div>
         </SectionCard>
 
         {/* Voters Table Section */}
         <SectionCard title={`Daftar Pemilih (${totalItems})`} padding="none">
           <div className="p-6 sm:p-8">
+            <div className="flex justify-end items-center mb-4">
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+              >
+                Tambah Voter
+              </Button>
+            </div>
             {isLoading ? (
               <LoadingState message="Memuat daftar pemilih..." textSize="lg" />
             ) : (

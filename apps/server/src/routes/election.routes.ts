@@ -2,7 +2,7 @@ import { Router } from "express";
 import { UserRole } from "../generated/prisma/enums";
 import { authenticate } from "../middlewares/auth.middleware";
 import { requireRole } from "../middlewares/role.middleware";
-import { uploadCandidatePhotos } from "../middlewares/upload.middleware";
+import { uploadCandidatePhotos, uploadExcelFile } from "../middlewares/upload.middleware";
 import {
   createElection,
   getElections,
@@ -24,6 +24,7 @@ import {
   getElectionVoters,
   enrollVoters,
   removeVoterFromElection,
+  importVotersFromExcel,
 } from "../controllers/voter.controller";
 import {
   castVote,
@@ -106,6 +107,13 @@ router.post(
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   enrollVoters,
+);
+router.post(
+  "/:id/voters/import",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  uploadExcelFile,
+  importVotersFromExcel,
 );
 router.delete(
   "/:id/voters/:voterId",

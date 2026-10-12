@@ -63,6 +63,17 @@ interface VoterApiMessage {
   message: string;
 }
 
+interface ImportStats {
+  createdCount: number;
+  updatedCount: number;
+  totalImported: number;
+}
+
+interface ImportVotersResponse {
+  message: string;
+  importStats: ImportStats;
+}
+
 const getVotersApi = async (params?: {
   electionId?: number;
   search?: string;
@@ -187,6 +198,32 @@ const removeVoterFromElectionApi = async (
   }
 };
 
+const importVotersFromExcelApi = async (
+  electionId: number,
+  file: File,
+): Promise<ImportVotersResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.post<ImportVotersResponse>(
+      `/elections/${electionId}/voters/import`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
 export type {
   VoterListItem,
   VotersResponse,
@@ -197,6 +234,8 @@ export type {
   ElectionVoterAssignment,
   VoterCreator,
   ElectionInfo,
+  ImportVotersResponse,
+  ImportStats,
 };
 
 export {
@@ -207,4 +246,5 @@ export {
   deleteVoterApi,
   enrollVoterToElectionsApi,
   removeVoterFromElectionApi,
+  importVotersFromExcelApi,
 };

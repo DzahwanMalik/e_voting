@@ -3,6 +3,7 @@ import { UserRole } from "../generated/prisma/enums";
 import { AppError } from "../utils/app-error";
 import { hashPassword } from "../utils/password";
 import type { PaginationMeta } from "../types/pagination";
+import * as XLSX from "xlsx";
 
 const VOTER_PAGE_SIZE = 10;
 
@@ -903,7 +904,242 @@ const getElectionVoters = async (
   });
 };
 
+interface ImportVotersFromExcelInput {
+  electionId: number;
+  file: Express.Multer.File;
+}
+
+interface ImportVotersResult {
+  createdCount: number;
+  updatedCount: number;
+  totalImported: number;
+}
+
+interface ExcelVoterRow {
+  username: string;
+  name: string;
+  password: string;
+}
+
+const importVotersFromExcel = async (
+  input: ImportVotersFromExcelInput,
+  userId: number,
+  role: UserRole,
+): Promise<ImportVotersResult> => {
+  const election = await prisma.election.findUnique({
+    where: { id: input.electionId },
+  });
+
+  if (!election) {
+    throw new AppError("Election tidak ditemukan.", 404);
+  }
+
+  if (role === UserRole.VOTER) {
+    throw new AppError(
+      "Forbidden: Anda tidak memiliki izin untuk mengimpor voter.",
+      403,
+    );
+  }
+
+  if (role === UserRole.ADMIN) {
+    const isAssigned = await prisma.electionAdmin.findUnique({
+      where: {
+        electionId_userId: {
+          electionId: input.electionId,
+          userId,
+        },
+      },
+    });
+
+    if (!isAssigned) {
+      throw new AppError(
+        "Forbidden: Anda tidak memiliki akses ke election ini.",
+        403,
+      );
+    }
+  }
+
+  // Parse Excel buffer
+  const workbook = XLSX.read(input.file.buffer, { type: "buffer" });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) {
+    throw new AppError("File Excel tidak mengandung sheet yang valid.", 400);
+  }
+
+  const worksheet = workbook.Sheets[sheetName];
+  if (!worksheet) {
+    throw new AppError("File Excel tidak mengandung sheet yang valid.", 400);
+  }
+  const rawData = XLSX.utils.sheet_to_json(worksheet, {
+    defval: "",
+  }) as Record<string, unknown>[];
+
+  if (rawData.length === 0) {
+    throw new AppError("File Excel tidak mengandung data voter.", 400);
+  }
+
+  // Validate required columns
+  const firstRow = rawData[0];
+  if (!firstRow) {
+    throw new AppError("File Excel tidak mengandung data voter yang valid.", 400);
+  }
+  const requiredColumns = ["username", "name", "password"] as (keyof ExcelVoterRow)[];
+  const lowerCasedKeys = Object.keys(firstRow).map((k) => k.toLowerCase().trim());
+  const missingColumns = requiredColumns.filter(
+    (col) => !lowerCasedKeys.includes(col),
+  );
+
+  if (missingColumns.length > 0) {
+    throw new AppError(
+      `Kolom wajib tidak ditemukan: ${missingColumns.join(", ")}. Pastikan file memiliki header: username, name, password.`,
+      400,
+    );
+  }
+
+  // Build normalized rows
+  const createColumnGetter = (row: Record<string, unknown>) => {
+    const lowerKeyMap: Record<string, string> = {};
+    for (const key of Object.keys(row)) {
+      lowerKeyMap[key.toLowerCase().trim()] = key;
+    }
+    return (col: string): string => {
+      const actualKey = lowerKeyMap[col];
+      if (!actualKey) return "";
+      const val = row[actualKey];
+      return typeof val === "string" ? val.trim() : String(val ?? "").trim();
+    };
+  };
+
+  const rows: ExcelVoterRow[] = [];
+  const validationErrors: string[] = [];
+  const seenUsernames: Set<string> = new Set();
+
+  for (let i = 0; i < rawData.length; i++) {
+    const rawRow = rawData[i];
+    if (!rawRow) continue;
+
+    const getCol = createColumnGetter(rawRow);
+    const rowNumber = i + 2; // +2 because row 1 is header
+    const username = getCol("username");
+    const name = getCol("name");
+    const password = getCol("password");
+
+    if (!username) {
+      validationErrors.push(`Baris ${rowNumber}: username wajib diisi.`);
+      continue;
+    }
+    if (!name) {
+      validationErrors.push(`Baris ${rowNumber}: name wajib diisi.`);
+      continue;
+    }
+    if (!password) {
+      validationErrors.push(`Baris ${rowNumber}: password wajib diisi.`);
+      continue;
+    }
+    if (password.length < 6) {
+      validationErrors.push(
+        `Baris ${rowNumber}: password harus minimal 6 karakter.`,
+      );
+      continue;
+    }
+    if (seenUsernames.has(username.toLowerCase())) {
+      validationErrors.push(
+        `Baris ${rowNumber}: username "${username}" duplikat dalam file.`,
+      );
+      continue;
+    }
+
+    seenUsernames.add(username.toLowerCase());
+    rows.push({ username, name, password });
+  }
+
+  if (validationErrors.length > 0) {
+    throw new AppError(
+      `Validasi Excel gagal:\n${validationErrors.join("\n")}`,
+      400,
+    );
+  }
+
+  // Transaction: clear existing voters for election, then create/update from Excel
+  return prisma.$transaction(async (tx) => {
+    // Preserve hasVoted status before clearing (BR-16: votes remain valid)
+    const existingElectionVoters = await tx.electionVoter.findMany({
+      where: { electionId: input.electionId },
+      select: { userId: true, hasVoted: true },
+    });
+    const existingHasVoted: Record<number, boolean> = {};
+    for (const ev of existingElectionVoters) {
+      existingHasVoted[ev.userId] = ev.hasVoted;
+    }
+
+    // Clear all existing ElectionVoter records for this election
+    await tx.electionVoter.deleteMany({
+      where: { electionId: input.electionId },
+    });
+
+    let createdCount = 0;
+    let updatedCount = 0;
+
+    for (const row of rows) {
+      const hashedPassword = await hashPassword(row.password);
+
+      const existingUser = await tx.user.findFirst({
+        where: {
+          username: row.username,
+          role: UserRole.VOTER,
+        },
+      });
+
+      if (existingUser) {
+        await tx.user.update({
+          where: { id: existingUser.id },
+          data: {
+            name: row.name,
+            password: hashedPassword,
+          },
+        });
+        updatedCount++;
+
+        // Re-enroll the voter to election, preserving hasVoted status
+        await tx.electionVoter.create({
+          data: {
+            electionId: input.electionId,
+            userId: existingUser.id,
+            hasVoted: existingHasVoted[existingUser.id] ?? false,
+          },
+        });
+      } else {
+        const newUser = await tx.user.create({
+          data: {
+            username: row.username,
+            password: hashedPassword,
+            name: row.name,
+            role: UserRole.VOTER,
+            createdById: userId,
+          },
+        });
+        createdCount++;
+
+        await tx.electionVoter.create({
+          data: {
+            electionId: input.electionId,
+            userId: newUser.id,
+            hasVoted: false,
+          },
+        });
+      }
+    }
+
+    return {
+      createdCount,
+      updatedCount,
+      totalImported: rows.length,
+    };
+  });
+};
+
 export type { CreateVoterInput, UpdateVoterInput, GetVotersOptions };
+export type { ImportVotersFromExcelInput, ImportVotersResult };
 export {
   createVoter,
   getVoters,
@@ -914,4 +1150,5 @@ export {
   enrollVoterToElections,
   removeVoterFromElection,
   getElectionVoters,
+  importVotersFromExcel,
 };

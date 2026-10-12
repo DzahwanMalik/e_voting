@@ -42,4 +42,38 @@ const uploadCandidatePhotos = upload.fields([
   { name: "pairPhoto", maxCount: 1 },
 ]);
 
-export { uploadCandidatePhotos };
+const EXCEL_MIME_TYPES: readonly string[] = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+  "text/csv",
+  "application/csv",
+];
+
+const excelFileFilter = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback,
+): void => {
+  if (EXCEL_MIME_TYPES.includes(file.mimetype)) {
+    cb(null, true);
+    return;
+  }
+  cb(
+    new AppError(
+      "Hanya file Excel (.xlsx, .xls) atau CSV (.csv) yang diperbolehkan.",
+      400,
+    ),
+  );
+};
+
+const uploadExcel = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+  },
+  fileFilter: excelFileFilter,
+});
+
+const uploadExcelFile = uploadExcel.single("file");
+
+export { uploadCandidatePhotos, uploadExcelFile };

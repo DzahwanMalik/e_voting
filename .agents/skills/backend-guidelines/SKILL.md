@@ -117,6 +117,89 @@ return prisma.user.findUnique({
 
 ---
 
+### Aturan 5: Error Handling & Error Handler Middleware
+
+Backend **WAJIB** mempunyai satu **centralized error handler middleware** yang terdaftar **terakhir** di `src/index.ts` (setelah semua route). Middleware ini adalah tempat tunggal penangkap error yang tidak tertangkap oleh controller.
+
+#### A. Error Handler Signature
+```typescript
+// src/middlewares/error.middleware.ts
+const errorHandler = (
+  error: unknown,
+  _req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _next: NextFunction,
+): void => {
+  // ...
+};
+```
+
+#### B. Gunakan `AppError` untuk Error yang Ditanggapi ke Client
+```typescript
+// src/utils/app-error.ts
+class AppError extends Error {
+  statusCode: number;
+  constructor(message: string, statusCode = 400) {
+    super(message);
+    this.name = "AppError";
+    this.statusCode = statusCode;
+  }
+}
+const isAppError = (error: unknown): error is AppError => error instanceof AppError;
+export { AppError, isAppError };
+```
+- Semua error yang **diketahui** dan harus dikirim ke client (400, 401, 403, 404, dst.) **WAJIB** dilempar sebagai `new AppError(message, statusCode)`.
+- `isAppError` dipakai sebagai **type guard** di controller dan error handler.
+
+#### C. Tangani Error Spesifik (Multer, dsb.) dengan Type Guard
+Error dari library pihak ketiga (misalnya `MulterError`) tidak selalu memiliki properti yang sama. Gunakan **type guard khusus** untuk mendeteksi dan memetakan ke pesan yang berguna:
+
+```typescript
+const isMulterError = (error: unknown): error is Error & { code?: string } =>
+  error instanceof Error &&
+  (error as { code?: string }).code?.startsWith("LIMIT_") === true;
+```
+
+#### D. Format Response Error yang Konsisten
+Error handler **WAJIB** mengembalikan response dalam format yang seragam:
+```typescript
+res.status(<statusCode>).json({ message: "<human-readable message>" });
+```
+
+#### E. Error Handler di `src/index.ts`
+```typescript
+// Register errorHandler TERAKHIR, setelah semua route
+app.use("/api/...", someRoutes);
+app.use(errorHandler);
+```
+
+#### F. Pattern Controller Error Handling
+Controller yang menanggil service **WAJIB** membungkus pemanggilan service dalam `try/catch` dengan `isAppError`:
+```typescript
+const someController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // ... call service
+  } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+    console.error("Unexpected error:", error);
+    res.status(500).json({ message: "Terjadi kesalahan pada server." });
+  }
+};
+```
+
+#### G. Multer Error Codes yang Dikenali
+| Code | Arti | HTTP Status |
+|---|---|---|
+| `LIMIT_FILE_SIZE` | File melebihi batas ukuran maksimum | 400 |
+| `LIMIT_FILE_COUNT` | Jumlah file melebihi batas | 400 |
+| `LIMIT_UNEXPECTED_FILE` | Field nama file tidak dikenali oleh konfigurasi Multer | 400 |
+
+---
+
 ## 2. Struktur Folder & Fungsi Masing-Masing Folder
 
 Berikut hierarki folder di dalam `apps/server/src`:

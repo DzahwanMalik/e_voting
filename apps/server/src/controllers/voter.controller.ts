@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { UserRole } from "../generated/prisma/enums";
 import { isAppError } from "../utils/app-error";
 import { parsePositiveInt } from "../utils/parser";
 import type { PaginationMeta } from "../types/pagination";
@@ -433,6 +434,47 @@ const enrollVoterToElections = async (
   }
 };
 
+const importVotersFromExcel = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: "User belum terautentikasi." });
+      return;
+    }
+
+    const electionId = parsePositiveInt(req.params.id);
+    if (!electionId) {
+      res.status(400).json({ message: "ID election tidak valid." });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ message: "File Excel tidak ditemukan." });
+      return;
+    }
+
+    const importStats = await voterService.importVotersFromExcel(
+      { electionId, file: req.file },
+      req.user.userId,
+      req.user.role as UserRole,
+    );
+
+    res.status(200).json({
+      message: "Voter berhasil diimpor dari Excel.",
+      importStats,
+    });
+  } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+    console.error("Error importing voters from Excel:", error);
+    res.status(500).json({ message: "Terjadi kesalahan pada server." });
+  }
+};
+
 export {
   createVoter,
   getVoters,
@@ -443,4 +485,5 @@ export {
   removeVoterFromElection,
   getElectionVoters,
   enrollVoterToElections,
+  importVotersFromExcel,
 };
