@@ -192,7 +192,7 @@ const AdminFormModal = ({
                 isInvalid={Boolean(errors.password)}
                 placeholder={
                   isCreateMode
-                    ? "Masukkan password (minimal 6 karakter)"
+                    ? "Masukkan password (minimal 1 karakter)"
                     : "Masukkan password baru (opsional)"
                 }
                 leftElement={<Lock className="w-4 h-4" />}

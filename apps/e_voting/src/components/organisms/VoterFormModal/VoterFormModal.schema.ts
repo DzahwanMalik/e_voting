@@ -15,8 +15,8 @@ const voterFormSchema = z.object({
     }),
   password: z
     .string()
-    .refine((val) => val === "" || val.length >= 6, {
-      message: "Password minimal 6 karakter",
+    .refine((val) => val === "" || val.length >= 1, {
+      message: "Password minimal 1 karakter",
     })
     .optional(),
   electionIds: z.array(z.number()).optional(),

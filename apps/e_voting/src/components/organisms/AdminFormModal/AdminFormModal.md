@@ -13,7 +13,7 @@ Per PRD Section 13: "Admin → dibuat oleh Super Admin".
 
 | Mode | Fields | Password |
 | :--- | :--- | :--- |
-| `create` | username (required), name (required), password (required, min 6) | Required |
+| `create` | username (required), name (required), password (required, min 1) | Required |
 | `edit` | username (required), name (required), password (optional) | Optional — empty means no change |
 
 ## Props
@@ -32,7 +32,7 @@ Per PRD Section 13: "Admin → dibuat oleh Super Admin".
 | :--- | :--- | :--- | :--- | :--- |
 | Username | text | min 1, trim | Required | Required |
 | Nama Lengkap | text | min 1, trim | Required | Required |
-| Password | password | min 6 (when provided) | Required | Optional (empty = no change) |
+| Password | password | min 1 (when provided) | Required | Optional (empty = no change) |
 
 ## Dependencies
 

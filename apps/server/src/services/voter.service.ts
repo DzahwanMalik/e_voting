@@ -1036,9 +1036,9 @@ const importVotersFromExcel = async (
       validationErrors.push(`Baris ${rowNumber}: password wajib diisi.`);
       continue;
     }
-    if (password.length < 6) {
+    if (password.length < 1) {
       validationErrors.push(
-        `Baris ${rowNumber}: password harus minimal 6 karakter.`,
+        `Baris ${rowNumber}: password harus minimal 1 karakter.`,
       );
       continue;
     }

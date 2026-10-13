@@ -16,7 +16,7 @@ Per PRD Section 15.4 (Voter Management) and BR-07/BR-08:
 
 | Mode | Fields | Election Selection |
 | :--- | :--- | :--- |
-| `create` | username (required), name (required), password (required, min 6) | Shown — multi-checkbox from `getElectionsApi()`; selected elections sent on create |
+| `create` | username (required), name (required), password (required, min 1) | Shown — multi-checkbox from `getElectionsApi()`; selected elections sent on create |
 | `edit` | username (required), name (required), password (optional) | Shown — multi-checkbox from `getElectionsApi()`; pre-checked with voter's current election assignments; changes diffed and applied via `enrollVoterToElectionsApi` (add) + `removeVoterFromElectionApi` (remove) |
 
 ### Edit-Mode Election Management
@@ -49,7 +49,7 @@ Pre-checked elections show a **"Terdaftar"** success badge for visual clarity.
 | :--- | :--- | :--- | :--- | :--- |
 | Username | text | min 1, trim | Required | Required |
 | Nama Lengkap | text | min 1, trim | Required | Required |
-| Password | password | min 6 (when provided) | Required | Optional (empty = no change) |
+| Password | password | min 1 (when provided) | Required | Optional (empty = no change) |
 | Election selection | checkboxes | multi-select | Optional | N/A |
 
 ## Dependencies
