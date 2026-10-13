@@ -3,6 +3,7 @@ interface AdminAssignmentModalProps {
   electionTitle: string;
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
 export type { AdminAssignmentModalProps };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import VoterElectionCard from "@/components/organisms/VoterElectionCard";
-import CandidateDetailModal from "@/components/organisms/CandidateDetailModal";
+import CandidatePairDetailModal from "@/components/organisms/CandidatePairDetailModal";
 import {
   getElectionsApi,
   type ElectionListItem,
@@ -117,12 +117,10 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
       )}
 
       {/* Candidate Detail Modal (Inspection only) */}
-      <CandidateDetailModal
+      <CandidatePairDetailModal
         candidatePair={detailCandidatePair}
         isOpen={Boolean(detailCandidatePair)}
-        hasVotedInElection={true}
         onClose={() => setDetailCandidatePair(null)}
-        onVote={() => {}}
       />
     </div>
   );

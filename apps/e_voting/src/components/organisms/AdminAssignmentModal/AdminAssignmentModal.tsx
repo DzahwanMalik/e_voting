@@ -22,6 +22,7 @@ const AdminAssignmentModal = ({
   electionTitle,
   isOpen,
   onClose,
+  onSaved,
 }: AdminAssignmentModalProps) => {
   const [allAdmins, setAllAdmins] = useState<AdminUser[]>([]);
   const [assignedAdminIds, setAssignedAdminIds] = useState<Set<number>>(
@@ -106,6 +107,7 @@ const AdminAssignmentModal = ({
       }
 
       toast.success("Penugasan admin berhasil diperbarui.");
+      onSaved?.();
       onClose();
     } catch (error) {
       const message =

@@ -4,6 +4,7 @@ import {
   Layers,
   Award,
   Users,
+  Shield,
   Vote,
   LogOut,
   Menu,
@@ -26,6 +27,12 @@ const sidebarNavItems: SidebarNavItem[] = [
     label: "Pemilih",
     icon: Users,
     href: "/admin/voters",
+  },
+  {
+    label: "Admin",
+    icon: Shield,
+    href: "/admin/admins",
+    isSuperAdminOnly: true,
   },
 ];
 

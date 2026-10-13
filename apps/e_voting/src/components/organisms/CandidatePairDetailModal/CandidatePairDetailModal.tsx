@@ -1,28 +1,21 @@
 import { useState } from "react";
-import { Calendar, Compass, Target, Vote, User } from "lucide-react";
+import { Calendar, Compass, Target, User } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import Modal from "@/components/molecules/Modal";
-import type { CandidateDetailModalProps } from "./CandidateDetailModal.types";
+import type { CandidatePairDetailModalProps } from "./CandidatePairDetailModal.types";
 
-const CandidateDetailModal = ({
+const CandidatePairDetailModal = ({
   candidatePair,
   isOpen,
-  hasVotedInElection,
   onClose,
-  onVote,
-}: CandidateDetailModalProps) => {
+}: CandidatePairDetailModalProps) => {
   const [failedCandidateIds, setFailedCandidateIds] = useState<Set<number>>(
     new Set(),
   );
 
   if (!candidatePair) return null;
 
-  const {
-    candidate: calon,
-    vice: wakil,
-    vision,
-    mission,
-  } = candidatePair;
+  const { candidate: calon, vice: wakil, vision, mission } = candidatePair;
 
   const formatBirthday = (dateString: string): string => {
     try {
@@ -55,9 +48,7 @@ const CandidateDetailModal = ({
     size: "sm" | "lg",
   ) => {
     const sizeClass =
-      size === "sm"
-        ? "w-24 h-24 sm:w-28 sm:h-28"
-        : "w-20 h-20 rounded-xl";
+      size === "sm" ? "w-24 h-24 sm:w-28 sm:h-28" : "w-20 h-20 rounded-xl";
 
     const hasError = failedCandidateIds.has(id);
 
@@ -67,7 +58,9 @@ const CandidateDetailModal = ({
           <img
             src={photoUrl}
             alt={name}
-            onError={() => setFailedCandidateIds((prev) => new Set([...prev, id]))}
+            onError={() =>
+              setFailedCandidateIds((prev) => new Set([...prev, id]))
+            }
             className="w-full h-full object-cover object-top rounded-2xl"
           />
         </div>
@@ -170,27 +163,13 @@ const CandidateDetailModal = ({
       </div>
 
       {/* Modal Footer */}
-      <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30">
+      <div className="px-6 py-4 border-t border-border flex items-center justify-end bg-muted/30">
         <Button variant="outline" size="sm" onClick={onClose}>
           Tutup
         </Button>
-
-        {!hasVotedInElection && (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              onClose();
-              onVote(candidatePair);
-            }}
-            icon={<Vote className="w-4 h-4" />}
-          >
-            Pilih Paslon Ini
-          </Button>
-        )}
       </div>
     </Modal>
   );
 };
 
-export default CandidateDetailModal;
+export default CandidatePairDetailModal;

@@ -42,6 +42,27 @@ interface CandidatePair {
   };
 }
 
+interface CandidatePairListItem {
+  id: number;
+  electionId: number;
+  election?: {
+    id: number;
+    title: string;
+  };
+  candidateId: number;
+  viceId: number;
+  photoUrl: string | null;
+  vision: string;
+  mission: string;
+  createdAt: string;
+  updatedAt: string;
+  candidate: IndividualCandidate;
+  vice: IndividualCandidate;
+  _count?: {
+    votes: number;
+  };
+}
+
 interface ElectionListItem {
   id: number;
   title: string;
@@ -73,6 +94,27 @@ interface ElectionDetail {
     candidates: number;
     candidatePairs: number;
   };
+}
+
+interface CreateElectionPayload {
+  title: string;
+  description?: string | null;
+}
+
+interface CreateElectionResponse {
+  message: string;
+  election: {
+    id: number;
+    title: string;
+    description: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface UpdateElectionPayload {
+  title?: string;
+  description?: string | null;
 }
 
 interface CastVotePayload {
@@ -207,6 +249,20 @@ const getElectionByIdApi = async (id: number): Promise<ElectionDetail> => {
   try {
     const response = await api.get<{ election: ElectionDetail }>(`/elections/${id}`);
     return response.data.election;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
+const createElectionApi = async (
+  payload: CreateElectionPayload,
+): Promise<CreateElectionResponse> => {
+  try {
+    const response = await api.post<CreateElectionResponse>("/elections", payload);
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data?.message) {
       throw new Error(error.response.data.message as string, { cause: error });
@@ -355,6 +411,20 @@ const deleteCandidatePairApi = async (pairId: number): Promise<void> => {
   }
 };
 
+const getAllCandidatePairsApi = async (): Promise<CandidatePairListItem[]> => {
+  try {
+    const response = await api.get<{
+      candidatePairs: CandidatePairListItem[];
+    }>("/candidate-pairs");
+    return response.data.candidatePairs;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
 const castVoteApi = async (
   payload: CastVotePayload,
 ): Promise<CastVoteResult> => {
@@ -398,7 +468,7 @@ const deleteElectionApi = async (id: number): Promise<void> => {
 
 const updateElectionApi = async (
   id: number,
-  payload: { title?: string; description?: string | null },
+  payload: UpdateElectionPayload,
 ): Promise<ElectionListItem> => {
   try {
     const response = await api.put<{ message: string; election: ElectionListItem }>(
@@ -481,6 +551,7 @@ export type {
   ElectionListItem,
   IndividualCandidate,
   CandidatePair,
+  CandidatePairListItem,
   ElectionDetail,
   ElectionAdmin,
   CastVotePayload,
@@ -492,6 +563,9 @@ export type {
   AdminAssignmentResponse,
   CandidatePairVoteResult,
   ElectionResultData,
+  CreateElectionPayload,
+  CreateElectionResponse,
+  UpdateElectionPayload,
   CreateCandidatePairPayload,
   UpdateCandidatePairPayload,
   CandidatePairResponse,
@@ -500,7 +574,9 @@ export type {
 export {
   getElectionsApi,
   getElectionByIdApi,
+  createElectionApi,
   getCandidatePairsByElectionApi,
+  getAllCandidatePairsApi,
   createCandidatePairApi,
   updateCandidatePairApi,
   deleteCandidatePairApi,

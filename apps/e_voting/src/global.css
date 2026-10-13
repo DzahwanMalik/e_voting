@@ -199,3 +199,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Custom Utilities */
+@layer utilities {
+  /* Hide scrollbar while preserving scroll functionality (cross-browser) */
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+}

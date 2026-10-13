@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
-import { Calendar, Layers, Trash2, Shield, BarChart3 } from "lucide-react";
+import {
+  Calendar,
+  Layers,
+  Trash2,
+  Shield,
+  BarChart3,
+  Plus,
+  Edit,
+} from "lucide-react";
 import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 import DataTable from "@/components/organisms/DataTable";
 import LoadingState from "@/components/molecules/LoadingState";
 import SectionCard from "@/components/molecules/SectionCard";
@@ -9,6 +18,7 @@ import ConfirmModal from "@/components/molecules/ConfirmModal";
 import AdminAssignmentModal from "@/components/organisms/AdminAssignmentModal";
 import ElectionResultModal from "@/components/organisms/ElectionResultModal";
 import ElectionDetailModal from "@/components/organisms/ElectionDetailModal";
+import ElectionFormModal from "@/components/organisms/ElectionFormModal";
 import { useUserStore } from "@/stores/useUserStore";
 import {
   getElectionsApi,
@@ -20,6 +30,7 @@ import { formatDate } from "@/lib/utils";
 const ElectionPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [elections, setElections] = useState<ElectionListItem[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [isDeletingId, setIsDeletingId] = useState<number | null>(null);
   const [deleteConfirmElection, setDeleteConfirmElection] =
     useState<ElectionListItem | null>(null);
@@ -29,6 +40,12 @@ const ElectionPage = () => {
     null,
   );
   const [detailElection, setDetailElection] = useState<ElectionListItem | null>(
+    null,
+  );
+
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [editElection, setEditElection] = useState<ElectionListItem | null>(
     null,
   );
 
@@ -63,7 +80,7 @@ const ElectionPage = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   const handleDeleteElection = async (election: ElectionListItem) => {
     setIsDeletingId(election.id);
@@ -86,17 +103,25 @@ const ElectionPage = () => {
     }
   };
 
-  const handleRefreshElections = async () => {
-    try {
-      const data = await getElectionsApi();
-      setElections(data);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Gagal memperbarui daftar pemilihan.";
-      toast.error(message);
-    }
+  const handleRefreshElections = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleCreateElection = () => {
+    setFormMode("create");
+    setEditElection(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditElection = (election: ElectionListItem) => {
+    setFormMode("edit");
+    setEditElection(election);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSaved = () => {
+    setIsFormOpen(false);
+    handleRefreshElections();
   };
 
   const columns = [
@@ -156,6 +181,11 @@ const ElectionPage = () => {
       icon: <Layers className="w-4 h-4" />,
       onClick: (row: ElectionListItem) => setDetailElection(row),
     },
+    {
+      label: "Edit Pemilihan",
+      icon: <Edit className="w-4 h-4" />,
+      onClick: (row: ElectionListItem) => handleEditElection(row),
+    },
     ...(isSuperAdmin
       ? [
           {
@@ -207,6 +237,18 @@ const ElectionPage = () => {
           padding="none"
         >
           <div className="p-6 sm:p-8">
+            {isSuperAdmin && (
+              <div className="flex justify-end items-center mb-4">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Plus className="w-4 h-4" />}
+                  onClick={handleCreateElection}
+                >
+                  Tambah Pemilihan
+                </Button>
+              </div>
+            )}
             {isLoading ? (
               <LoadingState
                 message="Memuat daftar pemilihan..."
@@ -239,6 +281,7 @@ const ElectionPage = () => {
         electionTitle={adminAssignmentElection?.title ?? ""}
         isOpen={adminAssignmentElection !== null}
         onClose={() => setAdminAssignmentElection(null)}
+        onSaved={handleRefreshElections}
       />
 
       <ElectionResultModal
@@ -268,6 +311,15 @@ const ElectionPage = () => {
         isSubmitting={isDeletingId !== null}
         onConfirm={handleConfirmDelete}
         onClose={() => setDeleteConfirmElection(null)}
+      />
+
+      {/* Election Form Modal (Create/Edit) — Super Admin creates, Super Admin + Admin edit */}
+      <ElectionFormModal
+        mode={formMode}
+        election={editElection}
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSaved={handleFormSaved}
       />
     </>
   );

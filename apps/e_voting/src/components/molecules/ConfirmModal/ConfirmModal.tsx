@@ -38,14 +38,14 @@ const ConfirmModal = ({
       closeOnEscape={!isSubmitting}
     >
       {/* Body */}
-      <div className="p-6">
+      <div className="p-6 overflow-y-auto flex-1 scrollbar-none">
         <p className="text-sm text-muted-foreground leading-relaxed">
           {message}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30">
+      <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30 shrink-0">
         <Button
           variant="outline"
           size="sm"

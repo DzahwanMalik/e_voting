@@ -52,11 +52,11 @@ const Modal = ({
       {...backdropClick}
     >
       <div
-        className={`relative bg-card w-full ${sizeClasses[size]} max-h-[90vh] rounded-3xl border border-border shadow-xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 ${className}`.trim()}
+        className={`relative bg-card w-full ${sizeClasses[size]} max-h-[90vh] rounded-3xl border border-border shadow-xl flex flex-col overflow-y-auto scrollbar-none animate-in fade-in zoom-in-95 duration-200 ${className}`.trim()}
         onClick={(e) => e.stopPropagation()}
       >
         {title ? (
-          <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-muted/30 shrink-0">
+          <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-card shrink-0 sticky top-0 z-10">
             <div className="font-sans font-bold text-lg text-card-foreground">
               {title}
             </div>

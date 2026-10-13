@@ -277,9 +277,9 @@ const VoterFormModal = ({
       closeOnBackdropClick={!isSubmitting}
       closeOnEscape={!isSubmitting}
     >
-      <form onSubmit={handleFormSubmit} noValidate className="flex flex-col">
+      <form onSubmit={handleFormSubmit} noValidate className="flex flex-1 flex-col">
         {/* Modal Body (Scrollable) */}
-        <div className="p-6 overflow-y-auto space-y-5">
+        <div className="p-6 overflow-y-auto flex-1 scrollbar-none space-y-5">
           {/* Voter Information */}
           <div className="space-y-4">
             <h3 className="font-sans text-sm font-semibold text-muted-foreground uppercase tracking-wider">

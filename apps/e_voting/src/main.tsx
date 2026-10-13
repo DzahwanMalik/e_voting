@@ -9,8 +9,9 @@ import LoginPage from "@/components/pages/LoginPage";
 import VoterDashboardPage from "@/components/pages/VoterDashboardPage";
 import AdminShellPage from "@/components/pages/AdminShellPage";
 import ElectionPage from "@/components/pages/ElectionPage";
+import CandidatePairPage from "@/components/pages/CandidatePairPage";
 import VoterPage from "@/components/pages/VoterPage";
-import ComingSoonPage from "@/components/pages/ComingSoonPage";
+import AdminPage from "@/components/pages/AdminPage";
 import NotFoundPage from "@/components/pages/NotFoundPage";
 
 createRoot(document.getElementById("root")!).render(
@@ -30,14 +31,9 @@ createRoot(document.getElementById("root")!).render(
         >
           <Route element={<AdminShellPage />}>
             <Route path="/admin/elections" element={<ElectionPage />} />
-            <Route
-              path="/admin/candidate-pairs"
-              element={<ComingSoonPage title="Manajemen Paslon Kandidat" />}
-            />
-            <Route
-              path="/admin/voters"
-              element={<VoterPage />}
-            />
+            <Route path="/admin/candidate-pairs" element={<CandidatePairPage />} />
+            <Route path="/admin/voters" element={<VoterPage />} />
+            <Route path="/admin/admins" element={<AdminPage />} />
           </Route>
         </Route>
 

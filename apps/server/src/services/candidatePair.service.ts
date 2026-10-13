@@ -300,7 +300,7 @@ const getAllCandidatePairs = async (
   }
 
   // ADMIN — only pairs from elections they manage
-  return prisma.candidatePair.findMany({
+  const pairs = await prisma.candidatePair.findMany({
     where: {
       election: {
         electionAdmins: {
@@ -329,6 +329,12 @@ const getAllCandidatePairs = async (
       createdAt: "asc",
     },
   });
+
+  // BR-12: Admin tidak dapat melihat vote count (hanya Super Admin yang dapat)
+  return pairs.map((pair) => ({
+    ...pair,
+    _count: undefined,
+  }));
 };
 
 const getCandidatePairById = async (

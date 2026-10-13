@@ -5,25 +5,25 @@ description: Standar konvensi kode, struktur folder, arsitektur komponen Atomic 
 
 # Frontend Coding Guidelines & Architecture Rules (`apps/e_voting`)
 
-Dokumen ini adalah aturan resmi (*coding rules & guidelines*) untuk seluruh pengembangan frontend di `apps/e_voting`. Setiap agentic AI dan developer wajib mengikuti standar ini untuk menjaga konsistensi codebase.
+Dokumen ini adalah aturan resmi (_coding rules & guidelines_) untuk seluruh pengembangan frontend di `apps/e_voting`. Setiap agentic AI dan developer wajib mengikuti standar ini untuk menjaga konsistensi codebase.
 
 ---
 
 ## 1. Tech Stack & Dependencies
 
-| Kategori | Teknologi | Versi |
-| :--- | :--- | :--- |
-| **UI Framework** | React | ^19 |
-| **Language** | TypeScript | ~6.0 |
-| **Bundler** | Vite | ^8.3 |
-| **Styling** | Tailwind CSS v4 | ^4.3 |
-| **Routing** | React Router | ^8.4 |
-| **State Management** | Zustand (persisted) | ^5.0 |
-| **HTTP Client** | Axios | ^1.20 |
-| **Form Handling** | React Hook Form + Zod | ^7.89 / ^4.6 |
-| **Form Resolver** | @hookform/resolvers | ^5.9 |
-| **Toast / Notification** | Sonner | ^2.0 |
-| **Icons** | Lucide React | ^1.49 |
+| Kategori                 | Teknologi             | Versi        |
+| :----------------------- | :-------------------- | :----------- |
+| **UI Framework**         | React                 | ^19          |
+| **Language**             | TypeScript            | ~6.0         |
+| **Bundler**              | Vite                  | ^8.3         |
+| **Styling**              | Tailwind CSS v4       | ^4.3         |
+| **Routing**              | React Router          | ^8.4         |
+| **State Management**     | Zustand (persisted)   | ^5.0         |
+| **HTTP Client**          | Axios                 | ^1.20        |
+| **Form Handling**        | React Hook Form + Zod | ^7.89 / ^4.6 |
+| **Form Resolver**        | @hookform/resolvers   | ^5.9         |
+| **Toast / Notification** | Sonner                | ^2.0         |
+| **Icons**                | Lucide React          | ^1.49        |
 
 ---
 
@@ -162,24 +162,24 @@ export default Input;
 
 **Tabel Token Utama:**
 
-| Kegunaan | Tailwind Class |
-| :--- | :--- |
-| Canvas / Background | `bg-background` |
-| Teks utama | `text-foreground` |
-| Kartu / Surface | `bg-card`, `text-card-foreground` |
-| Muted fill & teks | `bg-muted`, `text-muted-foreground` |
-| Hover | `bg-accent`, `hover:bg-accent` |
-| Brand / CTA | `bg-primary`, `text-primary-foreground`, `hover:bg-primary-hover` |
-| Destructive | `bg-destructive`, `text-destructive` |
-| Border | `border-border`, `border-input`, `border-border-hover` |
-| Focus ring | `focus:ring-ring` |
+| Kegunaan            | Tailwind Class                                                    |
+| :------------------ | :---------------------------------------------------------------- |
+| Canvas / Background | `bg-background`                                                   |
+| Teks utama          | `text-foreground`                                                 |
+| Kartu / Surface     | `bg-card`, `text-card-foreground`                                 |
+| Muted fill & teks   | `bg-muted`, `text-muted-foreground`                               |
+| Hover               | `bg-accent`, `hover:bg-accent`                                    |
+| Brand / CTA         | `bg-primary`, `text-primary-foreground`, `hover:bg-primary-hover` |
+| Destructive         | `bg-destructive`, `text-destructive`                              |
+| Border              | `border-border`, `border-input`, `border-border-hover`            |
+| Focus ring          | `focus:ring-ring`                                                 |
 
 ---
 
 ### Aturan 5: Typography Token
 
-- **`font-heading`** (*Playfair Display*, serif) — Khusus untuk brand logo dan aksen identitas visual.
-- **`font-sans`** (*Plus Jakarta Sans* / *Inter*) — Untuk seluruh UI: heading, body text, kontrol, tabel.
+- **`font-heading`** (_Playfair Display_, serif) — Khusus untuk brand logo dan aksen identitas visual.
+- **`font-sans`** (_Plus Jakarta Sans_ / _Inter_) — Untuk seluruh UI: heading, body text, kontrol, tabel.
 
 ```tsx
 // Brand logo
@@ -195,12 +195,12 @@ export default Input;
 
 Konsisten menggunakan skala `rounded-*` sesuai hierarki elemen:
 
-| Elemen | Class | Ukuran |
-| :--- | :--- | :--- |
-| Shell / Outer Dashboard | `rounded-3xl` | 12–16px |
-| Cards & Widgets | `rounded-2xl` | 10–12px |
-| Inputs & Controls | `rounded-xl` | 8px |
-| Pills, Badges & Avatars | `rounded-full` | 9999px |
+| Elemen                  | Class          | Ukuran  |
+| :---------------------- | :------------- | :------ |
+| Shell / Outer Dashboard | `rounded-3xl`  | 12–16px |
+| Cards & Widgets         | `rounded-2xl`  | 10–12px |
+| Inputs & Controls       | `rounded-xl`   | 8px     |
+| Pills, Badges & Avatars | `rounded-full` | 9999px  |
 
 ---
 
@@ -251,8 +251,7 @@ try {
   const response = await someApi(payload);
   toast.success(response.message || "Berhasil!");
 } catch (error) {
-  const message =
-    error instanceof Error ? error.message : "Terjadi kesalahan.";
+  const message = error instanceof Error ? error.message : "Terjadi kesalahan.";
   toast.error(message);
 }
 ```
@@ -262,7 +261,9 @@ Pada layer **service**, error Axios di-rethrow dengan pesan yang user-friendly:
 ```tsx
 import axios from "axios";
 
-const loginApi = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+const loginApi = async (
+  credentials: LoginCredentials,
+): Promise<LoginResponse> => {
   try {
     const response = await api.post<LoginResponse>("/auth/login", credentials);
     // simpan token & state...
@@ -302,7 +303,9 @@ const handleAction = async () => {
   }
 };
 
-<Button isLoading={isLoading} onClick={handleAction}>Submit</Button>
+<Button isLoading={isLoading} onClick={handleAction}>
+  Submit
+</Button>;
 ```
 
 ---
@@ -315,22 +318,23 @@ const handleAction = async () => {
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
 ├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, LoadingState, EmptyState, Modal, ConfirmModal)
-├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidateDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, ElectionDetailModal, AdminDashboard, VoterDashboard)
+├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidatePairDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, ElectionDetailModal, AdminDashboard, VoterDashboard)
 ├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
 └── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, ElectionPage, NotFoundPage)
 ```
 
 ### Tanggung Jawab per Level
 
-| Level | Tanggung Jawab | Boleh Mengandung |
-| :--- | :--- | :--- |
-| **Atom** | Elemen visual primitif, stateless/minimal state, reusable | Props, semantic tokens, prop `ref` jika native element (React 19) |
-| **Molecule** | Gabungan 2+ atom menjadi unit fungsional kecil | Atom imports, minimal local state |
-| **Organism** | Blok UI fungsional lengkap dengan form logic | Atom + Molecule imports, `react-hook-form`, `zod`, local state |
-| **Layout** | Shell visual & route guard | Route logic (`Navigate`, `Outlet`), Zustand reads |
-| **Page** | Komposisi organism + layout + data/API/navigasi | Semua level di bawahnya, `useState`, service calls, `useNavigate`, `toast` |
+| Level        | Tanggung Jawab                                            | Boleh Mengandung                                                           |
+| :----------- | :-------------------------------------------------------- | :------------------------------------------------------------------------- |
+| **Atom**     | Elemen visual primitif, stateless/minimal state, reusable | Props, semantic tokens, prop `ref` jika native element (React 19)          |
+| **Molecule** | Gabungan 2+ atom menjadi unit fungsional kecil            | Atom imports, minimal local state                                          |
+| **Organism** | Blok UI fungsional lengkap dengan form logic              | Atom + Molecule imports, `react-hook-form`, `zod`, local state             |
+| **Layout**   | Shell visual & route guard                                | Route logic (`Navigate`, `Outlet`), Zustand reads                          |
+| **Page**     | Komposisi organism + layout + data/API/navigasi           | Semua level di bawahnya, `useState`, service calls, `useNavigate`, `toast` |
 
 **Aturan Penting:**
+
 - Atom **TIDAK BOLEH** mengimpor Molecule, Organism, Layout, atau Page.
 - Molecule **TIDAK BOLEH** mengimpor Organism, Layout, atau Page.
 - Page **TIDAK BOLEH** di-import oleh komponen non-Page; hanya oleh `main.tsx` router.
@@ -361,6 +365,7 @@ export * from "./Badge.types";
 ```
 
 Untuk organism dengan schema:
+
 ```ts
 // src/components/organisms/LoginForm/index.ts
 export { default } from "./LoginForm";
@@ -393,13 +398,14 @@ import { BadgeProps } from "@/components/atoms/Badge/Badge.types";
 ### 4.4 Wajib Sinkronisasi Dokumentasi (`{ComponentName}.md`)
 
 Setiap kali terjadi **perubahan kode pada file komponen** (`.tsx`, `.types.ts`, atau `.schema.ts`):
+
 1. **Perubahan Props & Types**: Perbarui tabel **Props** di file `.md` jika ada penambahan, perubahan, atau penghapusan props/tipe.
 2. **Perubahan Komposisi & Dependencies**: Jika komponen mulai menggunakan atom/molecule/organism baru (seperti `EmptyState`, `Badge`, `Modal`), cantumkan di bagian **Purpose** atau deskripsi komposisi komponen.
 3. **Perubahan Behavior & Flow**: Jika alur kerja, penanganan async, validasi, atau interaksi user berubah, perbarui bagian **Behavior**.
 4. **Perubahan Semantic Tokens**: Jika styling atau kelas semantic token diperbarui, sinkronkan daftar **Semantic Tokens Used**.
 5. **Code Example**: Pastikan contoh penggunaan pada bagian **Code Example** tetap valid dan mencerminkan cara konsumsi terbaru.
 
-> **PENTING:** File `{ComponentName}.md` adalah *living documentation*. Dilarang membiarkan file dokumentasi out-of-sync dengan kode implementasi terkini. Setiap PR atau edit komponen harus menyertakan pembaruan file `.md`-nya.
+> **PENTING:** File `{ComponentName}.md` adalah _living documentation_. Dilarang membiarkan file dokumentasi out-of-sync dengan kode implementasi terkini. Setiap PR atau edit komponen harus menyertakan pembaruan file `.md`-nya.
 
 ---
 
@@ -419,7 +425,12 @@ Setiap kali terjadi **perubahan kode pada file komponen** (`.tsx`, `.types.ts`, 
 // src/components/atoms/Button/Button.types.ts
 import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "destructive";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "destructive";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -468,8 +479,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-secondary text-secondary-foreground hover:bg-accent active:scale-[0.99]",
   outline:
     "border border-border text-foreground bg-transparent hover:bg-accent active:scale-[0.99]",
-  ghost:
-    "text-foreground hover:bg-accent active:scale-[0.99]",
+  ghost: "text-foreground hover:bg-accent active:scale-[0.99]",
   destructive:
     "bg-destructive text-destructive-foreground hover:opacity-90 active:scale-[0.99]",
 };
@@ -630,13 +640,7 @@ const logoutApi = async (): Promise<void> => {
 };
 
 export type { LoginResponse };
-export {
-  getAuthToken,
-  setAuthToken,
-  removeAuthToken,
-  loginApi,
-  logoutApi,
-};
+export { getAuthToken, setAuthToken, removeAuthToken, loginApi, logoutApi };
 ```
 
 ### 7.3 `src/stores/` — Zustand Stores
@@ -715,7 +719,9 @@ createRoot(document.getElementById("root")!).render(
         </Route>
 
         {/* Rute admin & super admin (dengan Sidebar layout) */}
-        <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}>
+        <Route
+          element={<ProtectedRoute allowedRoles={["SUPER_ADMIN", "ADMIN"]} />}
+        >
           <Route element={<AdminShellPage />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           </Route>
@@ -748,11 +754,11 @@ createRoot(document.getElementById("root")!).render(
 
 ### 8.4 Konvensi URL Path
 
-| Role | Dashboard Path |
-| :--- | :--- |
+| Role        | Dashboard Path     |
+| :---------- | :----------------- |
 | Super Admin | `/admin/dashboard` |
-| Admin | `/admin/dashboard` |
-| Voter | `/voter/dashboard` |
+| Admin       | `/admin/dashboard` |
+| Voter       | `/voter/dashboard` |
 
 ---
 
@@ -760,13 +766,13 @@ createRoot(document.getElementById("root")!).render(
 
 ### 9.1 Stack Formulir
 
-| Layer | Teknologi | Tugas |
-| :--- | :--- | :--- |
-| **Validasi schema** | Zod | Mendefinisikan aturan validasi + pesan error |
-| **Form state** | React Hook Form | Mengelola field registration, submission, error state |
-| **Bridge** | @hookform/resolvers (zodResolver) | Menghubungkan Zod schema ke RHF |
-| **Visual field** | `<FormField>` molecule | Label + children + error/hint display |
-| **Input element** | `<Input>` atom | Native input dengan prop `ref` (React 19) |
+| Layer               | Teknologi                         | Tugas                                                 |
+| :------------------ | :-------------------------------- | :---------------------------------------------------- |
+| **Validasi schema** | Zod                               | Mendefinisikan aturan validasi + pesan error          |
+| **Form state**      | React Hook Form                   | Mengelola field registration, submission, error state |
+| **Bridge**          | @hookform/resolvers (zodResolver) | Menghubungkan Zod schema ke RHF                       |
+| **Visual field**    | `<FormField>` molecule            | Label + children + error/hint display                 |
+| **Input element**   | `<Input>` atom                    | Native input dengan prop `ref` (React 19)             |
 
 ### 9.2 Zod Schema File (`{Form}.schema.ts`)
 
@@ -803,7 +809,7 @@ const {
 } = useForm<LoginFormData>({
   resolver: zodResolver(loginSchema),
   defaultValues: { username: "", password: "" },
-  mode: "onTouched",  // Validasi saat field disentuh
+  mode: "onTouched", // Validasi saat field disentuh
 });
 ```
 
@@ -819,30 +825,34 @@ Setiap komponen **WAJIB** memiliki file `.md` co-located yang mendokumentasikan:
 4. **Semantic Tokens Used** — Mapping class ke `global.css`.
 5. **Code Example** — Contoh penggunaan standar.
 
-```markdown
+````markdown
 # Badge Component
 
 - **Level**: Atom
 - **Folder**: `src/components/atoms/Badge/`
 
 ## Purpose
+
 Inline status indicator pill for role badges, election status, and semantic labels.
 
 ## Props
+
 - `variant`: `"default"` | `"success"` | `"warning"` | `"pending"` | `"info"` | `"secondary"`
 - `icon`: `ReactNode` (optional leading icon)
 
 ## Semantic Tokens Used
+
 - Success: `bg-success-subtle`, `text-success-subtle-foreground`
 - Warning: `bg-warning-subtle`, `text-warning-subtle-foreground`
 
 ## Code Example
+
 \```tsx
 import Badge from "@/components/atoms/Badge";
 
 <Badge variant="success">Active</Badge>
 \```
-```
+````
 
 ---
 
@@ -851,6 +861,7 @@ import Badge from "@/components/atoms/Badge";
 Path alias `@/` dikonfigurasi di dua tempat dan merujuk ke `apps/e_voting/src/`:
 
 **`vite.config.ts`** (untuk bundler):
+
 ```ts
 resolve: {
   alias: {
@@ -860,6 +871,7 @@ resolve: {
 ```
 
 **`tsconfig.app.json`** (untuk TypeScript):
+
 ```json
 "paths": {
   "@/*": ["./src/*"]
@@ -867,6 +879,7 @@ resolve: {
 ```
 
 Semua import internal **WAJIB** menggunakan `@/` prefix:
+
 ```tsx
 import Button from "@/components/atoms/Button";
 import { useUserStore } from "@/stores/useUserStore";
@@ -905,11 +918,15 @@ import { Loader2 } from "lucide-react";
 import type { ButtonProps, ButtonVariant, ButtonSize } from "./Button.types";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm active:scale-[0.99]",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-accent active:scale-[0.99]",
-  outline: "border border-border text-foreground bg-transparent hover:bg-accent active:scale-[0.99]",
+  primary:
+    "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm active:scale-[0.99]",
+  secondary:
+    "bg-secondary text-secondary-foreground hover:bg-accent active:scale-[0.99]",
+  outline:
+    "border border-border text-foreground bg-transparent hover:bg-accent active:scale-[0.99]",
   ghost: "text-foreground hover:bg-accent active:scale-[0.99]",
-  destructive: "bg-destructive text-destructive-foreground hover:opacity-90 active:scale-[0.99]",
+  destructive:
+    "bg-destructive text-destructive-foreground hover:opacity-90 active:scale-[0.99]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -947,7 +964,11 @@ const Button = ({
         ${className}`.trim()}
       {...props}
     >
-      {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-current" /> : icon}
+      {isLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin text-current" />
+      ) : (
+        icon
+      )}
       <span>{children}</span>
     </button>
   );
@@ -966,8 +987,14 @@ import Label from "@/components/atoms/Label";
 import type { FormFieldProps } from "./FormField.types";
 
 const FormField = ({
-  id, label, required = false, optional = false,
-  error, hint, className = "", children,
+  id,
+  label,
+  required = false,
+  optional = false,
+  error,
+  hint,
+  className = "",
+  children,
 }: FormFieldProps) => {
   return (
     <div className={`flex flex-col w-full ${className}`.trim()}>
@@ -976,8 +1003,10 @@ const FormField = ({
       </Label>
       {children}
       {error ? (
-        <p id={`${id}-error`}
-           className="flex items-center gap-1.5 mt-1.5 text-xs font-medium text-destructive">
+        <p
+          id={`${id}-error`}
+          className="flex items-center gap-1.5 mt-1.5 text-xs font-medium text-destructive"
+        >
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span>{error}</span>
         </p>
@@ -1033,7 +1062,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import AuthLayout from "@/components/layouts/AuthLayout";
-import LoginForm, { type LoginCredentials } from "@/components/organisms/LoginForm";
+import LoginForm, {
+  type LoginCredentials,
+} from "@/components/organisms/LoginForm";
 import { loginApi } from "@/services/auth.service";
 
 const LoginPage = () => {
@@ -1114,7 +1145,9 @@ const LoadingState = ({
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-8">
-      <p className={`text-muted-foreground font-medium ${sizeClasses[textSize]}`}>
+      <p
+        className={`text-muted-foreground font-medium ${sizeClasses[textSize]}`}
+      >
         {message}
         {".".repeat(dotCount)}
       </p>
@@ -1158,8 +1191,12 @@ const EmptyState = ({
         {icon || <Layers className="w-8 h-8" />}
       </div>
       <div className="space-y-1 max-w-md">
-        <h2 className="font-sans text-lg font-bold text-card-foreground">{title}</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+        <h2 className="font-sans text-lg font-bold text-card-foreground">
+          {title}
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -1340,7 +1377,10 @@ import { Calendar, Eye, Layers } from "lucide-react";
 import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import DataTable from "@/components/organisms/DataTable";
-import { getElectionsApi, type ElectionListItem } from "@/services/election.service";
+import {
+  getElectionsApi,
+  type ElectionListItem,
+} from "@/services/election.service";
 import { formatDate } from "@/lib/utils";
 import type { AdminDashboardProps } from "./AdminDashboard.types";
 
@@ -1356,7 +1396,8 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
         if (isMounted) setElections(data);
       } catch (err) {
         if (isMounted) {
-          const message = err instanceof Error ? err.message : "Gagal memuat pemilihan.";
+          const message =
+            err instanceof Error ? err.message : "Gagal memuat pemilihan.";
           toast.error(message);
         }
       } finally {
@@ -1364,24 +1405,34 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
       }
     };
     void loadAssignedElections();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const columns = [
     {
       key: "title",
       header: "Judul",
-      cell: (row: ElectionListItem) => <span className="font-medium text-foreground">{row.title}</span>,
+      cell: (row: ElectionListItem) => (
+        <span className="font-medium text-foreground">{row.title}</span>
+      ),
     },
     {
       key: "description",
       header: "Deskripsi",
-      cell: (row: ElectionListItem) => <p className="text-muted-foreground line-clamp-2">{row.description || "Tidak ada deskripsi."}</p>,
+      cell: (row: ElectionListItem) => (
+        <p className="text-muted-foreground line-clamp-2">
+          {row.description || "Tidak ada deskripsi."}
+        </p>
+      ),
     },
     {
       key: "candidates",
       header: "Kandidat",
-      cell: (row: ElectionListItem) => <Badge variant="warning">{row._count?.candidates || 0} Kandidat</Badge>,
+      cell: (row: ElectionListItem) => (
+        <Badge variant="warning">{row._count?.candidates || 0} Kandidat</Badge>
+      ),
       className: "text-center",
     },
     {
@@ -1400,12 +1451,16 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
     {
       label: "Lihat Detail",
       icon: <Eye className="w-4 h-4" />,
-      onClick: (row: ElectionListItem) => { /* handle view */ },
+      onClick: (row: ElectionListItem) => {
+        /* handle view */
+      },
     },
     {
       label: "Kelola Kandidat",
       icon: <Layers className="w-4 h-4" />,
-      onClick: (row: ElectionListItem) => { /* handle manage */ },
+      onClick: (row: ElectionListItem) => {
+        /* handle manage */
+      },
     },
   ];
 
@@ -1413,7 +1468,9 @@ const AdminDashboard = ({ displayName }: AdminDashboardProps) => {
     <div className="space-y-6">
       {/* Hero Card */}
       <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8">
-        <h1 className="font-sans text-2xl sm:text-3xl font-bold text-foreground">Dashboard Admin</h1>
+        <h1 className="font-sans text-2xl sm:text-3xl font-bold text-foreground">
+          Dashboard Admin
+        </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Selamat datang, <strong>{displayName}</strong>.
         </p>
@@ -1444,23 +1501,23 @@ export default AdminDashboard;
 
 ## 14. Naming Convention Summary
 
-| Entitas | Konvensi | Contoh |
-| :--- | :--- | :--- |
-| Komponen | PascalCase | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu`, `Modal`, `ConfirmModal` |
-| File komponen | PascalCase.tsx (export default di bawah) | `LoginForm.tsx` |
-| File types | PascalCase.types.ts (export type {...}) | `LoginForm.types.ts` |
-| File schema | PascalCase.schema.ts | `LoginForm.schema.ts` |
-| File docs | PascalCase.md | `LoginForm.md` |
-| File barrel index | index.ts (export { default }) | `index.ts` |
-| Zustand store | camelCase `use*Store` | `useUserStore.ts` |
-| Service file | camelCase `*.service.ts` | `auth.service.ts` |
-| Library file | camelCase | `axios.ts` |
-| CSS variables | kebab-case `--name` | `--primary-hover` |
-| Tailwind classes | kebab-case | `bg-primary-hover` |
-| Props interface | PascalCase `*Props` | `ButtonProps`, `LoginFormProps` |
-| Variant type | PascalCase `*Variant` | `ButtonVariant`, `BadgeVariant` |
-| Handler functions | camelCase `handle*` | `handleLogout`, `handleLoginSubmit` |
-| API functions | camelCase `*Api` | `loginApi`, `logoutApi` |
+| Entitas           | Konvensi                                 | Contoh                                                                                                                                           |
+| :---------------- | :--------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Komponen          | PascalCase                               | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu`, `Modal`, `ConfirmModal` |
+| File komponen     | PascalCase.tsx (export default di bawah) | `LoginForm.tsx`                                                                                                                                  |
+| File types        | PascalCase.types.ts (export type {...})  | `LoginForm.types.ts`                                                                                                                             |
+| File schema       | PascalCase.schema.ts                     | `LoginForm.schema.ts`                                                                                                                            |
+| File docs         | PascalCase.md                            | `LoginForm.md`                                                                                                                                   |
+| File barrel index | index.ts (export { default })            | `index.ts`                                                                                                                                       |
+| Zustand store     | camelCase `use*Store`                    | `useUserStore.ts`                                                                                                                                |
+| Service file      | camelCase `*.service.ts`                 | `auth.service.ts`                                                                                                                                |
+| Library file      | camelCase                                | `axios.ts`                                                                                                                                       |
+| CSS variables     | kebab-case `--name`                      | `--primary-hover`                                                                                                                                |
+| Tailwind classes  | kebab-case                               | `bg-primary-hover`                                                                                                                               |
+| Props interface   | PascalCase `*Props`                      | `ButtonProps`, `LoginFormProps`                                                                                                                  |
+| Variant type      | PascalCase `*Variant`                    | `ButtonVariant`, `BadgeVariant`                                                                                                                  |
+| Handler functions | camelCase `handle*`                      | `handleLogout`, `handleLoginSubmit`                                                                                                              |
+| API functions     | camelCase `*Api`                         | `loginApi`, `logoutApi`                                                                                                                          |
 
 ---
 
@@ -1472,20 +1529,21 @@ A general-purpose `<Modal>` molecule provides reusable overlay, backdrop, escape
 
 **Props:**
 
-| Prop | Tipe | Default | Deskripsi |
-| :--- | :--- | :--- | :--- |
-| `isOpen` | `boolean` | required | Controls modal visibility |
-| `onClose` | `() => void` | required | Dismiss callback (backdrop click, escape, close button) |
-| `title` | `ReactNode` | `undefined` | Renders a header bar with title (typically `<Badge>`) + close button |
-| `size` | `ModalSize` | `"lg"` | Max-width: `sm` \| `md` \| `lg` \| `xl` \| `2xl` \| `3xl` \| `4xl` \| `5xl` \| `6xl` \| `7xl` \| `full` |
-| `showCloseButton` | `boolean` | `true` | Renders an `X` close button in the header |
-| `closeButtonDisabled` | `boolean` | `false` | Disables the close button (for async operations) |
-| `closeOnEscape` | `boolean` | `true` | Dismiss on `Escape` key |
-| `closeOnBackdropClick` | `boolean` | `true` | Dismiss on backdrop click |
-| `className` | `string` | `""` | Additional class for container |
-| `children` | `ReactNode` | required | Modal body content (body + footer) |
+| Prop                   | Tipe         | Default     | Deskripsi                                                                                               |
+| :--------------------- | :----------- | :---------- | :------------------------------------------------------------------------------------------------------ |
+| `isOpen`               | `boolean`    | required    | Controls modal visibility                                                                               |
+| `onClose`              | `() => void` | required    | Dismiss callback (backdrop click, escape, close button)                                                 |
+| `title`                | `ReactNode`  | `undefined` | Renders a header bar with title (typically `<Badge>`) + close button                                    |
+| `size`                 | `ModalSize`  | `"lg"`      | Max-width: `sm` \| `md` \| `lg` \| `xl` \| `2xl` \| `3xl` \| `4xl` \| `5xl` \| `6xl` \| `7xl` \| `full` |
+| `showCloseButton`      | `boolean`    | `true`      | Renders an `X` close button in the header                                                               |
+| `closeButtonDisabled`  | `boolean`    | `false`     | Disables the close button (for async operations)                                                        |
+| `closeOnEscape`        | `boolean`    | `true`      | Dismiss on `Escape` key                                                                                 |
+| `closeOnBackdropClick` | `boolean`    | `true`      | Dismiss on backdrop click                                                                               |
+| `className`            | `string`     | `""`        | Additional class for container                                                                          |
+| `children`             | `ReactNode`  | required    | Modal body content (body + footer)                                                                      |
 
 **Key behaviors:**
+
 - Returns `null` when `isOpen` is `false` — no DOM output.
 - `role="dialog"` and `aria-modal="true"` for accessibility.
 - When `title` is provided, renders a header bar (`px-6 py-4 border-b bg-muted/30`) with title on the left and close button on the right.
@@ -1497,9 +1555,18 @@ A general-purpose `<Modal>` molecule provides reusable overlay, backdrop, escape
 
 ```tsx
 // src/components/molecules/Modal/Modal.tsx
-const Modal = ({ isOpen, onClose, title, size = "lg", showCloseButton = true,
-  closeButtonDisabled = false, closeOnEscape = true, closeOnBackdropClick = true,
-  className = "", children, }: ModalProps) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  size = "lg",
+  showCloseButton = true,
+  closeButtonDisabled = false,
+  closeOnEscape = true,
+  closeOnBackdropClick = true,
+  className = "",
+  children,
+}: ModalProps) => {
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
     const handleEscape = (e: KeyboardEvent) => {
@@ -1522,24 +1589,24 @@ A `<ConfirmModal>` molecule wraps `<Modal>` for confirmation dialogs. It replace
 
 **Props:**
 
-| Prop | Tipe | Default | Deskripsi |
-| :--- | :--- | :--- | :--- |
-| `isOpen` | `boolean` | required | Modal visibility |
-| `onClose` | `() => void` | required | Dismiss callback |
-| `onConfirm` | `() => void` | required | Confirm action handler |
-| `message` | `string` | required | Confirmation message body (no icon) |
-| `confirmLabel` | `string` | `"Konfirmasi"` | Confirm button text |
-| `cancelLabel` | `string` | `"Batal"` | Cancel button text |
-| `isDestructive` | `boolean` | `false` | Destructive variant; title icon is `AlertTriangle` (red), title text is "Konfirmasi Penghapusan" |
-| `isSubmitting` | `boolean` | `false` | Disables close/backdrop during async |
-| `size` | `ModalSize` | `"md"` | Modal width |
+| Prop            | Tipe         | Default        | Deskripsi                                                                                        |
+| :-------------- | :----------- | :------------- | :----------------------------------------------------------------------------------------------- |
+| `isOpen`        | `boolean`    | required       | Modal visibility                                                                                 |
+| `onClose`       | `() => void` | required       | Dismiss callback                                                                                 |
+| `onConfirm`     | `() => void` | required       | Confirm action handler                                                                           |
+| `message`       | `string`     | required       | Confirmation message body (no icon)                                                              |
+| `confirmLabel`  | `string`     | `"Konfirmasi"` | Confirm button text                                                                              |
+| `cancelLabel`   | `string`     | `"Batal"`      | Cancel button text                                                                               |
+| `isDestructive` | `boolean`    | `false`        | Destructive variant; title icon is `AlertTriangle` (red), title text is "Konfirmasi Penghapusan" |
+| `isSubmitting`  | `boolean`    | `false`        | Disables close/backdrop during async                                                             |
+| `size`          | `ModalSize`  | `"md"`         | Modal width                                                                                      |
 
 **Title & Icon (composed internally):**
 
-| Mode | Icon | Title Text | Confirm Button |
-| :--- | :--- | :--- | :--- |
-| Non-destructive | `<AlertCircle>` `text-warning` | `"Konfirmasi"` | `primary` |
-| Destructive | `<AlertTriangle>` `text-destructive` | `"Konfirmasi Penghapusan"` | `destructive` |
+| Mode            | Icon                                 | Title Text                 | Confirm Button |
+| :-------------- | :----------------------------------- | :------------------------- | :------------- |
+| Non-destructive | `<AlertCircle>` `text-warning`       | `"Konfirmasi"`             | `primary`      |
+| Destructive     | `<AlertTriangle>` `text-destructive` | `"Konfirmasi Penghapusan"` | `destructive`  |
 
 ```tsx
 import ConfirmModal from "@/components/molecules/ConfirmModal";
@@ -1551,18 +1618,18 @@ import ConfirmModal from "@/components/molecules/ConfirmModal";
   isDestructive
   onConfirm={handleDelete}
   onClose={() => setIsConfirmOpen(false)}
-/>
+/>;
 ```
 
 ### 15.3 Organism-Level Modal Composites
 
-Organism-level modal components (`CandidateDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`, `ElectionDetailModal`) compose `<Modal>` as their container. They pass a title (string or `<Badge>`) and rely on the Modal's built-in close button.
+Organism-level modal components (`CandidatePairDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`, `ElectionDetailModal`) compose `<Modal>` as their container. They pass a title (string or `<Badge>`) and rely on the Modal's built-in close button.
 
 **Pattern — use `title` + built-in close button:**
 
 ```tsx
 // Good — compose the base Modal with title
-const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
+const CandidatePairDetailModal = ({ isOpen, onClose, ... }) => {
   if (!candidate) return null;
   return (
     <Modal
@@ -1585,6 +1652,7 @@ const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
 ```
 
 **Guidelines for organism-level modals:**
+
 - Pass a string or `<Badge>` element as the `title` prop to render the header bar with the built-in close button.
 - For async operations (submitting, saving), set `closeButtonDisabled={isSubmitting}` alongside `closeOnEscape={!isSubmitting}` and `closeOnBackdropClick={!isSubmitting}` to prevent accidental dismissal.
 - Keep `isOpen` and `onClose` as required props.
@@ -1593,19 +1661,19 @@ const CandidateDetailModal = ({ isOpen, onClose, ... }) => {
 
 ### 15.4 Components Using the Modal System
 
-| Component | Level | Modal Props Used |
-| :--- | :--- | :--- |
-| `CandidateDetailModal` | Organism | `title={Badge info}`, `size="2xl"` |
-| `VoteConfirmModal` | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled` gated by `isSubmitting` |
-| `AdminAssignmentModal` | Organism | `title="Penugasan Admin"`, `size="2xl"`, `closeButtonDisabled` gated by `isSaving` |
-| `ElectionResultModal` | Organism | `title="Hasil Voting"`, `size="4xl"` |
-| `ElectionDetailModal` | Organism | `title="Detail Pemilihan"`, `size="2xl"`, renders `StatCard` for counts |
-| `ConfirmModal` | Molecule | `title={Badge + conditional icon}`, `closeButtonDisabled` gated by `isSubmitting` |
-| `ElectionPage` | Page | Renders ElectionDetailModal, AdminAssignmentModal, ElectionResultModal, ConfirmModal |
-| `VoterDashboard` | Organism | Renders CandidateDetailModal |
-| `VoterElectionCard` | Organism | Renders VoteConfirmModal |
-| `CandidateCard` | Molecule | `onViewDetail` callback → parent modal |
-| `CandidateRadioCard` | Molecule | `onViewDetail` callback → parent modal |
+| Component                  | Level    | Modal Props Used                                                                     |
+| :------------------------- | :------- | :----------------------------------------------------------------------------------- |
+| `CandidatePairDetailModal` | Organism | `title={Badge info}`, `size="2xl"`                                                   |
+| `VoteConfirmModal`         | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled` gated by `isSubmitting`  |
+| `AdminAssignmentModal`     | Organism | `title="Penugasan Admin"`, `size="2xl"`, `closeButtonDisabled` gated by `isSaving`   |
+| `ElectionResultModal`      | Organism | `title="Hasil Voting"`, `size="4xl"`                                                 |
+| `ElectionDetailModal`      | Organism | `title="Detail Pemilihan"`, `size="2xl"`, renders `StatCard` for counts              |
+| `ConfirmModal`             | Molecule | `title={Badge + conditional icon}`, `closeButtonDisabled` gated by `isSubmitting`    |
+| `ElectionPage`             | Page     | Renders ElectionDetailModal, AdminAssignmentModal, ElectionResultModal, ConfirmModal |
+| `VoterDashboard`           | Organism | Renders CandidatePairDetailModal                                                     |
+| `VoterElectionCard`        | Organism | Renders VoteConfirmModal                                                             |
+| `CandidateCard`            | Molecule | `onViewDetail` callback → parent modal                                               |
+| `CandidateRadioCard`       | Molecule | `onViewDetail` callback → parent modal                                               |
 
 ### 15.5 Modal Anti-Patterns
 
@@ -1628,15 +1696,15 @@ Replace duplicated `bg-card rounded-3xl border border-border shadow-sm` patterns
 
 ### Wrapper Props
 
-| Prop | Tipe | Default | Deskripsi |
-| :--- | :--- | :--- | :--- |
-| `title` | `ReactNode` | — | Optional header title. Ignored when `header` is provided. |
-| `subtitle` | `ReactNode` | — | Optional header subtitle text. Ignored when `header` is provided. |
-| `header` | `ReactNode` | — | Custom header content. Takes precedence over `title`/`subtitle`. |
-| `footer` | `ReactNode` | — | Optional footer bar content (e.g., action buttons). |
-| `padding` | `"default"` \| `"none"` | `"default"` | Body padding variant. `default` = `p-6`, `none` = no padding. |
-| `className` | `string` | `""` | Additional classes for the container. |
-| `children` | `ReactNode` | — | Body content provided by the parent. |
+| Prop        | Tipe                    | Default     | Deskripsi                                                         |
+| :---------- | :---------------------- | :---------- | :---------------------------------------------------------------- |
+| `title`     | `ReactNode`             | —           | Optional header title. Ignored when `header` is provided.         |
+| `subtitle`  | `ReactNode`             | —           | Optional header subtitle text. Ignored when `header` is provided. |
+| `header`    | `ReactNode`             | —           | Custom header content. Takes precedence over `title`/`subtitle`.  |
+| `footer`    | `ReactNode`             | —           | Optional footer bar content (e.g., action buttons).               |
+| `padding`   | `"default"` \| `"none"` | `"default"` | Body padding variant. `default` = `p-6`, `none` = no padding.     |
+| `className` | `string`                | `""`        | Additional classes for the container.                             |
+| `children`  | `ReactNode`             | —           | Body content provided by the parent.                              |
 
 ### Code Example
 
@@ -1650,8 +1718,12 @@ import Button from "@/components/atoms/Button";
   subtitle="Kelola semua pemilihan Anda"
   footer={
     <div className="flex items-center justify-end gap-3">
-      <Button variant="outline" size="sm">Batal</Button>
-      <Button variant="primary" size="sm">Simpan</Button>
+      <Button variant="outline" size="sm">
+        Batal
+      </Button>
+      <Button variant="primary" size="sm">
+        Simpan
+      </Button>
     </div>
   }
 >
@@ -1664,7 +1736,7 @@ import Button from "@/components/atoms/Button";
       </div>
     ))}
   </div>
-</SectionCard>
+</SectionCard>;
 ```
 
 ### Custom Header Variant
@@ -1673,7 +1745,9 @@ import Button from "@/components/atoms/Button";
 <SectionCard
   header={
     <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-      <h2 className="font-sans text-xl font-bold text-card-foreground">Custom Header</h2>
+      <h2 className="font-sans text-xl font-bold text-card-foreground">
+        Custom Header
+      </h2>
       <Badge variant="warning">Draft</Badge>
     </div>
   }
