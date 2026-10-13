@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Dialog modal form for creating or editing a **candidate pair** (paslon). Wraps the `<Modal>` molecule and uses **React Hook Form + Zod** for form validation. Follows the same patterns as `VoterFormModal`.
+Dialog modal form for creating or editing a **candidate pair** (paslon). Wraps the `<Modal>` molecule and uses **React Hook Form + Zod** for form validation, plus the `<Select>` molecule (from `@/components/molecules/Select`) for the election dropdown. Follows the same patterns as `VoterFormModal`.
 
 Per PRD Section 5 (Candidate) and §15.3 (Candidate Management), with reference to BR-09 (Candidate Ownership) and BR-15 (Candidate Update):
 
@@ -48,6 +48,15 @@ Clicking "Hapus" sets `removed: true` → on form submit, `photoToPayload()` ret
 
 Per frontend guideline Aturan 7, all string inputs are trimmed before submission (`data.field.trim()`).
 
+## Imports
+
+- `<Select>` molecule from `@/components/molecules/Select` — custom dropdown with internal popover UI for the election dropdown (Create mode only). Parent passes `options` array; all dropdown open/close, positioning, and click-outside behavior are handled internally.
+- `<Input>` atom from `@/components/atoms/Input` — for text and date fields.
+- `<FormField>` molecule from `@/components/molecules/FormField` — label + error/hint wrapper.
+- `<FileUpload>` molecule from `@/components/molecules/FileUpload` — photo file selection.
+- `<Modal>` molecule from `@/components/molecules/Modal` — dialog container.
+- `<LoadingState>` / `<EmptyState>` molecules — election dropdown loading and empty states.
+
 ## Props
 
 - `mode`: `"create" | "edit"`
@@ -60,7 +69,7 @@ Per frontend guideline Aturan 7, all string inputs are trimmed before submission
 
 | Field | Element | Validation | Required? |
 | :--- | :--- | :--- | :--- |
-| `electionId` | native `<select>` | non-zero number | Create only |
+| `electionId` | `<Select>` atom | non-zero number | Create only |
 | `candidateName` | `<Input>` | `.min(1)`, trimmed | Yes |
 | `candidateBirthday` | `<Input type="date">` | valid date | Yes |
 | `candidateDescription` | `<Input>` | optional | No |

@@ -40,7 +40,7 @@ const VoterPage = () => {
   const isSuperAdmin = useUserStore((state) => state.isSuperAdmin());
   const currentUser = useUserStore((state) => state.user);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
 
   useEffect(() => {
     let isMounted = true;

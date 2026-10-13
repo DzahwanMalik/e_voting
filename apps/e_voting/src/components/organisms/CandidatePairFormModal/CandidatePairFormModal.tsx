@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Calendar as CalendarIcon, FileText } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
+import Select from "@/components/molecules/Select";
 import FormField from "@/components/molecules/FormField";
 import FileUpload from "@/components/molecules/FileUpload";
 import LoadingState from "@/components/molecules/LoadingState";
@@ -162,7 +163,7 @@ const CandidatePairFormModal = ({
 
   const isCreateMode = mode === "create";
 
-  // Election selection (managed outside RHF for native <select>)
+  // Election selection (managed outside RHF for <Select> molecule)
   const [selectedElectionId, setSelectedElectionId] = useState<number | null>(
     null,
   );
@@ -370,25 +371,16 @@ const CandidatePairFormModal = ({
                   icon={<CalendarIcon className="w-8 h-8" />}
                 />
               ) : (
-                <select
-                  value={selectedElectionId ?? ""}
-                  onChange={(e) =>
-                    setSelectedElectionId(
-                      e.target.value ? Number(e.target.value) : null,
-                    )
-                  }
+                <Select
+                  value={selectedElectionId}
+                  onChange={setSelectedElectionId}
+                  options={allElections.map((election) => ({
+                    label: election.title,
+                    value: election.id,
+                  }))}
+                  placeholder="Pilih election..."
                   disabled={isSubmitting}
-                  className="w-full h-11 bg-card text-foreground text-sm rounded-xl border border-input focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>
-                    Pilih election...
-                  </option>
-                  {allElections.map((election) => (
-                    <option key={election.id} value={election.id}>
-                      {election.title}
-                    </option>
-                  ))}
-                </select>
+                />
               )}
             </div>
           )}

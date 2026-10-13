@@ -1060,7 +1060,43 @@ const importVotersFromExcel = async (
     );
   }
 
-  // Transaction: clear existing voters for election, then create/update from Excel
+  // Pre-hash all passwords BEFORE the transaction to avoid timeout
+  // (bcrypt is CPU-intensive and would consume the transaction timeout)
+  const rowsWithHashedPasswords = await Promise.all(
+    rows.map(async (row) => ({
+      ...row,
+      hashedPassword: await hashPassword(row.password),
+    })),
+  );
+
+  // Pre-fetch ALL existing voter users whose usernames appear in the Excel
+  // in a single query instead of N × findFirst inside the transaction
+  const usernames = rowsWithHashedPasswords.map((r) => r.username);
+  const existingUsers = await prisma.user.findMany({
+    where: {
+      username: { in: usernames },
+      role: UserRole.VOTER,
+    },
+    select: { id: true, username: true },
+  });
+  const existingUserMap = new Map(
+    existingUsers.map((u) => [u.username.toLowerCase(), u]),
+  );
+
+  // Separate rows into "to create" and "to update"
+  const toCreate: typeof rowsWithHashedPasswords = [];
+  const toUpdate: (typeof rowsWithHashedPasswords[number] & { existingUserId: number })[] = [];
+
+  for (const row of rowsWithHashedPasswords) {
+    const existing = existingUserMap.get(row.username.toLowerCase());
+    if (existing) {
+      toUpdate.push({ ...row, existingUserId: existing.id });
+    } else {
+      toCreate.push(row);
+    }
+  }
+
+  // Transaction: only DB mutations, no CPU-heavy work
   return prisma.$transaction(async (tx) => {
     // Preserve hasVoted status before clearing (BR-16: votes remain valid)
     const existingElectionVoters = await tx.electionVoter.findMany({
@@ -1077,65 +1113,75 @@ const importVotersFromExcel = async (
       where: { electionId: input.electionId },
     });
 
-    let createdCount = 0;
-    let updatedCount = 0;
-
-    for (const row of rows) {
-      const hashedPassword = await hashPassword(row.password);
-
-      const existingUser = await tx.user.findFirst({
-        where: {
-          username: row.username,
-          role: UserRole.VOTER,
+    // --- Batch UPDATE existing users ---
+    for (const row of toUpdate) {
+      await tx.user.update({
+        where: { id: row.existingUserId },
+        data: {
+          name: row.name,
+          password: row.hashedPassword,
         },
       });
+    }
 
-      if (existingUser) {
-        await tx.user.update({
-          where: { id: existingUser.id },
-          data: {
-            name: row.name,
-            password: hashedPassword,
-          },
-        });
-        updatedCount++;
+    // --- Batch CREATE new users ---
+    if (toCreate.length > 0) {
+      await tx.user.createMany({
+        data: toCreate.map((row) => ({
+          username: row.username,
+          password: row.hashedPassword,
+          name: row.name,
+          role: UserRole.VOTER,
+          createdById: userId,
+        })),
+      });
+    }
 
-        // Re-enroll the voter to election, preserving hasVoted status
-        await tx.electionVoter.create({
-          data: {
-            electionId: input.electionId,
-            userId: existingUser.id,
-            hasVoted: existingHasVoted[existingUser.id] ?? false,
-          },
-        });
-      } else {
-        const newUser = await tx.user.create({
-          data: {
-            username: row.username,
-            password: hashedPassword,
-            name: row.name,
+    // Fetch newly created user IDs for election voter enrollment
+    const newUsers = toCreate.length > 0
+      ? await tx.user.findMany({
+          where: {
+            username: { in: toCreate.map((r) => r.username) },
             role: UserRole.VOTER,
-            createdById: userId,
           },
-        });
-        createdCount++;
+          select: { id: true, username: true },
+        })
+      : [];
+    const newUserMap = new Map(
+      newUsers.map((u) => [u.username.toLowerCase(), u.id]),
+    );
 
-        await tx.electionVoter.create({
-          data: {
-            electionId: input.electionId,
-            userId: newUser.id,
-            hasVoted: false,
-          },
-        });
-      }
+    // --- Batch CREATE election voter enrollments ---
+    const electionVoterData = [
+      // Updated users: re-enroll with preserved hasVoted status
+      ...toUpdate.map((row) => ({
+        electionId: input.electionId,
+        userId: row.existingUserId,
+        hasVoted: existingHasVoted[row.existingUserId] ?? false,
+      })),
+      // New users: enroll with hasVoted = false
+      ...toCreate.map((row) => {
+        const newUserId = newUserMap.get(row.username.toLowerCase());
+        return {
+          electionId: input.electionId,
+          userId: newUserId!,
+          hasVoted: false,
+        };
+      }),
+    ];
+
+    if (electionVoterData.length > 0) {
+      await tx.electionVoter.createMany({
+        data: electionVoterData,
+      });
     }
 
     return {
-      createdCount,
-      updatedCount,
+      createdCount: toCreate.length,
+      updatedCount: toUpdate.length,
       totalImported: rows.length,
     };
-  });
+  }, { timeout: 15000 });
 };
 
 export type { CreateVoterInput, UpdateVoterInput, GetVotersOptions };
