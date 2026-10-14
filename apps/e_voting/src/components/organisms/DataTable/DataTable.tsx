@@ -106,7 +106,7 @@ const DataTable = <T,>({
                 </th>
               ))}
               {rowOptions && rowOptions.length > 0 && (
-                <th className="w-10 px-4 py-3 text-right" />
+                <th className="border-b border-border" />
               )}
             </tr>
           </thead>
@@ -135,7 +135,7 @@ const DataTable = <T,>({
                   {columns.map((col) => (
                     <td
                       key={`${getKey(row, index)}-${col.key}`}
-                      className={`px-4 py-3 text-foreground align-top ${col.className ?? ""}`}
+                      className={`px-4 py-3 text-foreground align-middle ${col.className ?? ""}`}
                     >
                       {col.cell(row)}
                     </td>
