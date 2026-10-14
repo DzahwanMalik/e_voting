@@ -12,6 +12,7 @@ const DataTable = <T,>({
   rowOptions,
   rowKey = "id" as keyof T,
   isLoading = false,
+  loadingMessage = "Memuat data...",
   emptyTitle = "Tidak Ada Data",
   emptyDescription = "Tidak ada data untuk ditampilkan saat ini.",
   searchProps,
@@ -81,24 +82,8 @@ const DataTable = <T,>({
     );
   };
 
-  if (isLoading) {
-    return <LoadingState message="Memuat data..." />;
-  }
-
-  if (data.length === 0) {
-    return (
-      <>
-        <div
-          className={`bg-card rounded-2xl border border-border overflow-x-auto ${className}`.trim()}
-          {...props}
-        >
-          {renderSearchToolbar()}
-          <EmptyState title={emptyTitle} description={emptyDescription} />
-        </div>
-        {renderPagination()}
-      </>
-    );
-  }
+  const colSpan =
+    columns.length + (rowOptions && rowOptions.length > 0 ? 1 : 0);
 
   return (
     <>
@@ -121,31 +106,48 @@ const DataTable = <T,>({
                 </th>
               ))}
               {rowOptions && rowOptions.length > 0 && (
-                <th className="border-b border-border" />
+                <th className="w-10 px-4 py-3 text-right" />
               )}
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) => (
-              <tr
-                key={getKey(row, index)}
-                className="border-b border-border last:border-0"
-              >
-                {columns.map((col) => (
-                  <td
-                    key={`${getKey(row, index)}-${col.key}`}
-                    className={`px-4 py-3 text-foreground align-top ${col.className ?? ""}`}
-                  >
-                    {col.cell(row)}
-                  </td>
-                ))}
-                {rowOptions && rowOptions.length > 0 && (
-                  <td className="px-2 py-3 text-right">
-                    {renderOptionsMenu(row)}
-                  </td>
-                )}
+            {isLoading ? (
+              <tr>
+                <td colSpan={colSpan} className="py-8">
+                  <LoadingState message={loadingMessage} textSize="md" />
+                </td>
               </tr>
-            ))}
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={colSpan} className="py-8">
+                  <EmptyState
+                    title={emptyTitle}
+                    description={emptyDescription}
+                  />
+                </td>
+              </tr>
+            ) : (
+              data.map((row, index) => (
+                <tr
+                  key={getKey(row, index)}
+                  className="border-b border-border last:border-0"
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={`${getKey(row, index)}-${col.key}`}
+                      className={`px-4 py-3 text-foreground align-top ${col.className ?? ""}`}
+                    >
+                      {col.cell(row)}
+                    </td>
+                  ))}
+                  {rowOptions && rowOptions.length > 0 && (
+                    <td className="px-2 py-3 text-right">
+                      {renderOptionsMenu(row)}
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

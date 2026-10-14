@@ -7,7 +7,7 @@
 
 Generic, reusable table component for displaying fetched data passed via props. Supports column-based rendering, per-row action options menu (using `DropdownMenu` molecule), and loading/empty states. Designed for admin section use (Admin & Super Admin) to simplify Developer Experience.
 
-When both `searchProps` and `paginationProps` are provided:
+When `isLoading` is `true`, only the **tbody rows** are replaced with a `LoadingState` — the table header, search toolbar, and pagination remain visible to preserve user context. When both `searchProps` and `paginationProps` are provided:
 - **Search Input** is rendered in a toolbar above the table.
 - **Pagination** (page info on left, page controls on right) is rendered **below** the table container, separated by a subtle top border.
 
@@ -17,7 +17,8 @@ When both `searchProps` and `paginationProps` are provided:
 - `columns`: `DataTableColumn<T>[]` — column definitions with render functions
 - `rowOptions`: `DataTableRowOption<T>[]` (optional) — per-row actions rendered in the options column
 - `rowKey`: `keyof T | ((row: T) => string | number)` (optional, default `"id"`) — unique key extractor
-- `isLoading`: `boolean` (optional) — shows `LoadingState` when true
+- `isLoading`: `boolean` (optional) — shows `LoadingState` in the tbody rows only; header, search toolbar, and pagination remain visible
+- `loadingMessage`: `string` (optional, default `"Memuat data..."`) — custom message for the row-level loading state
 - `emptyTitle`: `string` (optional) — title shown when data is empty
 - `emptyDescription`: `string` (optional) — description shown when data is empty
 - `searchProps`: `DataTableSearchProps` (optional) — enables search Input in the toolbar with `leftElement={<Search />}`
@@ -60,7 +61,7 @@ When both `searchProps` and `paginationProps` are provided:
 When `searchProps` and/or `paginationProps` are provided, the layout is:
 
 1. **Toolbar (top)**: Search Input only.
-2. **Table container**: `<table>` with bordered header and row action menu.
+2. **Table container**: `<table>` with persistent `thead` header and row-level `tbody`. When `isLoading`, the tbody renders a `LoadingState` row (header stays visible).
 3. **Pagination (bottom)**: `Pagination` molecule rendered as a sibling **below** the table container, with `className="mt-4 pt-4 border-t border-border"` for visual separation. The page summary ("Menampilkan X–Y dari Z") is left-aligned; page controls are right-aligned.
 
 ## Semantic Tokens Used
@@ -171,6 +172,7 @@ const VoterManagement = () => {
       data={voters}
       columns={columns}
       isLoading={isLoading}
+      loadingMessage="Memuat daftar pemilih..."
       searchProps={{
         value: searchQuery,
         onChange: setSearchQuery,

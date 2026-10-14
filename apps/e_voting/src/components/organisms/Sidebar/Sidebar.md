@@ -33,7 +33,7 @@ Vertical navigation rail for the Admin and Super Admin shell layouts. Provides r
 ## Responsive Behavior
 
 - **Desktop (>= `md` breakpoint)**: Sidebar is a fixed, full-height vertical rail on the left (`w-64`).
-- **Mobile (`< md`)**: Sidebar is hidden; a hamburger button in the mobile header opens a fixed overlay with backdrop blur.
+- **Mobile (`< md`)**: Sidebar displays a sticky top header with brand icon, title, and hamburger button. Tapping the button opens a full-height slide-out drawer (`w-64`) with backdrop blur, internal close (`X`) button, scrollable navigation, and pinned logout footer. Drawer automatically closes upon navigating or tapping outside.
 
 ## Code Example
 

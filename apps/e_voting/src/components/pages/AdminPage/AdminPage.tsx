@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import DataTable from "@/components/organisms/DataTable";
-import LoadingState from "@/components/molecules/LoadingState";
 import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import AdminFormModal from "@/components/organisms/AdminFormModal";
@@ -225,11 +224,11 @@ const AdminPage = () => {
         {/* Page Header */}
         <SectionCard padding="default">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold text-card-foreground tracking-tight">
                 Manajemen Admin
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -241,7 +240,7 @@ const AdminPage = () => {
 
         {/* Admin Table Section */}
         <SectionCard title={`Daftar Admin (${admins.length})`} padding="none">
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex justify-end items-center mb-4">
               <Button
                 variant="primary"
@@ -252,18 +251,15 @@ const AdminPage = () => {
                 Tambah Admin
               </Button>
             </div>
-            {isLoading ? (
-              <LoadingState message="Memuat daftar admin..." textSize="lg" />
-            ) : (
-              <DataTable<AdminUser>
-                data={admins}
-                columns={columns}
-                rowOptions={rowOptions}
-                isLoading={isLoading}
-                emptyTitle="Belum Ada Admin"
-                emptyDescription="Belum ada admin yang terdaftar dalam sistem."
-              />
-            )}
+            <DataTable<AdminUser>
+              data={admins}
+              columns={columns}
+              rowOptions={rowOptions}
+              isLoading={isLoading}
+              loadingMessage="Memuat daftar admin..."
+              emptyTitle="Belum Ada Admin"
+              emptyDescription="Belum ada admin yang terdaftar dalam sistem."
+            />
           </div>
         </SectionCard>
       </div>

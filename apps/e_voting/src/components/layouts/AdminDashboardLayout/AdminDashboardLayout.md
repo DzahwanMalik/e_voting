@@ -13,8 +13,13 @@ Layout shell for all Admin and Super Admin section pages. Uses a vertical Sideba
 |---|---|---|
 | Navbar | Top sticky navbar (centered) | Sidebar on left (fixed, `w-64`) |
 | User info / logout | In top navbar | In Sidebar footer |
-| Mobile | N/A (desktop-centered) | Hamburger overlay |
+| Mobile | N/A (desktop-centered) | Sticky top navbar + Hamburger slide-out drawer |
 | Role | Voter only | Admin & Super Admin |
+
+## Responsive Behavior
+
+- **Mobile (`< md`)**: Layout switches to `flex-col`. Top sticky header renders brand identity and hamburger trigger. Content fills full screen width (`w-full`) without margin offsets.
+- **Desktop (`>= md`)**: Layout switches to `flex-row`. Vertical sidebar is fixed at `w-64`, and `<main>` is offset by `md:ml-64`.
 
 ## Props
 

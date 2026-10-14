@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import DataTable from "@/components/organisms/DataTable";
-import LoadingState from "@/components/molecules/LoadingState";
 import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import CandidatePairDetailModal from "@/components/organisms/CandidatePairDetailModal";
@@ -190,11 +189,11 @@ const CandidatePairPage = () => {
         {/* Page Header */}
         <SectionCard padding="default">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold text-card-foreground tracking-tight">
                 Manajemen Paslon
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -208,7 +207,7 @@ const CandidatePairPage = () => {
 
         {/* Candidate Pairs Table Section */}
         <SectionCard title={`Daftar Paslon (${pairs.length})`} padding="none">
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex justify-end items-center mb-4">
               <Button
                 variant="primary"
@@ -219,25 +218,19 @@ const CandidatePairPage = () => {
                 Tambah Paslon
               </Button>
             </div>
-            {isLoading ? (
-              <LoadingState
-                message="Memuat daftar paslon kandidat..."
-                textSize="lg"
-              />
-            ) : (
-              <DataTable<CandidatePairListItem>
-                data={pairs}
-                columns={columns}
-                rowOptions={rowOptions}
-                isLoading={isLoading}
-                emptyTitle="Belum Ada Paslon"
-                emptyDescription={
-                  isSuperAdmin
-                    ? "Belum ada paslon kandidat yang dibuat."
-                    : "Belum ada paslon pada election yang Anda kelola."
-                }
-              />
-            )}
+            <DataTable<CandidatePairListItem>
+              data={pairs}
+              columns={columns}
+              rowOptions={rowOptions}
+              isLoading={isLoading}
+              loadingMessage="Memuat daftar paslon kandidat..."
+              emptyTitle="Belum Ada Paslon"
+              emptyDescription={
+                isSuperAdmin
+                  ? "Belum ada paslon kandidat yang dibuat."
+                  : "Belum ada paslon pada election yang Anda kelola."
+              }
+            />
           </div>
         </SectionCard>
       </div>

@@ -8,6 +8,7 @@ import {
   Vote,
   LogOut,
   Menu,
+  X,
 } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import type { SidebarNavItem, SidebarProps } from "./Sidebar.types";
@@ -42,6 +43,7 @@ interface SidebarContentProps {
   onLogout: () => void;
   isLoggingOut: boolean;
   onNavClick?: () => void;
+  onClose?: () => void;
 }
 
 const SidebarContent = ({
@@ -50,6 +52,7 @@ const SidebarContent = ({
   onLogout,
   isLoggingOut,
   onNavClick,
+  onClose,
 }: SidebarContentProps) => {
   const isSuperAdmin = roleName === "Super Admin";
 
@@ -58,9 +61,9 @@ const SidebarContent = ({
   );
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       {/* Logo / Brand */}
-      <div className="p-4 sm:p-6 border-b border-border">
+      <div className="p-4 sm:p-6 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
             <Vote className="w-5 h-5" />
@@ -74,6 +77,17 @@ const SidebarContent = ({
             </span>
           </div>
         </div>
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="md:hidden -mr-2"
+            aria-label="Tutup menu"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -101,7 +115,7 @@ const SidebarContent = ({
       </nav>
 
       {/* User info + Logout */}
-      <div className="p-4 sm:p-6 border-t border-border">
+      <div className="p-4 sm:p-6 border-t border-border mt-auto">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground font-medium text-sm">
             {displayName.charAt(0) || "?"}
@@ -124,7 +138,7 @@ const SidebarContent = ({
           Keluar
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -152,24 +166,29 @@ const Sidebar = ({
       </aside>
 
       {/* Mobile header + hamburger */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
+      <header className="md:hidden flex items-center justify-between px-4 py-3.5 border-b border-border bg-card sticky top-0 z-30 w-full shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
             <Vote className="w-5 h-5" />
           </div>
-          <span className="font-heading font-bold text-lg text-foreground">
-            E-Voting
-          </span>
+          <div>
+            <span className="font-heading font-bold text-lg text-foreground tracking-tight">
+              E-Voting
+            </span>
+            <span className="block text-xs text-muted-foreground -mt-0.5">
+              MVP v0.1.0
+            </span>
+          </div>
         </div>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => setIsMobileOpen(true)}
           icon={<Menu className="w-4 h-4" />}
         >
           Menu
         </Button>
-      </div>
+      </header>
 
       {/* Mobile overlay sidebar */}
       <div
@@ -182,7 +201,7 @@ const Sidebar = ({
           onClick={() => setIsMobileOpen(false)}
         />
         <div
-          className={`absolute inset-y-0 left-0 w-64 bg-card border-r border-border shadow-xl transform transition-transform duration-200 ${
+          className={`absolute inset-y-0 left-0 w-64 bg-card border-r border-border shadow-xl transform transition-transform duration-200 flex flex-col h-full ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -192,6 +211,7 @@ const Sidebar = ({
             onLogout={onLogout}
             isLoggingOut={isLoggingOut}
             onNavClick={handleNavClick}
+            onClose={() => setIsMobileOpen(false)}
           />
         </div>
       </div>

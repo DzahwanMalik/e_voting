@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import DataTable from "@/components/organisms/DataTable";
-import LoadingState from "@/components/molecules/LoadingState";
 import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import AdminAssignmentModal from "@/components/organisms/AdminAssignmentModal";
@@ -215,11 +214,11 @@ const ElectionPage = () => {
         {/* Page Header */}
         <SectionCard padding="default">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold text-card-foreground tracking-tight">
                 Manajemen Pemilihan
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -236,7 +235,7 @@ const ElectionPage = () => {
           title={`Daftar Pemilihan (${elections.length})`}
           padding="none"
         >
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             {isSuperAdmin && (
               <div className="flex justify-end items-center mb-4">
                 <Button
@@ -249,29 +248,21 @@ const ElectionPage = () => {
                 </Button>
               </div>
             )}
-            {isLoading ? (
-              <LoadingState
-                message="Memuat daftar pemilihan..."
-                textSize="lg"
-              />
-            ) : (
-              <DataTable<ElectionListItem>
-                data={elections}
-                columns={columns}
-                rowOptions={rowOptions}
-                isLoading={isLoading}
-                emptyTitle={
-                  isSuperAdmin
-                    ? "Belum Ada Pemilihan"
-                    : "Belum Ada Penugasan Pemilihan"
-                }
-                emptyDescription={
-                  isSuperAdmin
-                    ? "Belum ada pemilihan yang dibuat."
-                    : "Super Admin belum menugaskan pemilihan kepada akun Anda."
-                }
-              />
-            )}
+            <DataTable<ElectionListItem>
+              data={elections}
+              columns={columns}
+              rowOptions={rowOptions}
+              isLoading={isLoading}
+              loadingMessage="Memuat daftar pemilihan..."
+              emptyTitle={
+                isSuperAdmin ? "Belum Ada Pemilihan" : "Belum Ada Penugasan Pemilihan"
+              }
+              emptyDescription={
+                isSuperAdmin
+                  ? "Belum ada pemilihan yang dibuat."
+                  : "Super Admin belum menugaskan pemilihan kepada akun Anda."
+              }
+            />
           </div>
         </SectionCard>
       </div>

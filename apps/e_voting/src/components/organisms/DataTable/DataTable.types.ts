@@ -38,6 +38,7 @@ interface DataTableProps<T> extends HTMLAttributes<HTMLDivElement> {
   rowOptions?: DataTableRowOption<T>[];
   rowKey?: keyof T | ((row: T) => string | number);
   isLoading?: boolean;
+  loadingMessage?: string;
   emptyTitle?: string;
   emptyDescription?: string;
   searchProps?: DataTableSearchProps;

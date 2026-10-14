@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FileText, Edit2 } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
+import Textarea from "@/components/atoms/Textarea";
 import FormField from "@/components/molecules/FormField";
 import Modal from "@/components/molecules/Modal";
 import { toast } from "sonner";
@@ -150,16 +151,12 @@ const ElectionFormModal = ({
               error={errors.description?.message}
               hint="Deskripsi singkat tentang pemilihan ini. (opsional)"
             >
-              <textarea
+              <Textarea
                 id="description"
                 rows={4}
                 disabled={isSubmitting}
+                isInvalid={Boolean(errors.description)}
                 placeholder="Masukkan deskripsi pemilihan (opsional)"
-                className={`w-full bg-card text-foreground placeholder:text-muted-foreground text-sm rounded-xl transition-all duration-150 border px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-opacity-20 resize-y ${
-                  errors.description
-                    ? "border-destructive text-destructive focus:ring-destructive focus:border-destructive"
-                    : "border-input hover:border-border-hover focus:border-primary focus:ring-primary"
-                }`}
                 {...register("description")}
               />
             </FormField>

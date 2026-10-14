@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Calendar as CalendarIcon, FileText } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
+import Textarea from "@/components/atoms/Textarea";
 import Select from "@/components/molecules/Select";
 import FormField from "@/components/molecules/FormField";
 import FileUpload from "@/components/molecules/FileUpload";
@@ -483,16 +484,12 @@ const CandidatePairFormModal = ({
               required
               error={errors.vision?.message}
             >
-              <textarea
+              <Textarea
                 id="vision"
                 rows={3}
                 disabled={isSubmitting}
+                isInvalid={Boolean(errors.vision)}
                 placeholder="Masukkan visi paslon..."
-                className={`w-full bg-card text-foreground placeholder:text-muted-foreground text-sm rounded-xl border transition-all duration-150 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-opacity-20 ${
-                  errors.vision
-                    ? "border-destructive text-destructive focus:ring-destructive focus:border-destructive"
-                    : "border-input hover:border-border-hover focus:border-primary focus:ring-primary"
-                }`}
                 {...register("vision")}
               />
             </FormField>
@@ -503,16 +500,12 @@ const CandidatePairFormModal = ({
               required
               error={errors.mission?.message}
             >
-              <textarea
+              <Textarea
                 id="mission"
                 rows={4}
                 disabled={isSubmitting}
+                isInvalid={Boolean(errors.mission)}
                 placeholder="Masukkan misi paslon..."
-                className={`w-full bg-card text-foreground placeholder:text-muted-foreground text-sm rounded-xl border transition-all duration-150 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-opacity-20 resize-y ${
-                  errors.mission
-                    ? "border-destructive text-destructive focus:ring-destructive focus:border-destructive"
-                    : "border-input hover:border-border-hover focus:border-primary focus:ring-primary"
-                }`}
                 {...register("mission")}
               />
             </FormField>

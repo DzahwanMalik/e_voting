@@ -109,7 +109,7 @@ const Select = <T,>({
           isInvalid
             ? "border-destructive text-destructive focus:outline-none focus:ring-2 focus:ring-destructive focus:border-destructive"
             : "border-input hover:border-border-hover focus:border-primary focus:ring-primary focus:outline-none focus:ring-2 focus:ring-opacity-20"
-        } ${disabled ? "bg-muted cursor-not-allowed opacity-70" : ""}`}
+        } ${disabled ? "bg-muted cursor-not-allowed opacity-70" : "cursor-pointer"}`}
       >
         <span
           className={`truncate ${
@@ -149,8 +149,8 @@ const Select = <T,>({
                   option.disabled
                     ? "text-muted-foreground cursor-not-allowed opacity-50"
                     : isSelected
-                      ? "bg-primary/10 text-primary font-medium hover:bg-primary/15"
-                      : "text-foreground hover:bg-accent"
+                      ? "bg-primary/10 text-primary font-medium cursor-pointer hover:bg-primary/15"
+                      : "text-foreground cursor-pointer hover:bg-accent"
                 }`}
               >
                 {option.label}

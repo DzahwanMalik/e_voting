@@ -1,7 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import { MoreHorizontal } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import type { DropdownMenuProps } from "./DropdownMenu.types";
+
+const OFFSET = 8;
 
 const DropdownMenu = ({
   options,
@@ -12,7 +20,14 @@ const DropdownMenu = ({
   ...props
 }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const handleTriggerClick = () => {
     setIsOpen((prev) => !prev);
@@ -23,6 +38,46 @@ const DropdownMenu = ({
     setIsOpen(false);
   };
 
+  // Anchor the panel to the trigger using viewport-relative coordinates.
+  // `position: fixed` lets the panel escape overflow clipping from ancestors
+  // such as DataTable's `overflow-x-auto`; re-running this on scroll/resize
+  // keeps the panel glued to the trigger while it is open.
+  const updatePosition = useCallback(() => {
+    const trigger = triggerRef.current;
+    const panel = panelRef.current;
+    if (!trigger || !panel) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+
+    // Vertical: prefer below, flip above when space is insufficient.
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const top =
+      spaceBelow < panelRect.height
+        ? triggerRect.top - panelRect.height - OFFSET
+        : triggerRect.bottom + OFFSET;
+
+    // Horizontal: honour the `align` prop against the trigger rect.
+    let left: number;
+    if (align === "start") {
+      left = triggerRect.left;
+    } else if (align === "center") {
+      left = triggerRect.left + triggerRect.width / 2 - panelRect.width / 2;
+    } else {
+      // "end"
+      left = triggerRect.right - panelRect.width;
+    }
+
+    setPosition({ top, left });
+  }, [align]);
+
+  // Run synchronously on open so the panel is already placed before paint.
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+  }, [isOpen, updatePosition]);
+
+  // Click-outside + Escape-to-close + scroll/resize tracking
   useEffect(() => {
     if (!isOpen) return;
 
@@ -41,21 +96,30 @@ const DropdownMenu = ({
       }
     };
 
+    // Reposition on scroll/resize so the panel tracks the trigger even when
+    // the page or a nested scrollable container (e.g. DataTable) scrolls.
+    // `scroll` does not bubble, so we listen in the capture phase to also
+    // catch scroll events fired on ancestor containers. `requestAnimationFrame`
+    // throttles to one re-position per frame.
+    let raf: number | undefined;
+    const handleScrollResize = () => {
+      if (raf !== undefined) cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(() => updatePosition());
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
+    window.addEventListener("scroll", handleScrollResize, true);
+    window.addEventListener("resize", handleScrollResize);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("scroll", handleScrollResize, true);
+      window.removeEventListener("resize", handleScrollResize);
+      if (raf !== undefined) cancelAnimationFrame(raf);
     };
-  }, [isOpen]);
-
-  const alignClass =
-    align === "end"
-      ? "right-0"
-      : align === "start"
-        ? "left-0"
-        : "left-1/2 -translate-x-1/2";
+  }, [isOpen, updatePosition]);
 
   return (
     <div
@@ -64,6 +128,7 @@ const DropdownMenu = ({
       {...props}
     >
       <Button
+        ref={triggerRef}
         variant="ghost"
         size="sm"
         onClick={handleTriggerClick}
@@ -76,9 +141,14 @@ const DropdownMenu = ({
 
       {isOpen && (
         <div
+          ref={panelRef}
           role="menu"
           aria-orientation="vertical"
-          className={`absolute ${alignClass} top-full mt-1.5 z-50 min-w-44 bg-card border border-border rounded-xl shadow-lg py-1 overflow-hidden`}
+          className="fixed z-50 min-w-44 bg-card border border-border rounded-xl shadow-lg py-1 overflow-hidden"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+          }}
         >
           {options.map((option) => {
             const isDisabled = option.disabled ?? false;

@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import DataTable from "@/components/organisms/DataTable";
-import LoadingState from "@/components/molecules/LoadingState";
 import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import VoterDetailModal from "@/components/organisms/VoterDetailModal";
@@ -207,11 +206,11 @@ const VoterPage = () => {
         {/* Page Header */}
         <SectionCard padding="default">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl font-bold text-card-foreground tracking-tight">
                 Manajemen Pemilih
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -225,7 +224,7 @@ const VoterPage = () => {
 
         {/* Voters Table Section */}
         <SectionCard title={`Daftar Pemilih (${totalItems})`} padding="none">
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex justify-end items-center mb-4">
               <Button
                 variant="primary"
@@ -236,41 +235,38 @@ const VoterPage = () => {
                 Tambah Voter
               </Button>
             </div>
-            {isLoading ? (
-              <LoadingState message="Memuat daftar pemilih..." textSize="lg" />
-            ) : (
-              <DataTable<VoterListItem>
-                data={voters}
-                columns={columns}
-                rowOptions={rowOptions}
-                isLoading={isLoading}
-                emptyTitle="Belum Ada Pemilih"
-                emptyDescription={
-                  isSuperAdmin
-                    ? "Belum ada voter yang terdaftar dalam sistem."
-                    : "Belum ada voter yang terdaftar pada election yang Anda kelola."
-                }
-                searchProps={{
-                  value: searchQuery,
-                  onChange: (value) => {
-                    setSearchQuery(value);
-                    setCurrentPage(1);
-                  },
-                  placeholder: "Cari pemilih...",
-                }}
-                paginationProps={{
-                  currentPage,
+            <DataTable<VoterListItem>
+              data={voters}
+              columns={columns}
+              rowOptions={rowOptions}
+              isLoading={isLoading}
+              loadingMessage="Memuat daftar pemilih..."
+              emptyTitle="Belum Ada Pemilih"
+              emptyDescription={
+                isSuperAdmin
+                  ? "Belum ada voter yang terdaftar dalam sistem."
+                  : "Belum ada voter yang terdaftar pada election yang Anda kelola."
+              }
+              searchProps={{
+                value: searchQuery,
+                onChange: (value) => {
+                  setSearchQuery(value);
+                  setCurrentPage(1);
+                },
+                placeholder: "Cari pemilih...",
+              }}
+              paginationProps={{
+                currentPage,
+                totalPages,
+                onPageChange: setCurrentPage,
+                meta: {
+                  total: totalItems,
                   totalPages,
-                  onPageChange: setCurrentPage,
-                  meta: {
-                    total: totalItems,
-                    totalPages,
-                    page: currentPage,
-                    limit: 10,
-                  },
-                }}
-              />
-            )}
+                  page: currentPage,
+                  limit: 10,
+                },
+              }}
+            />
           </div>
         </SectionCard>
       </div>

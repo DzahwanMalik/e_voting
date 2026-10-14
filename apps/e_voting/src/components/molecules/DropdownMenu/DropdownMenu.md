@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Reusable floating action menu triggered by a button. Renders a list of options each with an `onClick` handler. Composes the `Button` atom as the trigger. Position is handled natively via CSS (`position: relative` on the container and `position: absolute` on the dropdown menu), keeping the menu anchored to the trigger without recalculating JavaScript coordinates on scroll. Provides click-outside-close and Escape-to-close behavior via `useEffect`.
+Reusable floating action menu triggered by a button. Renders a list of options each with an `onClick` handler. Composes the `Button` atom as the trigger. The dropdown panel is rendered with `position: fixed` and positioned via `useLayoutEffect` measuring the trigger's `getBoundingClientRect()`, keeping the menu anchored to the trigger using viewport-relative coordinates. Because the panel uses `fixed` positioning, it escapes overflow clipping from ancestors such as `DataTable`'s `overflow-x-auto` container — the panel always renders fully without being cut off. Positioning logic mirrors the `Select` molecule. Provides click-outside-close and Escape-to-close behavior via `useEffect`.
 
 ## Props
 
@@ -26,7 +26,8 @@ Reusable floating action menu triggered by a button. Renders a list of options e
 ## Semantic Tokens Used
 
 - Trigger: `Button` ghost variant (uses `bg-accent` hover, `text-foreground`)
-- Panel: `bg-card`, `border-border`, `rounded-xl`, `shadow-lg`
+- Panel: `fixed`, `z-50`, `min-w-44`, `bg-card`, `border-border`, `rounded-xl`, `shadow-lg`
+- Positioning: `useLayoutEffect` measures trigger via `getBoundingClientRect()` and applies viewport-relative `top`/`left` inline styles (flips above when insufficient space below). A throttled (per-frame via `requestAnimationFrame`) scroll/resize listener re-anchors the panel so it stays glued to the trigger even when the page or a nested scrollable container scrolls.
 - Items: `text-foreground`, `hover:bg-accent`, `text-muted-foreground`
 - Destructive: `text-destructive`, `hover:bg-destructive/10`
 - Divider: `border-border`
