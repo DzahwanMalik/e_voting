@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Reusable floating action menu triggered by a button. Renders a list of options each with an `onClick` handler. Composes the `Button` atom as the trigger. Position is calculated via `useLayoutEffect` after the menu renders, measuring the menu's real dimensions to position it correctly relative to the trigger. Provides click-outside-close and Escape-to-close behavior via `useEffect`.
+Reusable floating action menu triggered by a button. Renders a list of options each with an `onClick` handler. Composes the `Button` atom as the trigger. Position is handled natively via CSS (`position: relative` on the container and `position: absolute` on the dropdown menu), keeping the menu anchored to the trigger without recalculating JavaScript coordinates on scroll. Provides click-outside-close and Escape-to-close behavior via `useEffect`.
 
 ## Props
 

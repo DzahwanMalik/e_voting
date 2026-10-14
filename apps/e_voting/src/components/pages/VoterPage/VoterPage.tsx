@@ -146,7 +146,7 @@ const VoterPage = () => {
       key: "username",
       header: "Username",
       cell: (row: VoterListItem) => (
-        <span className="text-muted-foreground">@{row.username}</span>
+        <span className="text-muted-foreground">{row.username}</span>
       ),
     },
     {

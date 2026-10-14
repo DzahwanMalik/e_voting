@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Calendar as CalendarIcon, FileText } from "lucide-react";
@@ -32,7 +32,6 @@ interface PhotoUploaderState {
 interface PairPhotoUploaderProps {
   label: string;
   existingUrl: string | null;
-  initialsName: string;
   value: PhotoUploaderState;
   onChange: (value: PhotoUploaderState) => void;
   isSubmitting: boolean;
@@ -42,40 +41,11 @@ interface PairPhotoUploaderProps {
 const PairPhotoUploader = ({
   label,
   existingUrl,
-  initialsName,
   value,
   onChange,
   isSubmitting,
   canDelete,
 }: PairPhotoUploaderProps) => {
-  const [hasImageError, setHasImageError] = useState(false);
-
-  const previewUrl = useMemo(() => {
-    if (value.file) {
-      return URL.createObjectURL(value.file);
-    }
-    if (existingUrl && !value.removed) {
-      return existingUrl;
-    }
-    return null;
-  }, [value.file, value.removed, existingUrl]);
-
-  // Revoke object URLs for File-based previews on cleanup
-  useEffect(() => {
-    if (!previewUrl || !value.file) return;
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [previewUrl, value.file]);
-
-  const getInitials = (name: string): string => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  };
-
   const handleFileChange = (file: File | null) => {
     onChange({ file, removed: false });
   };
@@ -84,38 +54,11 @@ const PairPhotoUploader = ({
     onChange({ file: null, removed: true });
   };
 
-  const handleClearRemoval = () => {
-    onChange({ file: null, removed: false });
-  };
-
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col gap-2">
       <label className="text-xs font-medium text-muted-foreground">
         {label}
       </label>
-      <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-muted border border-border flex items-center justify-center">
-        {previewUrl && !hasImageError ? (
-          <img
-            src={previewUrl}
-            alt={label}
-            className="w-full h-full object-cover object-top"
-            onError={() => setHasImageError(true)}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center">
-            <User className="w-6 h-6 text-primary mb-1" />
-            <span className="font-heading font-bold text-xs tracking-wider">
-              {getInitials(initialsName)}
-            </span>
-          </div>
-        )}
-        {!value.removed && existingUrl && !value.file && (
-          <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center">
-            <User className="w-8 h-8 text-white/50" />
-          </div>
-        )}
-      </div>
-
       <FileUpload
         accept="image/jpeg,image/png,image/gif,image/webp"
         disabled={isSubmitting}
@@ -123,29 +66,16 @@ const PairPhotoUploader = ({
         maxSize={5 * 1024 * 1024} // 5 MB
         onChange={handleFileChange}
       />
-
-      <div className="flex gap-2">
-        {!value.removed && existingUrl && !value.file && canDelete && (
-          <button
-            type="button"
-            onClick={handleRemovePhoto}
-            disabled={isSubmitting}
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-border text-destructive hover:bg-destructive/10 text-xs font-medium transition-colors"
-          >
-            Hapus
-          </button>
-        )}
-        {value.removed && existingUrl && (
-          <button
-            type="button"
-            onClick={handleClearRemoval}
-            disabled={isSubmitting}
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-destructive text-destructive hover:bg-destructive/10 text-xs font-medium transition-colors"
-          >
-            Batal
-          </button>
-        )}
-      </div>
+      {canDelete && existingUrl && !value.file && !value.removed && (
+        <button
+          type="button"
+          onClick={handleRemovePhoto}
+          disabled={isSubmitting}
+          className="inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-border text-destructive hover:bg-destructive/10 text-xs font-medium transition-colors w-max"
+        >
+          Hapus
+        </button>
+      )}
     </div>
   );
 };
@@ -446,7 +376,6 @@ const CandidatePairFormModal = ({
               <PairPhotoUploader
                 label="Foto Calon"
                 existingUrl={pair?.candidate.photoUrl ?? null}
-                initialsName={pair?.candidate.name ?? "Calon"}
                 value={candidatePhoto}
                 onChange={setCandidatePhoto}
                 isSubmitting={isSubmitting}
@@ -515,7 +444,6 @@ const CandidatePairFormModal = ({
               <PairPhotoUploader
                 label="Foto Wakil"
                 existingUrl={pair?.vice.photoUrl ?? null}
-                initialsName={pair?.vice.name ?? "Wakil"}
                 value={vicePhoto}
                 onChange={setVicePhoto}
                 isSubmitting={isSubmitting}
@@ -536,9 +464,6 @@ const CandidatePairFormModal = ({
             <PairPhotoUploader
               label="Foto Pasangan"
               existingUrl={pair?.photoUrl ?? null}
-              initialsName={
-                pair ? `${pair.candidate.name} & ${pair.vice.name}` : "Pasangan"
-              }
               value={pairPhoto}
               onChange={setPairPhoto}
               isSubmitting={isSubmitting}

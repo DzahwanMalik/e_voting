@@ -14,7 +14,7 @@ Per PRD Section 5 (Candidate) and §15.3 (Candidate Management), with reference 
 
 ### Photo Upload Handling
 
-Three photo fields are managed via a local `PairPhotoUploader` sub-component that wraps the shared `FileUpload` molecule (`@/components/molecules/FileUpload`) with an image preview overlay:
+Three photo fields are managed via a local `PairPhotoUploader` sub-component that wraps the shared `FileUpload` molecule (`@/components/molecules/FileUpload`):
 
 | Photo | Source Field | Notes |
 | :--- | :--- | :--- |
@@ -30,10 +30,9 @@ States per photo:
 Photos are uploaded via Multer + Cloudinary (backend `uploadCandidatePhotos` middleware). The frontend builds `FormData` using the shared `buildCandidatePairFormData` helper (called internally by `createCandidatePairApi`/`updateCandidatePairApi`).
 
 The `PairPhotoUploader` renders:
-1. A **preview box** (24×24) showing the existing photo, or initials avatar (`User` icon) when no image
+1. A **label** for the photo field
 2. A `FileUpload` text-style input for selecting a replacement photo file (with 5MB size limit + image type validation)
 3. A **delete button** ("Hapus") that appears only in edit mode when an existing photo URL is present and no new file has been selected — marks the photo for removal from the API on submit
-4. A **cancel button** ("Batal") that appears when a removal is pending — undoes the removal state
 
 ### Delete Button (Remove Existing Photo)
 
@@ -43,6 +42,8 @@ The delete button (`canDelete` prop) is shown only in **edit mode** when:
 - Removal hasn't already been triggered (`!value.removed`)
 
 Clicking "Hapus" sets `removed: true` → on form submit, `photoToPayload()` returns `null` → sent to backend as `"null"` → backend deletes the existing image and sets the URL to `null`.
+
+> **Note:** The component no longer renders a preview image box or initials avatar. The UI is simplified to just the file upload input and the remove button. To undo a pending removal, simply select a new file via the `FileUpload` input (which resets `removed` to `false`).
 
 ### String Trimming
 
@@ -87,9 +88,8 @@ Per frontend guideline Aturan 7, all string inputs are trimmed before submission
 - Form fields: `bg-card`, `text-foreground`, `border-input`, `border-destructive`, `placeholder:text-muted-foreground`, `focus:ring-primary`
 - Section headings: `text-muted-foreground`
 - Action buttons: `bg-primary`/`text-primary-foreground` (submit), `bg-transparent`/`text-foreground` (cancel)
-- Photo preview: `bg-muted`, `border-border`, `rounded-2xl`, `object-cover`, `object-top`
-- Delete button: `text-destructive` with `hover:bg-destructive/10`
-- Cancel removal button: `border-destructive` + `text-destructive` with `hover:bg-destructive/10`
+- Photo label: `text-muted-foreground`
+- Delete button: `text-destructive`, `border-border`, `hover:bg-destructive/10`
 
 ## Code Example
 
