@@ -4,7 +4,7 @@
 - **Folder**: `src/components/organisms/VoterElectionCard/`
 
 ## Purpose
-Comprehensive card container representing a single election per voter requirements. Encapsulates the election title and description, a status notice banner communicating the voter's voting state (Hak Suara Telah Digunakan / Pilih Paslon Kandidat Anda), a candidate pair list rendered as interactive radio cards (or grid card layout for single elections), and a dedicated footer containing chosen-pair feedback and the "Kirim Suara" submission button with confirmation dialog. The voter's voting status is surfaced via the banner and footer rather than a separate vote-status badge, and the election creation date is intentionally not displayed to voters.
+Comprehensive card container representing a single election per voter requirements. Encapsulates the election title and description, a status notice banner communicating the voter's voting state (Hak Suara Telah Digunakan / Pilih Paslon Kandidat Anda), a candidate pair list rendered as interactive radio cards, and a dedicated footer containing chosen-pair feedback and the "Kirim Suara" submission button with confirmation dialog. The voter's voting status is surfaced via the banner and footer rather than a separate vote-status badge, and the election creation date is intentionally not displayed to voters.
 
 ## Props
 - `election`: `ElectionListItem` - The election data including candidate pairs (`candidatePairs`) and `electionVoters` hasVoted state.
@@ -12,8 +12,8 @@ Comprehensive card container representing a single election per voter requiremen
 - `onViewCandidateDetail`: `(candidatePair: CandidatePair) => void` - Callback to view full candidate pair details.
 
 ## Notes on View Layout
-- When a voter is enrolled in **multiple elections**, cards render with the compact radio-list layout.
-- When a voter is enrolled in **a single election** (full-width context), the card switches to a grid layout using `<CandidateCard>` for a richer visual experience.
+- All candidate pairs are rendered as radio list items for consistent, single-selection voting regardless of the number of elections.
+- When the election list response does not include candidate pairs, the card lazily fetches them via `getElectionByIdApi`.
 
 ## API Integration
 - Uses `getElectionByIdApi` (from `election.service.ts`) to lazily fetch candidate pairs when not included in the election list response.

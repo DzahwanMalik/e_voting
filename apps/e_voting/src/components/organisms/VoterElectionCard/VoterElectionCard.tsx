@@ -3,7 +3,6 @@ import { Vote, CheckCircle2, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/atoms/Button";
 import CandidateRadioCard from "@/components/molecules/CandidateRadioCard";
-import CandidateCard from "@/components/molecules/CandidateCard";
 import VoteConfirmModal from "@/components/organisms/VoteConfirmModal";
 import SectionCard from "@/components/molecules/SectionCard";
 import {
@@ -30,18 +29,15 @@ const VoterElectionCard = ({
 
   const hasVoted = Boolean(election.electionVoters?.[0]?.hasVoted);
 
-  const [isSingleElection, setIsSingleElection] = useState(false);
-
   useEffect(() => {
     let isMounted = true;
 
-    const checkViewMode = async () => {
+    const fetchPairsIfNeeded = async () => {
       if (
         (!election.candidatePairs || election.candidatePairs.length === 0) &&
         election._count?.candidatePairs &&
         election._count.candidatePairs > 0
       ) {
-        setIsSingleElection(true);
         try {
           const detail = await getElectionByIdApi(election.id);
           if (isMounted && detail.candidatePairs) {
@@ -53,7 +49,7 @@ const VoterElectionCard = ({
       }
     };
 
-    void checkViewMode();
+    void fetchPairsIfNeeded();
     return () => {
       isMounted = false;
     };
@@ -95,7 +91,7 @@ const VoterElectionCard = ({
         title={election.title}
         padding="default"
         footer={
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               {hasVoted ? (
                 <span className="text-xs font-medium text-success-subtle-foreground">
@@ -118,13 +114,14 @@ const VoterElectionCard = ({
               )}
             </div>
 
-            <div>
+            <div className="w-full sm:w-auto">
               {hasVoted ? (
                 <Button
                   variant="secondary"
                   size="sm"
                   disabled
                   icon={<CheckCircle2 className="w-4 h-4 text-success" />}
+                  className="w-full sm:w-fit"
                 >
                   Sudah Memilih
                 </Button>
@@ -136,6 +133,7 @@ const VoterElectionCard = ({
                   isLoading={isSubmitting}
                   onClick={() => setIsConfirmOpen(true)}
                   icon={<Vote className="w-4 h-4" />}
+                  className="w-full sm:w-fit"
                 >
                   Kirim Suara
                 </Button>
@@ -188,35 +186,17 @@ const VoterElectionCard = ({
             </div>
 
             {candidatePairs.length > 0 ? (
-              <div
-                className={`${
-                  isSingleElection
-                    ? "grid grid-cols-1 sm:grid-cols-2 gap-4"
-                    : "flex flex-col gap-2.5"
-                }`}
-              >
-                {candidatePairs.map((pair) =>
-                  isSingleElection ? (
-                    <CandidateCard
-                      key={pair.id}
-                      candidatePair={pair}
-                      hasVotedInElection={hasVoted}
-                      onViewDetail={() => onViewCandidateDetail(pair)}
-                      onSelectVote={() => {
-                        if (!hasVoted) setSelectedPairId(pair.id);
-                      }}
-                    />
-                  ) : (
-                    <CandidateRadioCard
-                      key={pair.id}
-                      candidatePair={pair}
-                      isSelected={selectedPairId === pair.id}
-                      disabled={hasVoted}
-                      onSelect={() => setSelectedPairId(pair.id)}
-                      onViewDetail={() => onViewCandidateDetail(pair)}
-                    />
-                  ),
-                )}
+              <div className="space-y-2.5 pt-2">
+                {candidatePairs.map((pair) => (
+                  <CandidateRadioCard
+                    key={pair.id}
+                    candidatePair={pair}
+                    isSelected={selectedPairId === pair.id}
+                    disabled={hasVoted}
+                    onSelect={() => setSelectedPairId(pair.id)}
+                    onViewDetail={() => onViewCandidateDetail(pair)}
+                  />
+                ))}
               </div>
             ) : (
               <div className="p-8 rounded-2xl bg-muted border border-border text-center space-y-1">

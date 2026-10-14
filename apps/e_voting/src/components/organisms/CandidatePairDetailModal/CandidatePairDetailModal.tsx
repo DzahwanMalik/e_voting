@@ -54,7 +54,7 @@ const CandidatePairDetailModal = ({
 
     if (photoUrl && !hasError) {
       return (
-        <div className={sizeClass}>
+        <div className={`bg-muted border border-border shrink-0 ${sizeClass}`}>
           <img
             src={photoUrl}
             alt={name}

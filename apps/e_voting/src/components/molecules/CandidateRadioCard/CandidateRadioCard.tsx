@@ -66,11 +66,10 @@ const CandidateRadioCard = ({
 
       {/* Middle: Candidate Pair Names */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-1.5 flex-wrap">
+        <div className="flex flex-col gap-1.5">
           <h4 className="font-sans font-bold text-sm sm:text-base text-card-foreground truncate">
             {calon.name}
           </h4>
-          <span className="text-xs text-muted-foreground">·</span>
           <h5 className="font-sans font-medium text-sm sm:text-base text-muted-foreground truncate">
             {wakil.name}
           </h5>
@@ -88,7 +87,7 @@ const CandidateRadioCard = ({
             onViewDetail();
           }}
           icon={<FileText className="w-3.5 h-3.5" />}
-          className="text-xs h-8 px-2 sm:px-3"
+          className="text-xs h-8 px-2 gap-0! sm:px-3 sm:gap-1.5"
         >
           <span className="hidden sm:inline">Detail</span>
         </Button>
