@@ -4,7 +4,6 @@ interface SidebarNavItem {
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   href: string;
-  isSuperAdminOnly?: boolean;
 }
 
 interface SidebarProps {

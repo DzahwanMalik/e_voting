@@ -5,19 +5,23 @@
 
 ## Purpose
 
-Vertical navigation rail for the Admin and Super Admin shell layouts. Provides role-aware navigation items based on PRD permissions:
+Vertical navigation rail for the Admin and Super Admin shell layouts. The sidebar renders every navigation item for both roles and is **not** an authorization boundary; route access is enforced by nested `ProtectedRoute` in `src/main.tsx`.
 
-| Nav Item | Admin | Super Admin | Rationale |
-|---|---|---|---|
-| Pemilihan (Elections) | ✓ | ✓ | BR-05: Admin manages assigned; BR-03/04: Super Admin manages all |
-| Paslon (Candidates) | ✓ | ✓ | Manage candidate pairs within election scope |
-| Pemilih (Voters) | ✓ | ✓ | Create & enroll voters within scope |
+| Nav Item | Route Access | Rationale |
+|---|---|---|
+| Pemilihan (Elections) | Admin, Super Admin | BR-05: Admin manages assigned; BR-03/04: Super Admin manages all |
+| Paslon (Candidates) | Admin, Super Admin | Manage candidate pairs within election scope |
+| Pemilih (Voters) | Admin, Super Admin | Create & enroll voters within scope |
+| Admin | Super Admin only | BR-02/BR-03/BR-06: Super Admin manages admin accounts and assignments |
+| Pengaturan (Settings) | Super Admin only | BR-18: Super Admin-only destructive operations, including reset data voting |
 
+> **Catatan Navigasi:** Admin yang membuka `/admin/admins` atau `/admin/settings` secara langsung akan diarahkan ulang ke `/admin/elections` oleh route guard.
+>
 > **Catatan Navigasi:** _Penugasan Admin_ dan _Hasil Voting_ tidak tersedia sebagai menu navigasi terpisah. Kedua fitur ini hanya dapat diakses oleh Super Admin melalui opsi pada *datatable menu* Election page (lihat `ElectionPage`).
 
 ## Props
 
-- `roleName`: `"Super Admin" | "Admin"` — controls visibility of superAdmin-only nav items.
+- `roleName`: `"Super Admin" | "Admin"` — displayed in the sidebar footer; does not control navigation visibility.
 - `displayName`: Active user's name or username — displayed in the footer.
 - `onLogout`: Callback when the logout button is clicked.
 - `isLoggingOut`: Optional loading state for the logout action.

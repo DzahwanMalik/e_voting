@@ -49,6 +49,31 @@ const castVote = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const resetAllVotes = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: "User belum terautentikasi." });
+      return;
+    }
+
+    const result = await voteService.resetAllVotes({
+      userId: req.user.userId,
+      role: req.user.role,
+    });
+
+    res.status(200).json({
+      message: "Seluruh data voting berhasil di-reset.",
+      data: result,
+    });
+  } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+    res.status(500).json({ message: "Terjadi kesalahan pada server." });
+  }
+};
+
 const getVotingStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
@@ -133,4 +158,9 @@ const getElectionResults = async (
   }
 };
 
-export { castVote, getVotingStatus, getElectionResults };
+export {
+  castVote,
+  resetAllVotes,
+  getVotingStatus,
+  getElectionResults,
+};

@@ -5,6 +5,7 @@ import {
   Award,
   Users,
   Shield,
+  Settings,
   Vote,
   LogOut,
   Menu,
@@ -33,7 +34,11 @@ const sidebarNavItems: SidebarNavItem[] = [
     label: "Admin",
     icon: Shield,
     href: "/admin/admins",
-    isSuperAdminOnly: true,
+  },
+  {
+    label: "Pengaturan",
+    icon: Settings,
+    href: "/admin/settings",
   },
 ];
 
@@ -54,12 +59,6 @@ const SidebarContent = ({
   onNavClick,
   onClose,
 }: SidebarContentProps) => {
-  const isSuperAdmin = roleName === "Super Admin";
-
-  const visibleNavItems = sidebarNavItems.filter(
-    (item) => !item.isSuperAdminOnly || isSuperAdmin,
-  );
-
   return (
     <div className="flex flex-col h-full">
       {/* Logo / Brand */}
@@ -93,7 +92,7 @@ const SidebarContent = ({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         <ul className="space-y-1">
-          {visibleNavItems.map((item) => (
+          {sidebarNavItems.map((item) => (
             <li key={item.label}>
               <NavLink
                 to={item.href}

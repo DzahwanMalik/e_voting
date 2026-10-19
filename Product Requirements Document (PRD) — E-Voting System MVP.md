@@ -34,7 +34,8 @@ Dapat:
 - mengelola candidate pada seluruh election;
 - mengelola voter pada seluruh election;
 - menentukan Admin yang dapat mengelola election;
-- melihat result dan perolehan suara setiap kandidat (*candidate vote result*).
+- melihat result dan perolehan suara setiap kandidat (*candidate vote result*);
+- mereset seluruh data voting (BR-18).
 
 Super Admin dibuat melalui **seed** dan sistem hanya memiliki **satu Super Admin**.
 
@@ -475,6 +476,17 @@ Election dapat dihapus meskipun sudah memiliki vote.
 
 Setelah election dihapus, election tersebut tidak lagi dapat diakses oleh voter maupun Admin yang sebelumnya memiliki akses.
 
+### BR-18 — Voting Data Reset
+
+Hanya Super Admin yang dapat mereset seluruh data voting.
+
+Reset berlaku untuk semua election dan:
+
+- menghapus seluruh `Vote`;
+- mengembalikan `hasVoted` seluruh voter menjadi `false`;
+- tidak mengubah master data;
+- dijalankan secara atomik.
+
 ---
 
 ## 12. Data Relationships
@@ -601,6 +613,14 @@ Tidak terdapat user registration mandiri dalam MVP.
 - Admin tidak dapat melihat result maupun candidate vote result.
 - Voter tidak dapat melihat result maupun candidate vote result.
 
+### Voting Data Reset
+
+- Hanya Super Admin yang dapat mereset data voting.
+- Reset menghapus seluruh vote pada semua election.
+- Reset mengembalikan status seluruh pemilih menjadi belum memilih.
+- Reset tidak mengubah election, candidate, candidate pair, voter, maupun admin assignment.
+- Admin dan Voter tidak dapat mengakses operasi reset.
+
 ### Authorization
 
 - Authorization diterapkan berdasarkan role.
@@ -638,7 +658,8 @@ E-Voting System
 ├── 5. Voting
 │   ├── Vote Casting
 │   ├── Vote Consistency
-│   └── One-Vote-Per-Election Guard
+│   ├── One-Vote-Per-Election Guard
+│   └── Voting Data Reset
 │
 └── 6. Result Management
     ├── Vote Aggregation
@@ -776,9 +797,9 @@ Terkait: BR-11.
 
 **One-Vote-Per-Election Guard**
 
-Setelah vote berhasil, voter tidak dapat vote lagi pada election yang sama. Guard ini bersifat permanen dan tidak di-reset meskipun candidate yang dipilih dihapus.
+Setelah vote berhasil, voter tidak dapat vote lagi pada election yang sama. Guard ini bersifat permanen dan tidak di-reset meskipun candidate yang dipilih dihapus. Satu-satunya pengecualian adalah operasi eksplisit **Voting Data Reset** oleh Super Admin (BR-18).
 
-Terkait: BR-10, BR-14.
+Terkait: BR-10, BR-14, BR-18.
 
 ---
 
@@ -834,11 +855,29 @@ Terkait: BR-11.
 
 ---
 
+### 15.8 Voting Data Reset
+
+Kemampuan Super Admin untuk mengembalikan seluruh data voting ke kondisi belum ada suara tanpa menghapus master data.
+
+**Global Reset**
+
+Super Admin dapat mereset seluruh data voting pada semua election sekaligus. Operasi ini:
+
+- menghapus seluruh record `Vote`;
+- mengembalikan `ElectionVoter.hasVoted` menjadi `false` untuk seluruh voter;
+- tidak mengubah election, candidate, candidate pair, voter, maupun admin assignment.
+
+Operasi harus dijalankan dalam satu database transaction untuk menjaga konsistensi BR-11.
+
+Terkait: BR-18.
+
+---
+
 ### Capability — Business Rule Traceability
 
 ```text
-Capability                  BR-01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17
-─────────────────────────── ───── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+Capability                  BR-01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18
+─────────────────────────── ───── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
 Authentication                ●
 Role-Based AuthZ              ●    ●  ●
 Scope-Based AC                            ●        ●  ●
@@ -854,4 +893,5 @@ Vote Consistency                                              ●
 One-Vote Guard                                        ●           ●
 Vote Aggregation                                                  ●
 Result Access                                                ●
+Voting Data Reset                                                                  ●
 ```

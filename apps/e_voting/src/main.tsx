@@ -12,6 +12,7 @@ import ElectionPage from "@/components/pages/ElectionPage";
 import CandidatePairPage from "@/components/pages/CandidatePairPage";
 import VoterPage from "@/components/pages/VoterPage";
 import AdminPage from "@/components/pages/AdminPage";
+import SettingsPage from "@/components/pages/SettingsPage";
 import NotFoundPage from "@/components/pages/NotFoundPage";
 
 createRoot(document.getElementById("root")!).render(
@@ -33,7 +34,14 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/admin/elections" element={<ElectionPage />} />
             <Route path="/admin/candidate-pairs" element={<CandidatePairPage />} />
             <Route path="/admin/voters" element={<VoterPage />} />
-            <Route path="/admin/admins" element={<AdminPage />} />
+
+            {/* Rute khusus Super Admin (dijaga di level route, bukan sidebar) */}
+            <Route
+              element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}
+            >
+              <Route path="/admin/admins" element={<AdminPage />} />
+              <Route path="/admin/settings" element={<SettingsPage />} />
+            </Route>
           </Route>
         </Route>
 

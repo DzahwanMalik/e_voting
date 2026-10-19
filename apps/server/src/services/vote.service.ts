@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma";
 import { UserRole } from "../generated/prisma/enums";
 import { AppError } from "../utils/app-error";
+import { acquireVoteWriteLock } from "../utils/vote-lock";
 
 interface CastVoteInput {
   electionId: number;
@@ -21,6 +22,16 @@ interface VotingStatusResult {
   userId: number;
   isEnrolled: boolean;
   hasVoted: boolean;
+}
+
+interface ResetVotingActor {
+  userId: number;
+  role: UserRole;
+}
+
+interface ResetVotingResult {
+  deletedVotes: number;
+  resetVoters: number;
 }
 
 const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
@@ -84,6 +95,9 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
 
   // 6. Transaksi atomik: rekam vote dan tandai hasVoted secara konsisten (BR-11, BR-10)
   return prisma.$transaction(async (tx) => {
+    // Serialisasi dengan operasi reset agar BR-11 tetap terjaga
+    await acquireVoteWriteLock(tx);
+
     // Pastikan hasVoted masih false saat transaksi (mencegah double-voting jika terjadi race condition)
     const updateResult = await tx.electionVoter.updateMany({
       where: {
@@ -111,6 +125,35 @@ const castVote = async (input: CastVoteInput): Promise<CastVoteResult> => {
       electionId,
       candidatePairId,
       hasVoted: true,
+    };
+  });
+};
+
+const resetAllVotes = async (
+  actor: ResetVotingActor,
+): Promise<ResetVotingResult> => {
+  // BR-18: Hanya Super Admin yang dapat mereset data voting
+  if (actor.role !== UserRole.SUPER_ADMIN) {
+    throw new AppError(
+      "Forbidden: Hanya Super Admin yang dapat mereset data voting.",
+      403,
+    );
+  }
+
+  return prisma.$transaction(async (tx) => {
+    // Serialisasi dengan vote casting agar BR-11 tidak rusak oleh race condition
+    await acquireVoteWriteLock(tx);
+
+    // BR-11: hapus vote dan reset status pemilih secara atomik
+    const deletedVotes = await tx.vote.deleteMany();
+    const resetVoters = await tx.electionVoter.updateMany({
+      where: { hasVoted: true },
+      data: { hasVoted: false },
+    });
+
+    return {
+      deletedVotes: deletedVotes.count,
+      resetVoters: resetVoters.count,
     };
   });
 };
@@ -179,5 +222,11 @@ const getVotingStatus = async (
   };
 };
 
-export type { CastVoteInput, CastVoteResult, VotingStatusResult };
-export { castVote, getVotingStatus };
+export type {
+  CastVoteInput,
+  CastVoteResult,
+  VotingStatusResult,
+  ResetVotingActor,
+  ResetVotingResult,
+};
+export { castVote, resetAllVotes, getVotingStatus };
