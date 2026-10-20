@@ -1,70 +1,112 @@
-import { Vote, ShieldCheck } from "lucide-react";
-import Badge from "@/components/atoms/Badge";
+import { Vote, ShieldCheck, Users, Lock } from "lucide-react";
 import type { AuthLayoutProps } from "./AuthLayout.types";
+
+const trustPoints = [
+  { icon: ShieldCheck, label: "Terverifikasi" },
+  { icon: Lock, label: "Terenkripsi" },
+  { icon: Users, label: "Berbasis Peran" },
+];
 
 const AuthLayout = ({
   children,
   title = "E-Voting",
   subtitle = "Sistem Pemungutan Suara Digital",
   badgeText = "MVP v0.1.0",
+  videoSrc = "/videos/bumper.mp4",
+  videoPoster,
 }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col justify-between items-center p-4 sm:p-6 lg:p-8 relative selection:bg-secondary selection:text-secondary-foreground font-sans">
-      {/* Subtle Ambient Decorative Circles */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-80 pointer-events-none opacity-40 blur-3xl overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="w-96 h-96 bg-primary/10 rounded-full mx-auto -translate-y-1/2" />
-      </div>
-
-      {/* Top Spacer / Minimal Navigation bar anchor */}
-      <header className="w-full max-w-md flex items-center justify-between py-2 z-10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
-            <Vote className="w-4 h-4" />
+    <div className="min-h-screen w-full bg-background font-sans lg:grid lg:grid-cols-2">
+      {/* Form Panel — kiri, selalu tampil */}
+      <div className="flex min-h-screen flex-col bg-card px-5 py-6 sm:px-8 lg:border-r lg:border-border lg:px-12">
+        {/* Brand: orientasi produk selalu ada di sisi form */}
+        <header className="flex w-full items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
+            <Vote className="h-5 w-5" />
           </div>
-          <span className="font-heading font-bold text-lg text-foreground tracking-tight">
+          <span className="font-heading text-xl font-bold tracking-tight text-foreground">
             E-Voting
           </span>
-        </div>
-        {badgeText && (
-          <Badge variant="secondary" icon={<ShieldCheck className="w-3.5 h-3.5" />}>
-            {badgeText}
-          </Badge>
-        )}
-      </header>
+        </header>
 
-      {/* Centered Auth Card Container */}
-      <main className="w-full max-w-md my-auto py-6 z-10">
-        <div className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8 backdrop-blur-xs transition-shadow duration-200">
-          {/* Header section inside Card */}
-          <div className="text-center mb-7">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-secondary text-secondary-foreground border border-border mb-4">
-              <Vote className="w-7 h-7 text-primary" />
+        <main className="flex flex-1 items-center justify-center py-10">
+          <div className="w-full max-w-md">
+            <div className="mb-7">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Portal Pemilihan
+              </p>
+              <h1 className="font-sans text-2xl font-bold tracking-tight text-card-foreground sm:text-3xl">
+                {title}
+              </h1>
+              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+                {subtitle}
+              </p>
             </div>
-            <h1 className="font-sans text-2xl sm:text-3xl font-bold text-card-foreground tracking-tight">
-              {title}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
-              {subtitle}
+
+            {children}
+          </div>
+        </main>
+
+        <footer className="flex w-full flex-col gap-1 py-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>E-Voting System</p>
+          {badgeText && <p>{badgeText}</p>}
+        </footer>
+      </div>
+
+      {/* Video Thumbnail Panel — kanan, desktop only */}
+      <aside className="relative hidden overflow-hidden bg-primary lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={videoSrc}
+          poster={videoPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+
+        {/* Overlay gradient agar teks tetap terbaca di atas video */}
+        <div
+          className="absolute inset-0 bg-linear-to-t from-primary via-primary/80 to-primary/40"
+          aria-hidden="true"
+        />
+
+        {/* Konteks singkat — bukan brand, karena brand sudah ada di sisi form */}
+        <div className="relative z-10 flex items-center gap-2 self-start rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 text-xs font-medium text-primary-foreground backdrop-blur-sm">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Pemungutan Suara Digital
+        </div>
+
+        {/* Storytelling: satu pesan utama + trust indicators ringkas */}
+        <div className="relative z-10 max-w-xl space-y-6">
+          <div className="space-y-3">
+            <h2 className="font-sans text-3xl font-bold leading-tight text-primary-foreground xl:text-4xl">
+              Suara Anda Menentukan Masa Depan Bersama.
+            </h2>
+            <p className="max-w-md text-sm leading-relaxed text-primary-foreground/80">
+              Platform pemungutan suara digital yang aman, transparan, dan mudah
+              digunakan untuk seluruh civitas akademika.
             </p>
           </div>
 
-          {/* Form Content */}
-          {children}
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-primary-foreground/15 pt-5">
+            {trustPoints.map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="flex items-center gap-2 text-xs font-medium text-primary-foreground/85"
+              >
+                <Icon className="h-4 w-4 text-primary-foreground" />
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="w-full max-w-md text-center py-4 z-10">
-        <p className="text-xs text-muted-foreground">
-          E-Voting System &bull; Hak Akses Berbasis Peran &amp; Cakupan
-        </p>
-      </footer>
+      </aside>
     </div>
   );
 };
 
 export default AuthLayout;
-

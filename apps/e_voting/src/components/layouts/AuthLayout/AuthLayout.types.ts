@@ -5,6 +5,8 @@ interface AuthLayoutProps {
   title?: string;
   subtitle?: string;
   badgeText?: string;
+  videoSrc?: string;
+  videoPoster?: string;
 }
 
 export type { AuthLayoutProps };
