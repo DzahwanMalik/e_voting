@@ -19,11 +19,21 @@ Elections are fetched via `getElectionsApi()`, and mutations use `createElection
 - `SUPER_ADMIN` → returns all elections with `electionAdmins` and `_count` aggregation.
 - `ADMIN` → returns only elections where `electionAdmins` includes the current user's `userId`.
 
-Both role responses also include `votedCount` and `unvotedCount` per election (computed via a grouped `electionVoters` query where `hasVoted = true`). These fields power the table's **Partisipasi** column.
+Both role responses also include `votedCount` and `unvotedCount` per election (computed via a grouped `electionVoters` query where `hasVoted = true`). These fields power the participation block inside each election card.
 
 This component is self-contained — it reads user role directly from `useUserStore`, following the same pattern as `VoterDashboardPage`.
 
-Page layout uses `<SectionCard>` (from `molecules/SectionCard`) for both the page header banner and the elections table section, ensuring a consistent card surface (`bg-card`, `border-border`, `shadow-sm`, `rounded-3xl`) across all admin pages.
+## Data Display: Card Grid (not a table)
+
+Elections are rendered as **one card per election** using `AdminElectionCard` (organism), laid out in a responsive grid (`grid-cols-1` → `xl:grid-cols-2`). Every piece of information that used to live in a table column is displayed directly on the card, and every management action that used to live in the row-options dropdown is rendered as an explicit button in the card footer.
+
+`AdminElectionCard` is purely presentational apart from the Super Admin result fetch: it receives the election row plus optional action callbacks. The page keeps ownership of data fetching, role checks, delete confirmation, and all modals.
+
+## Hasil Voting (Inline Chart)
+
+Election results are **not** shown in a modal anymore. For **Super Admin** only (PRD BR-12), each card fetches its own result via `getElectionResultApi` and renders an inline `VoteResultChart` from `molecules/VoteResultChart`. The chart displays per-pair vote counts, percentages, and a column chart with the leading pair highlighted. Admin cards never fetch or render results.
+
+Because the chart is fetched per card, the page passes `refreshKey` to each card so results are re-fetched after list refreshes (e.g., voter import).
 
 ## Props
 
@@ -34,56 +44,62 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | Section | Component | Pattern |
 | :--- | :--- | :--- |
 | Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, and role-based subtitle |
-| Elections Table | `<SectionCard title="Daftar Pemilihan (n)" padding="none">` | Header via `title` prop; body wraps `DataTable` or `LoadingState`. Includes "Tambah Pemilihan" button (Super Admin only) |
+| Elections List | `<SectionCard title="Daftar Pemilihan (n)" padding="none">` | Header via `title` prop; body contains "Tambah Pemilihan" (Super Admin only) followed by `LoadingState`, `EmptyState`, or the card grid |
 
-### Table Columns
+### Card Content (via `AdminElectionCard`)
 
-| Column | Content |
+| Information | Where it appears on the card |
 | :--- | :--- |
-| Judul | Election title and description |
-| Paslon | Candidate pair count badge |
-| Pemilih | Total assigned voters badge |
-| Partisipasi | Voted/unvoted counts, a `bg-success` progress bar, and turnout percentage |
-| Admin | Assigned admin count badge |
-| Dibuat | Creation date |
+| Judul | Card header title |
+| Dibuat | Card header, below the title, with calendar icon |
+| Deskripsi | Body, clamped to two lines |
+| Paslon | Stat tile (candidate pair count) |
+| Pemilih | Stat tile (assigned voter count) |
+| Admin | Stat tile (assigned admin count) |
+| Partisipasi | Progress block: voted/unvoted counts, percentage, `bg-success` bar |
+| Hasil Voting | Inline `VoteResultChart` (Super Admin only) |
+
+### Card Actions per Role
+
+| Action | Super Admin | Admin |
+| :--- | :--- | :--- |
+| Lihat Detail (modal: `ElectionDetailModal`) | ✓ | ✓ |
+| Edit (modal: `ElectionFormModal` edit mode) | ✓ | ✓ |
+| Import Voter (modal: `ImportVotersModal`) | ✓ | ✓ |
+| Penugasan Admin (modal) | ✓ | ✗ (not rendered) |
+| Hapus (modal: `ConfirmModal`) | ✓ | ✗ (not rendered) |
+
+Actions are always visible on the card footer — no dropdown menu is required. Optional callbacks (`onImportVoters`, `onManageAdmins`, `onDelete`) control which buttons render; the page passes `onImportVoters` for both roles, while `onManageAdmins`/`onDelete` are Super Admin only. Hasil Voting is always displayed as an inline chart on Super Admin cards and has no button.
+
+> **Tambah Pemilihan** button (create) hanya tersedia untuk Super Admin, ditempatkan di atas card grid. Ditampilkan melalui `ElectionFormModal` (create mode).
+
+> **Edit Pemilihan** tersedia untuk Super Admin dan Admin. Form pre-filled via `ElectionFormModal` (edit mode) dengan title dan description dari election yang dipilih.
+
+> **Import Voter** dipindahkan dari `ElectionDetailModal` ke footer card election. Tombol ini membuka `ImportVotersModal` (dikelola oleh page) dan tersedia untuk Admin maupun Super Admin. Setelah impor berhasil, page melakukan refresh list sehingga jumlah pemilih dan chart hasil ikut ter-update.
+
+> **Penugasan Admin** hanya tersedia untuk Super Admin dan ditampilkan melalui modal yang di-trigger langsung dari button pada card Election (bukan sebagai menu navigasi terpisah atau route terpisah).
+
+> **Hasil Voting** tidak lagi berupa modal. Untuk Super Admin, hasil perolehan suara langsung ditampilkan di dalam card sebagai chart (`VoteResultChart`); Admin tidak melihat hasil sesuai BR-12.
+
+Delete is guarded by `ConfirmModal` (replaces `window.confirm()`) and shows per-card loading (`isDeletingId` → `isDeleting` prop on the card, which shows a spinner and disables the delete button).
 
 ## Semantic Tokens Used
 
 - Page Canvas: `bg-background`, `text-foreground` (via `AdminDashboardLayout`)
 - Card Surface (via `SectionCard`): `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl`
-- Status Badges: `bg-info-subtle`, `bg-secondary`, `text-secondary-foreground`
 - Icon Accent: `bg-secondary`, `text-primary`, `rounded-xl`
-
-## Row Actions (per role)
-
-| Action | Super Admin | Admin |
-| :--- | :--- | :--- |
-| Lihat Detail | ✓ (modal: `ElectionDetailModal`) | ✓ (modal: `ElectionDetailModal`) |
-| Edit Pemilihan | ✓ (modal: `ElectionFormModal` edit mode) | ✓ (modal: `ElectionFormModal` edit mode) |
-| Penugasan Admin | ✓ (modal) | ✗ (hidden) |
-| Hasil Voting | ✓ (modal) | ✗ (hidden) |
-| Hapus Pemilihan | ✓ (modal: `ConfirmModal`) | ✗ (hidden) |
-
-> **Tambah Pemilihan** button (create) hanya tersedia untuk Super Admin, ditempatkan di atas elections table. Ditampilkan melalui `ElectionFormModal` (create mode).
-
-> **Edit Pemilihan** row action tersedia untuk Super Admin dan Admin. Dapatkan pre-filled form via `ElectionFormModal` (edit mode) dengan title dan description dari election yang dipilih.
-
-> **Penugasan Admin** dan **Hasil Voting** hanya tersedia untuk Super Admin dan ditampilkan melalui **modal** yang di-trigger dari opsi pada *datatable menu* Election page (bukan sebagai menu navigasi terpisah atau route terpisah). Modal ini merender `AdminAssignmentModal` dan `ElectionResultModal` secara inline di dalam halaman Election.
-
-Delete is guarded by `ConfirmModal` (replaces `window.confirm()`) and shows per-row loading (`isDeletingId`).
-
-"Lihat Detail" opens `ElectionDetailModal` (an organism-level modal composing `<Modal>`), showing election summary stats (candidate pair/voter/admin counts), timeline, and optional candidate pair/admin lists.
-
-"Edit Pemilihan" row action and "Tambah Pemilihan" button open `ElectionFormModal` (an organism-level modal composing `<Modal>`), a form with React Hook Form + Zod validation for title (required) and description (optional). Create mode triggers `createElectionApi`; edit mode triggers `updateElectionApi`.
+- Stat tiles / participation block: `bg-muted/30`, `border-border`
+- Progress bar: track `bg-border`, fill `bg-success`
+- Muted text: `text-muted-foreground`
 
 ## Dependencies
 
-- Atoms: `Badge`, `Button`
-- Molecules: `SectionCard`, `LoadingState`, `ConfirmModal`
-- Organisms: `DataTable`, `AdminAssignmentModal`, `ElectionResultModal`, `ElectionDetailModal`, `ElectionFormModal`
-- Services: `getElectionsApi`, `deleteElectionApi`, `createElectionApi`, `updateElectionApi` (from `@/services/election.service`)
+- Atoms: `Button`
+- Molecules: `SectionCard`, `EmptyState`, `LoadingState`, `ConfirmModal`, `VoteResultChart` (rendered inside `AdminElectionCard`)
+- Organisms: `AdminElectionCard`, `AdminAssignmentModal`, `ImportVotersModal`, `ElectionDetailModal`, `ElectionFormModal`
+- Services: `getElectionsApi`, `deleteElectionApi`, `createElectionApi`, `updateElectionApi`, `getElectionResultApi` (from `@/services/election.service`)
 - Stores: `useUserStore` (for role checks)
-- Libraries: `react-hook-form`, `@hookform/resolvers/zod`
+- Utilities: `formatDate` (used inside `AdminElectionCard`)
 
 ## Code Example
 
@@ -93,4 +109,3 @@ import ElectionPage from "@/components/pages/ElectionPage";
 // Inside <Routes> in main.tsx
 <Route path="/admin/elections" element={<ElectionPage />} />
 ```
-

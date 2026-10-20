@@ -317,8 +317,8 @@ const handleAction = async () => {
 ```text
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
-├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, LoadingState, EmptyState, Modal, ConfirmModal, DatePicker, FileUpload, ImageUpload, ImagePreview)
-├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidatePairDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, ElectionDetailModal, AdminDashboard, VoterDashboard)
+├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, VoteResultChart, LoadingState, EmptyState, Modal, ConfirmModal, DatePicker, FileUpload, ImageUpload, ImagePreview)
+├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidatePairDetailModal, VoteConfirmModal, AdminAssignmentModal, AdminElectionCard, ElectionDetailModal, AdminDashboard, VoterDashboard)
 ├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
 └── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, ElectionPage, NotFoundPage)
 ```
@@ -1646,7 +1646,7 @@ import ConfirmModal from "@/components/molecules/ConfirmModal";
 
 ### 15.3 Organism-Level Modal Composites
 
-Organism-level modal components (`CandidatePairDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`, `ElectionDetailModal`) compose `<Modal>` as their container. They pass a title (string or `<Badge>`) and rely on the Modal's built-in close button.
+Organism-level modal components (`CandidatePairDetailModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionDetailModal`) compose `<Modal>` as their container. They pass a title (string or `<Badge>`) and rely on the Modal's built-in close button.
 
 **Pattern — use `title` + built-in close button:**
 
@@ -1689,10 +1689,9 @@ const CandidatePairDetailModal = ({ isOpen, onClose, ... }) => {
 | `CandidatePairDetailModal` | Organism | `title={Badge info}`, `size="2xl"`                                                   |
 | `VoteConfirmModal`         | Organism | `title={Badge warning}`, `size="lg"`, `closeButtonDisabled` gated by `isSubmitting`  |
 | `AdminAssignmentModal`     | Organism | `title="Penugasan Admin"`, `size="2xl"`, `closeButtonDisabled` gated by `isSaving`   |
-| `ElectionResultModal`      | Organism | `title="Hasil Voting"`, `size="4xl"`                                                 |
 | `ElectionDetailModal`      | Organism | `title="Detail Pemilihan"`, `size="2xl"`, renders `StatCard` for counts              |
 | `ConfirmModal`             | Molecule | `title={Badge + conditional icon}`, `closeButtonDisabled` gated by `isSubmitting`    |
-| `ElectionPage`             | Page     | Renders ElectionDetailModal, AdminAssignmentModal, ElectionResultModal, ConfirmModal |
+| `ElectionPage`             | Page     | Renders ElectionDetailModal, AdminAssignmentModal, ConfirmModal                      |
 | `VoterDashboard`           | Organism | Renders CandidatePairDetailModal                                                     |
 | `VoterElectionCard`        | Organism | Renders VoteConfirmModal                                                             |
 | `CandidateCard`            | Molecule | `onViewDetail` callback → parent modal                                               |

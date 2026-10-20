@@ -1,21 +1,14 @@
 import { useState, useEffect } from "react";
-import {
-  Calendar,
-  Layers,
-  Trash2,
-  Shield,
-  BarChart3,
-  Plus,
-  Edit,
-} from "lucide-react";
+import { Layers, Plus } from "lucide-react";
 import { toast } from "sonner";
-import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
-import DataTable from "@/components/organisms/DataTable";
 import SectionCard from "@/components/molecules/SectionCard";
+import EmptyState from "@/components/molecules/EmptyState";
+import LoadingState from "@/components/molecules/LoadingState";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
+import AdminElectionCard from "@/components/organisms/AdminElectionCard";
 import AdminAssignmentModal from "@/components/organisms/AdminAssignmentModal";
-import ElectionResultModal from "@/components/organisms/ElectionResultModal";
+import ImportVotersModal from "@/components/organisms/ImportVotersModal";
 import ElectionDetailModal from "@/components/organisms/ElectionDetailModal";
 import ElectionFormModal from "@/components/organisms/ElectionFormModal";
 import { useUserStore } from "@/stores/useUserStore";
@@ -24,7 +17,6 @@ import {
   deleteElectionApi,
   type ElectionListItem,
 } from "@/services/election.service";
-import { formatDate } from "@/lib/utils";
 
 const ElectionPage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,9 +27,8 @@ const ElectionPage = () => {
     useState<ElectionListItem | null>(null);
   const [adminAssignmentElection, setAdminAssignmentElection] =
     useState<ElectionListItem | null>(null);
-  const [resultElection, setResultElection] = useState<ElectionListItem | null>(
-    null,
-  );
+  const [importVotersElection, setImportVotersElection] =
+    useState<ElectionListItem | null>(null);
   const [detailElection, setDetailElection] = useState<ElectionListItem | null>(
     null,
   );
@@ -49,7 +40,6 @@ const ElectionPage = () => {
   );
 
   const isSuperAdmin = useUserStore((state) => state.isSuperAdmin());
-  const currentUserRole = useUserStore((state) => state.user?.role);
 
   useEffect(() => {
     let isMounted = true;
@@ -123,124 +113,22 @@ const ElectionPage = () => {
     handleRefreshElections();
   };
 
-  const getParticipation = (row: ElectionListItem) => {
-    const total = row._count?.electionVoters ?? 0;
-    const voted = row.votedCount ?? 0;
-    const unvoted = row.unvotedCount ?? Math.max(0, total - voted);
-    const percentage = total > 0 ? (voted / total) * 100 : 0;
+  const getEmptyStateContent = () => {
+    if (isSuperAdmin) {
+      return {
+        title: "Belum Ada Pemilihan",
+        description: "Belum ada pemilihan yang dibuat.",
+      };
+    }
 
-    return { total, voted, unvoted, percentage };
+    return {
+      title: "Belum Ada Penugasan Pemilihan",
+      description:
+        "Super Admin belum menugaskan pemilihan kepada akun Anda.",
+    };
   };
 
-  const columns = [
-    {
-      key: "title",
-      header: "Judul",
-      cell: (row: ElectionListItem) => (
-        <div className="flex flex-col">
-          <span className="font-sans font-semibold text-foreground">
-            {row.title}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: "candidatePairs",
-      header: "Paslon",
-      cell: (row: ElectionListItem) => (
-        <Badge variant="default" className="px-2.5 py-0.5">
-          {row._count?.candidatePairs ?? 0}
-        </Badge>
-      ),
-    },
-    {
-      key: "voters",
-      header: "Pemilih",
-      cell: (row: ElectionListItem) => (
-        <Badge variant="default" className="px-2.5 py-0.5">
-          {row._count?.electionVoters ?? 0}
-        </Badge>
-      ),
-    },
-    {
-      key: "participation",
-      header: "Partisipasi",
-      cell: (row: ElectionListItem) => {
-        const { voted, unvoted, percentage } = getParticipation(row);
-
-        return (
-          <div className="flex min-w-37.5 flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-3 text-xs">
-              <span className="font-medium text-success">Sudah {voted}</span>
-              <span className="text-muted-foreground">Belum {unvoted}</span>
-            </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-success transition-all duration-300"
-                style={{ width: `${percentage}%` }}
-              />
-            </div>
-            <span className="text-[11px] text-muted-foreground">
-              {percentage.toFixed(1)}% partisipasi
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      key: "admins",
-      header: "Admin",
-      cell: (row: ElectionListItem) => (
-        <Badge variant="default" className="px-2.5 py-0.5">
-          {row._count?.electionAdmins ?? row.electionAdmins?.length ?? 0}
-        </Badge>
-      ),
-    },
-    {
-      key: "createdAt",
-      header: "Dibuat",
-      cell: (row: ElectionListItem) => (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Calendar className="w-3.5 h-3.5" />
-          <span>{formatDate(row.createdAt)}</span>
-        </div>
-      ),
-    },
-  ];
-
-  const rowOptions = [
-    {
-      label: "Lihat Detail",
-      icon: <Layers className="w-4 h-4" />,
-      onClick: (row: ElectionListItem) => setDetailElection(row),
-    },
-    {
-      label: "Edit Pemilihan",
-      icon: <Edit className="w-4 h-4" />,
-      onClick: (row: ElectionListItem) => handleEditElection(row),
-    },
-    ...(isSuperAdmin
-      ? [
-          {
-            label: "Penugasan Admin",
-            icon: <Shield className="w-4 h-4" />,
-            onClick: (row: ElectionListItem) => setAdminAssignmentElection(row),
-          },
-          {
-            label: "Hasil Voting",
-            icon: <BarChart3 className="w-4 h-4" />,
-            onClick: (row: ElectionListItem) => setResultElection(row),
-          },
-          {
-            label: "Hapus Pemilihan",
-            icon: <Trash2 className="w-4 h-4" />,
-            onClick: (row: ElectionListItem) => setDeleteConfirmElection(row),
-            isDestructive: true,
-            disabled: (row: ElectionListItem) => isDeletingId === row.id,
-          },
-        ]
-      : []),
-  ];
+  const emptyState = getEmptyStateContent();
 
   return (
     <>
@@ -264,14 +152,14 @@ const ElectionPage = () => {
           </div>
         </SectionCard>
 
-        {/* Elections Table Section */}
+        {/* Elections Card Grid Section */}
         <SectionCard
           title={`Daftar Pemilihan (${elections.length})`}
           padding="none"
         >
-          <div className="p-4 sm:p-6 lg:p-8">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-4">
             {isSuperAdmin && (
-              <div className="flex justify-end items-center mb-4">
+              <div className="flex justify-end items-center">
                 <Button
                   variant="primary"
                   size="sm"
@@ -282,23 +170,36 @@ const ElectionPage = () => {
                 </Button>
               </div>
             )}
-            <DataTable<ElectionListItem>
-              data={elections}
-              columns={columns}
-              rowOptions={rowOptions}
-              isLoading={isLoading}
-              loadingMessage="Memuat daftar pemilihan..."
-              emptyTitle={
-                isSuperAdmin
-                  ? "Belum Ada Pemilihan"
-                  : "Belum Ada Penugasan Pemilihan"
-              }
-              emptyDescription={
-                isSuperAdmin
-                  ? "Belum ada pemilihan yang dibuat."
-                  : "Super Admin belum menugaskan pemilihan kepada akun Anda."
-              }
-            />
+
+            {isLoading ? (
+              <LoadingState message="Memuat daftar pemilihan..." />
+            ) : elections.length === 0 ? (
+              <EmptyState
+                title={emptyState.title}
+                description={emptyState.description}
+              />
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                {elections.map((election) => (
+                  <AdminElectionCard
+                    key={election.id}
+                    election={election}
+                    isDeleting={isDeletingId === election.id}
+                    showResult={isSuperAdmin}
+                    refreshKey={refreshKey}
+                    onViewDetail={setDetailElection}
+                    onEdit={handleEditElection}
+                    onImportVoters={setImportVotersElection}
+                    onDelete={
+                      isSuperAdmin ? setDeleteConfirmElection : undefined
+                    }
+                    onManageAdmins={
+                      isSuperAdmin ? setAdminAssignmentElection : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </SectionCard>
       </div>
@@ -311,19 +212,18 @@ const ElectionPage = () => {
         onSaved={handleRefreshElections}
       />
 
-      <ElectionResultModal
-        electionId={resultElection?.id ?? 0}
-        electionTitle={resultElection?.title ?? ""}
-        isOpen={resultElection !== null}
-        onClose={() => setResultElection(null)}
+      <ImportVotersModal
+        electionId={importVotersElection?.id ?? 0}
+        electionTitle={importVotersElection?.title ?? ""}
+        isOpen={importVotersElection !== null}
+        onClose={() => setImportVotersElection(null)}
+        onImportSuccess={handleRefreshElections}
       />
 
       <ElectionDetailModal
         election={detailElection}
         isOpen={detailElection !== null}
         onClose={() => setDetailElection(null)}
-        currentUserRole={currentUserRole}
-        onImportSuccess={handleRefreshElections}
       />
 
       <ConfirmModal

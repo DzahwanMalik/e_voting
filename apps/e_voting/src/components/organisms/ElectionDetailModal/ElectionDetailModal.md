@@ -4,7 +4,9 @@
 - **Folder**: `src/components/organisms/ElectionDetailModal/`
 
 ## Purpose
-Modal dialog for viewing election details (title, description, candidate pair/voter/admin counts, timeline, and optional lists). Accessible via the Election page datatable "Lihat Detail" row option for both Admin and Super Admin roles.
+Modal dialog for viewing election details (title, description, candidate pair/voter/admin counts, timeline, and optional lists). Accessible via the Election page card "Lihat Detail" button for both Admin and Super Admin roles.
+
+This modal is read-only. **Import Voter has been moved out of this modal** and is now triggered directly from the election card (`AdminElectionCard` → `ImportVotersModal`).
 
 ## Props
 - `election`: `ElectionListItem | null` - The election to display. When `null`, the modal renders nothing.

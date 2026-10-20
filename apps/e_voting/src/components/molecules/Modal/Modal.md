@@ -5,7 +5,7 @@
 
 ## Purpose
 
-General-purpose modal dialog container that handles backdrop overlay, click-to-close, escape key dismissal, size variants, and a built-in title header with close button. Used as the foundation for all modal organisms (`CandidateDetailModal`, `CandidatePairFormModal`, `VoteConfirmModal`, `AdminAssignmentModal`, `ElectionResultModal`) and `ConfirmModal`. Not used directly in pages — composed by organism-level modal components.
+General-purpose modal dialog container that handles backdrop overlay, click-to-close, escape key dismissal, size variants, and a built-in title header with close button. Used as the foundation for all modal organisms (`CandidateDetailModal`, `CandidatePairFormModal`, `VoteConfirmModal`, `AdminAssignmentModal`) and `ConfirmModal`. Not used directly in pages — composed by organism-level modal components.
 
 ### Scrollable Body
 

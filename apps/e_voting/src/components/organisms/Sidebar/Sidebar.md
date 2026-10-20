@@ -17,7 +17,7 @@ Vertical navigation rail for the Admin and Super Admin shell layouts. The sideba
 
 > **Catatan Navigasi:** Admin yang membuka `/admin/admins` atau `/admin/settings` secara langsung akan diarahkan ulang ke `/admin/elections` oleh route guard.
 >
-> **Catatan Navigasi:** _Penugasan Admin_ dan _Hasil Voting_ tidak tersedia sebagai menu navigasi terpisah. Kedua fitur ini hanya dapat diakses oleh Super Admin melalui opsi pada *datatable menu* Election page (lihat `ElectionPage`).
+> **Catatan Navigasi:** _Penugasan Admin_ dan _Hasil Voting_ tidak tersedia sebagai menu navigasi terpisah. Kedua fitur ini hanya dapat diakses oleh Super Admin melalui card pada Election page (lihat `ElectionPage`): _Penugasan Admin_ via tombol pada card, sedangkan _Hasil Voting_ langsung ditampilkan sebagai chart di dalam card.
 
 ## Props
 

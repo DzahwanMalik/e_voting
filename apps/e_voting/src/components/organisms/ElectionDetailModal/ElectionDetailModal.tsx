@@ -1,9 +1,7 @@
-import { Calendar, Clock, Users, Shield, Layers, Upload } from "lucide-react";
-import { useState } from "react";
+import { Calendar, Clock, Users, Shield, Layers } from "lucide-react";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import Modal from "@/components/molecules/Modal";
-import ImportVotersModal from "@/components/organisms/ImportVotersModal";
 import StatCard from "@/components/molecules/StatCard";
 import type { ElectionDetailModalProps } from "./ElectionDetailModal.types";
 import { formatDate } from "@/lib/utils";
@@ -12,11 +10,7 @@ const ElectionDetailModal = ({
   election,
   isOpen,
   onClose,
-  currentUserRole,
-  onImportSuccess,
 }: ElectionDetailModalProps) => {
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
   if (!election) {
     return null;
   }
@@ -25,9 +19,6 @@ const ElectionDetailModal = ({
     election._count?.candidatePairs ?? election.candidatePairs?.length ?? 0;
   const voterCount =
     election._count?.electionVoters ?? election.electionVoters?.length ?? 0;
-
-  const canImportVoters =
-    currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN";
 
   return (
     <Modal
@@ -186,28 +177,10 @@ const ElectionDetailModal = ({
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/30">
-        {canImportVoters && (
-          <Button
-            variant="outline"
-            size="sm"
-            icon={<Upload className="w-4 h-4" />}
-            onClick={() => setIsImportModalOpen(true)}
-          >
-            Import Voter
-          </Button>
-        )}
         <Button variant="outline" size="sm" onClick={onClose}>
           Tutup
         </Button>
       </div>
-
-      <ImportVotersModal
-        electionId={election.id}
-        electionTitle={election.title}
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImportSuccess={onImportSuccess}
-      />
     </Modal>
   );
 };

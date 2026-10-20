@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Reusable stat card molecule that displays an icon, label, and value in a bordered, color-coded container. Used in both `ElectionResultModal` and `ElectionDetailModal` for summary statistics.
+Reusable stat card molecule that displays an icon, label, and value in a bordered, color-coded container. Used in `ElectionDetailModal` for summary statistics.
 
 ## Props
 
