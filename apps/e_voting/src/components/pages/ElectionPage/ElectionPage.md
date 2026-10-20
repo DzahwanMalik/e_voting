@@ -19,6 +19,8 @@ Elections are fetched via `getElectionsApi()`, and mutations use `createElection
 - `SUPER_ADMIN` → returns all elections with `electionAdmins` and `_count` aggregation.
 - `ADMIN` → returns only elections where `electionAdmins` includes the current user's `userId`.
 
+Both role responses also include `votedCount` and `unvotedCount` per election (computed via a grouped `electionVoters` query where `hasVoted = true`). These fields power the table's **Partisipasi** column.
+
 This component is self-contained — it reads user role directly from `useUserStore`, following the same pattern as `VoterDashboardPage`.
 
 Page layout uses `<SectionCard>` (from `molecules/SectionCard`) for both the page header banner and the elections table section, ensuring a consistent card surface (`bg-card`, `border-border`, `shadow-sm`, `rounded-3xl`) across all admin pages.
@@ -33,6 +35,17 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | :--- | :--- | :--- |
 | Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, and role-based subtitle |
 | Elections Table | `<SectionCard title="Daftar Pemilihan (n)" padding="none">` | Header via `title` prop; body wraps `DataTable` or `LoadingState`. Includes "Tambah Pemilihan" button (Super Admin only) |
+
+### Table Columns
+
+| Column | Content |
+| :--- | :--- |
+| Judul | Election title and description |
+| Paslon | Candidate pair count badge |
+| Pemilih | Total assigned voters badge |
+| Partisipasi | Voted/unvoted counts, a `bg-success` progress bar, and turnout percentage |
+| Admin | Assigned admin count badge |
+| Dibuat | Creation date |
 
 ## Semantic Tokens Used
 

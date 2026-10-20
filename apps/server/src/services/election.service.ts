@@ -43,12 +43,43 @@ const createElection = async (
   });
 };
 
+const attachVoteParticipation = async <
+  T extends { id: number; _count: { electionVoters: number } },
+>(
+  elections: T[],
+): Promise<Array<T & { votedCount: number; unvotedCount: number }>> => {
+  if (elections.length === 0) return [];
+
+  const votedCounts = await prisma.electionVoter.groupBy({
+    by: ["electionId"],
+    where: {
+      electionId: { in: elections.map((election) => election.id) },
+      hasVoted: true,
+    },
+    _count: { _all: true },
+  });
+
+  const votedByElectionId = new Map(
+    votedCounts.map((item) => [item.electionId, item._count._all]),
+  );
+
+  return elections.map((election) => {
+    const votedCount = votedByElectionId.get(election.id) ?? 0;
+
+    return {
+      ...election,
+      votedCount,
+      unvotedCount: Math.max(0, election._count.electionVoters - votedCount),
+    };
+  });
+};
+
 const getAllElections = async (
   userId: number,
   role: UserRole,
 ): Promise<unknown[]> => {
   if (role === UserRole.SUPER_ADMIN) {
-    return prisma.election.findMany({
+    const elections = await prisma.election.findMany({
       include: {
         electionAdmins: {
           select: {
@@ -78,10 +109,12 @@ const getAllElections = async (
         createdAt: "desc",
       },
     });
+
+    return attachVoteParticipation(elections);
   }
 
   if (role === UserRole.ADMIN) {
-    return prisma.election.findMany({
+    const elections = await prisma.election.findMany({
       where: {
         electionAdmins: {
           some: {
@@ -118,6 +151,8 @@ const getAllElections = async (
         createdAt: "desc",
       },
     });
+
+    return attachVoteParticipation(elections);
   }
 
   // VOTER

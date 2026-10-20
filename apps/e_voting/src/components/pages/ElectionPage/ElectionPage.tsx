@@ -123,6 +123,15 @@ const ElectionPage = () => {
     handleRefreshElections();
   };
 
+  const getParticipation = (row: ElectionListItem) => {
+    const total = row._count?.electionVoters ?? 0;
+    const voted = row.votedCount ?? 0;
+    const unvoted = row.unvotedCount ?? Math.max(0, total - voted);
+    const percentage = total > 0 ? (voted / total) * 100 : 0;
+
+    return { total, voted, unvoted, percentage };
+  };
+
   const columns = [
     {
       key: "title",
@@ -152,6 +161,31 @@ const ElectionPage = () => {
           {row._count?.electionVoters ?? 0}
         </Badge>
       ),
+    },
+    {
+      key: "participation",
+      header: "Partisipasi",
+      cell: (row: ElectionListItem) => {
+        const { voted, unvoted, percentage } = getParticipation(row);
+
+        return (
+          <div className="flex min-w-37.5 flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <span className="font-medium text-success">Sudah {voted}</span>
+              <span className="text-muted-foreground">Belum {unvoted}</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-success transition-all duration-300"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <span className="text-[11px] text-muted-foreground">
+              {percentage.toFixed(1)}% partisipasi
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: "admins",
@@ -255,7 +289,9 @@ const ElectionPage = () => {
               isLoading={isLoading}
               loadingMessage="Memuat daftar pemilihan..."
               emptyTitle={
-                isSuperAdmin ? "Belum Ada Pemilihan" : "Belum Ada Penugasan Pemilihan"
+                isSuperAdmin
+                  ? "Belum Ada Pemilihan"
+                  : "Belum Ada Penugasan Pemilihan"
               }
               emptyDescription={
                 isSuperAdmin

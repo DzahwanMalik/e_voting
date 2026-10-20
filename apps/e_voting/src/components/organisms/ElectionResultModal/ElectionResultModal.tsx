@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Users, Vote, List } from "lucide-react";
+import {
+  BarChart3,
+  CheckCircle2,
+  List,
+  Users,
+  UserX,
+} from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/atoms/Button";
 import LoadingState from "@/components/molecules/LoadingState";
@@ -69,7 +75,7 @@ const ElectionResultModal = ({
           />
         ) : (
           <div className="space-y-6 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 icon={<Users className="w-4 h-4" />}
                 label="Total Pemilih"
@@ -77,16 +83,22 @@ const ElectionResultModal = ({
                 variant="secondary"
               />
               <StatCard
-                icon={<Vote className="w-4 h-4" />}
-                label="Suara Masuk"
+                icon={<CheckCircle2 className="w-4 h-4" />}
+                label="Sudah Memilih"
                 value={resultData.votedCount}
-                variant="info"
+                variant="success"
+              />
+              <StatCard
+                icon={<UserX className="w-4 h-4" />}
+                label="Belum Memilih"
+                value={resultData.unvotedCount}
+                variant="warning"
               />
               <StatCard
                 icon={<BarChart3 className="w-4 h-4" />}
                 label="Tingkat Partisipasi"
                 value={`${resultData.turnoutPercentage.toFixed(1)}%`}
-                variant="warning"
+                variant="info"
               />
             </div>
 

@@ -19,12 +19,12 @@ Composes the base `<Modal>` molecule (size `"4xl"`), `<StatCard>` for summary st
 Uses `getElectionResultApi` to fetch `ElectionResultData` containing per-candidate-pair vote counts, percentages, turnout, and totals. Access is enforced server-side (Super Admin only); Admin and Voter receive 403.
 
 ## Sections
-- **Summary Stats**: total voters (`Users` icon), votes cast (`Vote` icon), turnout percentage (`BarChart3` icon)
+- **Summary Stats**: total voters (`Users` icon), voters who already voted (`CheckCircle2` icon), voters who have not voted (`UserX` icon), and turnout percentage (`BarChart3` icon). Rendered as a responsive 1/2/4-column grid.
 - **Per-pair results** — vote count, percentage bar, and percentage per candidate pair, sorted by vote count descending
 - Each pair row shows calon name and wakil name
 
 ## Semantic Tokens Used
-- StatCard variants: `secondary`, `info`, `warning`
+- StatCard variants: `secondary`, `success`, `warning`, `info`
 - Bar: `bg-primary` (filled), `bg-muted` (track)
 
 ## Code Example

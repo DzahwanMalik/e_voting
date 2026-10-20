@@ -14,7 +14,7 @@ Reusable stat card molecule that displays an icon, label, and value in a bordere
 | `icon` | `ReactNode` | required | Icon element (e.g., `<Users className="w-4 h-4" />`) |
 | `label` | `string` | required | Stat label (uppercase tracking-wider) |
 | `value` | `string \| number` | required | Stat value (large bold text) |
-| `variant` | `StatCardVariant` | `"secondary"` | Color scheme: `secondary` \| `info` \| `warning` |
+| `variant` | `StatCardVariant` | `"secondary"` | Color scheme: `secondary` \| `info` \| `warning` \| `success` |
 
 ## Variant Mapping
 
@@ -23,6 +23,7 @@ Reusable stat card molecule that displays an icon, label, and value in a bordere
 | `secondary` | `bg-secondary/30` | `border-secondary/50` | `text-secondary-foreground` |
 | `info` | `bg-info-subtle/30` | `border-info-subtle/50` | `text-info-subtle-foreground` |
 | `warning` | `bg-warning-subtle/30` | `border-warning-subtle/50` | `text-warning-subtle-foreground` |
+| `success` | `bg-success-subtle/30` | `border-success-subtle/50` | `text-success-subtle-foreground` |
 
 ## Code Example
 

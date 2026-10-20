@@ -69,6 +69,8 @@ interface ElectionListItem {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  votedCount?: number;
+  unvotedCount?: number;
   electionVoters?: Array<{
     hasVoted: boolean;
   }>;

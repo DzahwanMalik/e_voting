@@ -6,6 +6,8 @@ const variantClasses: Record<StatCardVariant, string> = {
   info: "bg-info-subtle/30 border-info-subtle/50 text-info-subtle-foreground",
   warning:
     "bg-warning-subtle/30 border-warning-subtle/50 text-warning-subtle-foreground",
+  success:
+    "bg-success-subtle/30 border-success-subtle/50 text-success-subtle-foreground",
 };
 
 const StatCard = ({

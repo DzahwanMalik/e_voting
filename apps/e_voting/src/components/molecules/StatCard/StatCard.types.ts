@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type StatCardVariant = "secondary" | "info" | "warning";
+type StatCardVariant = "secondary" | "info" | "warning" | "success";
 
 interface StatCardProps {
   icon: ReactNode;
