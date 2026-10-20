@@ -12,7 +12,10 @@ import EmptyState from "@/components/molecules/EmptyState";
 import SectionCard from "@/components/molecules/SectionCard";
 import type { VoterDashboardProps } from "./VoterDashboard.types";
 
-const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
+const VoterDashboard = ({
+  displayName,
+  onSingleElectionVoted,
+}: VoterDashboardProps) => {
   const [isLoadingElections, setIsLoadingElections] = useState(true);
   const [elections, setElections] = useState<ElectionListItem[]>([]);
 
@@ -63,6 +66,12 @@ const VoterDashboard = ({ displayName }: VoterDashboardProps) => {
           : e,
       ),
     );
+
+    // A voter scoped to a single election has no remaining action after voting,
+    // so hand over to the page to end the session automatically.
+    if (elections.length === 1 && elections[0].id === electionId) {
+      onSingleElectionVoted?.();
+    }
   };
 
   return (

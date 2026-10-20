@@ -34,6 +34,7 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | `name` | Nama | Voter display name with avatar initials |
 | `username` | Username | `@username` |
 | `elections` | Election | Badge with count of enrolled elections |
+| `votingStatus` | Status Voting | Derived from `electionVoters[].hasVoted`: `Sudah Vote` (success), `Belum Vote` (pending), `Sebagian` (info) when enrolled in multiple elections with mixed status, or `Belum Terdaftar` (default) when not enrolled. Subtext shows the voted/enrolled election ratio. |
 | `creator` | Pembuat | Name of the admin who created the voter |
 | `createdAt` | Dibuat | Formatted creation date |
 
@@ -58,7 +59,7 @@ None. Self-contained page component that reads all state from `useUserStore`.
 - Page Canvas: `bg-background`, `text-foreground` (via `AdminDashboardLayout`)
 - Card Surface (via `SectionCard`): `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl`
 - Avatar: `bg-primary/10`, `text-primary`, `border-border`
-- Status Badges: `bg-muted` (default), `bg-info-subtle` / `bg-success-subtle` (in detail modal)
+- Status Badges: `bg-muted` (default), `bg-success-subtle` (`Sudah Vote`), `bg-pending-subtle` (`Belum Vote`), `bg-info-subtle` (`Sebagian`)
 - Icon Accent: `bg-primary`, `text-primary-foreground`, `rounded-xl`
 
 ## Code Example

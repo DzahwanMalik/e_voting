@@ -13,6 +13,16 @@ Route container khusus untuk peran **Voter**. Merender `<VoterDashboard />` di d
 
 None. Self-contained page component yang membaca Zustand store untuk `user` dan `displayName`.
 
+## Automatic Logout After Voting
+
+If the voter has access to exactly **one** election, the page logs them out automatically after a successful vote:
+
+1. `VoterDashboard` calls `onSingleElectionVoted` when `elections.length === 1` and the vote succeeds.
+2. `VoterDashboardPage` invokes `logoutApi()` (clears the auth token and Zustand user state).
+3. A success toast is shown and the router navigates to `/login`.
+
+Voters enrolled in more than one election stay on the dashboard after voting in one election. This behavior applies only after a vote is successfully submitted — an already-voted voter is not logged out on page load.
+
 ## Candidate Photos
 
 Halaman ini tidak merender `<img>` secara langsung. Foto kandidat muncul melalui:

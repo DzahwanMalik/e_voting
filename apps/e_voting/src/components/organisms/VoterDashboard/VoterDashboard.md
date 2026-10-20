@@ -8,6 +8,10 @@ Modular view organism for the Voter role. Encapsulates eligible elections retrie
 
 ## Props
 - `displayName`: `string` - The formatted display name of the logged-in voter.
+- `onSingleElectionVoted`: `() => void` (optional) - Called after a successful vote when the voter is enrolled in exactly **one** election. Used by `VoterDashboardPage` to log the voter out automatically.
+
+## Single-Election Auto Logout
+When `elections.length === 1` and the matching election's vote succeeds, `handleVoteSuccess` updates the local `hasVoted` state and then invokes `onSingleElectionVoted`. The page performs `logoutApi()`, shows a confirmation toast, and redirects to `/login`. Voters enrolled in multiple elections remain on the dashboard after voting in one of them.
 
 ## Semantic Tokens Used
 - Card Surface: `bg-card`, `border-border`, `text-card-foreground`, `rounded-3xl` (via `SectionCard`)
@@ -25,6 +29,9 @@ Modular view organism for the Voter role. Encapsulates eligible elections retrie
 ```tsx
 import VoterDashboard from "@/components/organisms/VoterDashboard";
 
-<VoterDashboard displayName="Andi Saputra" />
+<VoterDashboard
+  displayName="Andi Saputra"
+  onSingleElectionVoted={() => void handleAutoLogout()}
+/>
 ```
 

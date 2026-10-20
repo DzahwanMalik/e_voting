@@ -14,11 +14,13 @@ const VoterDashboardPage = () => {
 
   const displayName = user?.name || user?.username || "voter";
 
-  const handleLogout = async () => {
+  const handleLogout = async (
+    successMessage = "Berhasil keluar dari sistem.",
+  ): Promise<void> => {
     setIsLoggingOut(true);
     try {
       await logoutApi();
-      toast.success("Berhasil keluar dari sistem.");
+      toast.success(successMessage);
       navigate("/login");
     } catch (error) {
       const message =
@@ -29,13 +31,22 @@ const VoterDashboardPage = () => {
     }
   };
 
+  const handleSingleElectionVoted = () => {
+    void handleLogout(
+      "Suara berhasil dicatat. Anda telah keluar otomatis dari sistem.",
+    );
+  };
+
   return (
     <VoterDashboardLayout
       displayName={displayName}
       onLogout={handleLogout}
       isLoggingOut={isLoggingOut}
     >
-      <VoterDashboard displayName={displayName} />
+      <VoterDashboard
+        displayName={displayName}
+        onSingleElectionVoted={handleSingleElectionVoted}
+      />
     </VoterDashboardLayout>
   );
 };

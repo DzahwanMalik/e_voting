@@ -124,6 +124,43 @@ const VoterPage = () => {
     return row.createdById === currentUser?.id;
   };
 
+  const getVotingStatus = (row: VoterListItem) => {
+    const electionCount = row.electionVoters?.length ?? 0;
+    const votedCount =
+      row.electionVoters?.filter((electionVoter) => electionVoter.hasVoted)
+        .length ?? 0;
+
+    if (electionCount === 0) {
+      return {
+        label: "Belum Terdaftar",
+        variant: "default" as const,
+        detail: "Tidak ada election",
+      };
+    }
+
+    if (votedCount === 0) {
+      return {
+        label: "Belum Vote",
+        variant: "pending" as const,
+        detail: `0/${electionCount} election`,
+      };
+    }
+
+    if (votedCount === electionCount) {
+      return {
+        label: "Sudah Vote",
+        variant: "success" as const,
+        detail: `${votedCount}/${electionCount} election`,
+      };
+    }
+
+    return {
+      label: "Sebagian",
+      variant: "info" as const,
+      detail: `${votedCount}/${electionCount} election`,
+    };
+  };
+
   const columns = [
     {
       key: "name",
@@ -156,6 +193,22 @@ const VoterPage = () => {
           {row.electionVoters?.length ?? 0}
         </Badge>
       ),
+    },
+    {
+      key: "votingStatus",
+      header: "Status Voting",
+      cell: (row: VoterListItem) => {
+        const status = getVotingStatus(row);
+
+        return (
+          <div className="flex flex-col items-start gap-1">
+            <Badge variant={status.variant}>{status.label}</Badge>
+            <span className="text-xs text-muted-foreground">
+              {status.detail}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: "creator",

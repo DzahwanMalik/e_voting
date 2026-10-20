@@ -8,7 +8,7 @@ Comprehensive card container representing a single election per voter requiremen
 
 ## Props
 - `election`: `ElectionListItem` - The election data including candidate pairs (`candidatePairs`) and `electionVoters` hasVoted state.
-- `onVoteSuccess`: `(electionId: number) => void` - Callback fired after a successful vote submission.
+- `onVoteSuccess`: `(electionId: number) => void` - Callback fired after a successful vote submission. `VoterDashboard` may use this to trigger automatic logout when the voter only has one election.
 - `onViewCandidateDetail`: `(candidatePair: CandidatePair) => void` - Callback to view full candidate pair details.
 
 ## Notes on View Layout
