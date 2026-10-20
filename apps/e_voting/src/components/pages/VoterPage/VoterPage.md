@@ -9,10 +9,10 @@ Route view component for the **Voters** management page accessible by both **Adm
 
 This page renders within the `AdminShellPage` → `AdminDashboardLayout` → `Sidebar` shell (sidebar stays visible).
 
-Per PRD Section 15.4 (Voter Management), BR-07 (Voter Eligibility), BR-08 (Admin Voter Scope), and BR-16 (Voter Removal):
+Per PRD Section 15.4 (Voter Management), BR-07 (Voter Eligibility), BR-08 (Admin Voter Scope), BR-16 (Voter Removal), and BR-19 (Bulk Voter Deletion):
 
-- **Super Admin**: Can view all voters, create voters, edit any voter, and delete any voter.
-- **Admin**: Can view voters within scope (voters they created + voters in elections they manage), create voters, and edit/delete only voters they created. The backend enforces creator-scope (BR-08); the frontend disables edit/delete row options for voters outside the Admin's scope for improved UX.
+- **Super Admin**: Can view all voters, create voters, edit any voter, delete any voter, and bulk delete **all** voters via the "Hapus Semua Voter" header action (BR-19). The bulk action opens `DeleteAllVotersModal` and requires typed confirmation.
+- **Admin**: Can view voters within scope (voters they created + voters in elections they manage), create voters, and edit/delete only voters they created. The backend enforces creator-scope (BR-08); the frontend disables edit/delete row options for voters outside the Admin's scope for improved UX. The bulk delete action is **not rendered** for Admin; the backend endpoint is also restricted to `SUPER_ADMIN`.
 
 Voters are fetched via `getVotersApi()` from `@/services/voter.service.ts` with search and pagination support (backend enforces role-based scoping in `getAllVoters`).
 
@@ -24,7 +24,8 @@ None. Self-contained page component that reads all state from `useUserStore`.
 
 | Section | Component | Pattern |
 | :--- | :--- | :--- |
-| Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, role-based subtitle, "Tambah Voter" button |
+| Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, role-based subtitle |
+| Table Toolbar | Custom flex row | "Hapus Semua Voter" (destructive, Super Admin only) + "Tambah Voter" (primary) |
 | Voters Table | `<SectionCard title="Daftar Pemilih (n)" padding="none">` | Header via `title` prop; body wraps `DataTable` or `LoadingState` |
 
 ## Data Columns
@@ -53,6 +54,7 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | `VoterDetailModal` | "Lihat Detail" row option | Read-only voter details, election enrollments, voting status |
 | `VoterFormModal` | "Tambah Voter" button, "Edit Voter" row option | Create new voter (with optional election enrollment) or edit existing voter's name/username/password |
 | `ConfirmModal` | "Hapus Voter" row option | Delete confirmation with per-row loading state |
+| `DeleteAllVotersModal` | "Hapus Semua Voter" header action (Super Admin only) | Typed-confirmation (`HAPUS SEMUA`) for bulk deletion of all voters (BR-19) |
 
 ## Semantic Tokens Used
 

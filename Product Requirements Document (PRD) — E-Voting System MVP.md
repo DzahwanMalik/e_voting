@@ -35,6 +35,7 @@ Dapat:
 - mengelola voter pada seluruh election;
 - menentukan Admin yang dapat mengelola election;
 - melihat result dan perolehan suara setiap kandidat (*candidate vote result*);
+- menghapus seluruh voter sekaligus (BR-19);
 - mereset seluruh data voting (BR-18).
 
 Super Admin dibuat melalui **seed** dan sistem hanya memiliki **satu Super Admin**.
@@ -56,6 +57,7 @@ Tidak dapat:
 
 - mengakses election yang tidak diberikan;
 - menentukan assignment Admin;
+- menghapus seluruh voter (BR-19);
 - melihat result maupun perolehan suara kandidat (*candidate vote result*).
 
 Admin dibuat oleh Super Admin.
@@ -487,6 +489,22 @@ Reset berlaku untuk semua election dan:
 - tidak mengubah master data;
 - dijalankan secara atomik.
 
+### BR-19 — Bulk Voter Deletion
+
+Hanya **Super Admin** yang dapat menghapus seluruh voter sekaligus.
+
+Ketika seluruh voter dihapus:
+
+- seluruh `User` dengan role `VOTER` dihapus;
+- seluruh data `ElectionVoter` milik voter tersebut ikut terhapus (cascade);
+- election, candidate, candidate pair, admin assignment, dan `Vote` yang sudah tercatat **tidak** diubah;
+- karena `Vote` bersifat anonim, vote yang sudah tercatat tetap dihitung pada result meskipun voter-nya sudah tidak ada;
+- operasi dijalankan secara atomik.
+
+Admin dan Voter dilarang mengakses operasi ini (403).
+
+Catatan: BR-19 **berbeda** dari BR-18 (Voting Data Reset). BR-18 mereset suara tanpa menghapus voter; BR-19 menghapus voter tanpa mereset suara.
+
 ---
 
 ## 12. Data Relationships
@@ -597,6 +615,9 @@ Tidak terdapat user registration mandiri dalam MVP.
 - Admin hanya dapat mendaftarkan voter pada election yang menjadi tanggung jawabnya.
 - Voter dapat dihapus dari election.
 - Jika voter dihapus setelah melakukan vote, vote yang sudah tercatat tetap berlaku.
+- Hanya Super Admin yang dapat menghapus seluruh voter sekaligus.
+- Admin dan Voter tidak dapat mengakses operasi hapus semua voter.
+- Hapus semua voter tidak menghapus election, candidate, candidate pair, maupun vote yang sudah tercatat.
 
 ### Voting
 
@@ -653,6 +674,7 @@ E-Voting System
 ├── 4. Voter Management
 │   ├── Voter Registration
 │   ├── Election Eligibility
+│   ├── Bulk Voter Deletion (Super Admin Only)
 │   └── Creator Scope Enforcement
 │
 ├── 5. Voting
@@ -755,6 +777,12 @@ Sistem mampu membuat user Voter. Voter dibuat oleh Super Admin atau Admin. Tidak
 Sistem mampu mendaftarkan dan menghapus voter dari election tertentu. Voter harus terdaftar pada election sebelum dapat voting. Jika voter dihapus setelah vote, vote yang sudah tercatat tetap berlaku.
 
 Terkait: BR-07, BR-16.
+
+**Bulk Voter Deletion**
+
+Sistem mampu menghapus seluruh voter sekaligus. Operasi ini hanya dapat dijalankan oleh Super Admin dan bersifat destruktif: akun voter beserta seluruh pendaftaran election-nya dihapus, sementara election, candidate, candidate pair, admin assignment, dan vote yang sudah tercatat tidak berubah. Karena vote anonim, vote yang sudah ada tetap dihitung pada result.
+
+Terkait: BR-19.
 
 **Creator Scope Enforcement**
 
@@ -895,3 +923,5 @@ Vote Aggregation                                                  ●
 Result Access                                                ●
 Voting Data Reset                                                                  ●
 ```
+
+> Catatan: **BR-19 (Bulk Voter Deletion)** berlaku pada capability *Voter Management* dan hanya dapat dijalankan oleh Super Admin.

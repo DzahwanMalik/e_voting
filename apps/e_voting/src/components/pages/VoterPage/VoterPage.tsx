@@ -8,10 +8,12 @@ import SectionCard from "@/components/molecules/SectionCard";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
 import VoterDetailModal from "@/components/organisms/VoterDetailModal";
 import VoterFormModal from "@/components/organisms/VoterFormModal";
+import DeleteAllVotersModal from "@/components/organisms/DeleteAllVotersModal";
 import { useUserStore } from "@/stores/useUserStore";
 import {
   getVotersApi,
   deleteVoterApi,
+  deleteAllVotersApi,
   type VoterListItem,
 } from "@/services/voter.service";
 import { formatDate } from "@/lib/utils";
@@ -35,6 +37,9 @@ const VoterPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editVoter, setEditVoter] = useState<VoterListItem | null>(null);
+
+  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
+  const [isDeletingAllVoters, setIsDeletingAllVoters] = useState(false);
 
   const isSuperAdmin = useUserStore((state) => state.isSuperAdmin());
   const currentUser = useUserStore((state) => state.user);
@@ -99,6 +104,33 @@ const VoterPage = () => {
   const handleConfirmDelete = () => {
     if (deleteConfirmVoter) {
       void handleDeleteVoter(deleteConfirmVoter);
+    }
+  };
+
+  const handleDeleteAllVoters = async () => {
+    setIsDeletingAllVoters(true);
+    try {
+      const response = await deleteAllVotersApi();
+      toast.success(response.message);
+
+      if (response.votedVoterCount > 0) {
+        toast.warning(
+          `${response.votedVoterCount} voter yang sudah memilih ikut terhapus. Vote tetap tersimpan dan tetap dihitung pada result.`,
+        );
+      }
+
+      setIsDeleteAllOpen(false);
+      setSearchQuery("");
+      setCurrentPage(1);
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Gagal menghapus seluruh voter.";
+      toast.error(message);
+    } finally {
+      setIsDeletingAllVoters(false);
     }
   };
 
@@ -278,7 +310,18 @@ const VoterPage = () => {
         {/* Voters Table Section */}
         <SectionCard title={`Daftar Pemilih (${totalItems})`} padding="none">
           <div className="p-4 sm:p-6 lg:p-8">
-            <div className="flex justify-end items-center mb-4">
+            <div className="flex flex-wrap justify-end items-center gap-2 mb-4">
+              {isSuperAdmin && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  icon={<Trash2 className="w-4 h-4" />}
+                  onClick={() => setIsDeleteAllOpen(true)}
+                  disabled={isLoading}
+                >
+                  Hapus Semua Voter
+                </Button>
+              )}
               <Button
                 variant="primary"
                 size="sm"
@@ -338,6 +381,16 @@ const VoterPage = () => {
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSaved={handleFormSaved}
+      />
+
+      {/* Delete All Voters Modal (Super Admin only — BR-19) */}
+      <DeleteAllVotersModal
+        key={isDeleteAllOpen ? "delete-all-open" : "delete-all-closed"}
+        isOpen={isDeleteAllOpen}
+        voterCount={debouncedSearchQuery ? undefined : totalItems}
+        isSubmitting={isDeletingAllVoters}
+        onClose={() => setIsDeleteAllOpen(false)}
+        onConfirm={handleDeleteAllVoters}
       />
 
       {/* Delete Confirmation Modal */}

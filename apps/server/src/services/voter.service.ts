@@ -26,6 +26,12 @@ interface GetVotersOptions {
   page?: number | undefined;
 }
 
+interface DeleteAllVotersResult {
+  deletedCount: number;
+  deletedEnrollmentCount: number;
+  votedVoterCount: number;
+}
+
 const createVoter = async (
   input: CreateVoterInput,
   creatorId: number,
@@ -513,6 +519,45 @@ const deleteVoter = async (
   await prisma.user.delete({
     where: { id: voterId },
   });
+};
+
+const deleteAllVoters = async (
+  role: UserRole,
+): Promise<DeleteAllVotersResult> => {
+  if (role !== UserRole.SUPER_ADMIN) {
+    throw new AppError(
+      "Forbidden: Hanya Super Admin yang dapat menghapus seluruh voter.",
+      403,
+    );
+  }
+
+  return prisma.$transaction(
+    async (tx) => {
+      const deletedEnrollmentCount = await tx.electionVoter.count({
+        where: {
+          user: { role: UserRole.VOTER },
+        },
+      });
+
+      const votedVoterCount = await tx.electionVoter.count({
+        where: {
+          user: { role: UserRole.VOTER },
+          hasVoted: true,
+        },
+      });
+
+      const result = await tx.user.deleteMany({
+        where: { role: UserRole.VOTER },
+      });
+
+      return {
+        deletedCount: result.count,
+        deletedEnrollmentCount,
+        votedVoterCount,
+      };
+    },
+    { timeout: 15000 },
+  );
 };
 
 const enrollVotersToElection = async (
@@ -1185,6 +1230,7 @@ const importVotersFromExcel = async (
 };
 
 export type { CreateVoterInput, UpdateVoterInput, GetVotersOptions };
+export type { DeleteAllVotersResult };
 export type { ImportVotersFromExcelInput, ImportVotersResult };
 export {
   createVoter,
@@ -1192,6 +1238,7 @@ export {
   getVoterById,
   updateVoter,
   deleteVoter,
+  deleteAllVoters,
   enrollVotersToElection,
   enrollVoterToElections,
   removeVoterFromElection,

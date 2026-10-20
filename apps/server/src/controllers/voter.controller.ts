@@ -242,6 +242,35 @@ const deleteVoter = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const deleteAllVoters = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: "User belum terautentikasi." });
+      return;
+    }
+
+    const result = await voterService.deleteAllVoters(req.user.role);
+
+    res.status(200).json({
+      message:
+        result.deletedCount > 0
+          ? `${result.deletedCount} voter berhasil dihapus.`
+          : "Tidak ada voter yang dapat dihapus.",
+      ...result,
+    });
+  } catch (error) {
+    if (isAppError(error)) {
+      res.status(error.statusCode).json({ message: error.message });
+      return;
+    }
+    console.error("Error deleting all voters:", error);
+    res.status(500).json({ message: "Terjadi kesalahan pada server." });
+  }
+};
+
 const enrollVoters = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
@@ -481,6 +510,7 @@ export {
   getVoterById,
   updateVoter,
   deleteVoter,
+  deleteAllVoters,
   enrollVoters,
   removeVoterFromElection,
   getElectionVoters,

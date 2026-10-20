@@ -74,6 +74,13 @@ interface ImportVotersResponse {
   importStats: ImportStats;
 }
 
+interface DeleteAllVotersResponse {
+  message: string;
+  deletedCount: number;
+  deletedEnrollmentCount: number;
+  votedVoterCount: number;
+}
+
 const getVotersApi = async (params?: {
   electionId?: number;
   search?: string;
@@ -163,6 +170,18 @@ const deleteVoterApi = async (id: number): Promise<VoterApiMessage> => {
   }
 };
 
+const deleteAllVotersApi = async (): Promise<DeleteAllVotersResponse> => {
+  try {
+    const response = await api.delete<DeleteAllVotersResponse>("/voters");
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message as string, { cause: error });
+    }
+    throw error;
+  }
+};
+
 const enrollVoterToElectionsApi = async (
   voterId: number,
   electionIds: number[],
@@ -236,6 +255,7 @@ export type {
   ElectionInfo,
   ImportVotersResponse,
   ImportStats,
+  DeleteAllVotersResponse,
 };
 
 export {
@@ -244,6 +264,7 @@ export {
   createVoterApi,
   updateVoterApi,
   deleteVoterApi,
+  deleteAllVotersApi,
   enrollVoterToElectionsApi,
   removeVoterFromElectionApi,
   importVotersFromExcelApi,

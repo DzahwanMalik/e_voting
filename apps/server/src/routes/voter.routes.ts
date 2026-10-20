@@ -8,6 +8,7 @@ import {
   getVoterById,
   updateVoter,
   deleteVoter,
+  deleteAllVoters,
   enrollVoterToElections,
   removeVoterFromElection,
 } from "../controllers/voter.controller";
@@ -33,6 +34,13 @@ router.put(
   authenticate,
   requireRole(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   updateVoter,
+);
+// Bulk deletion is restricted to SUPER_ADMIN only (BR-19)
+router.delete(
+  "/",
+  authenticate,
+  requireRole(UserRole.SUPER_ADMIN),
+  deleteAllVoters,
 );
 router.delete(
   "/:id",
