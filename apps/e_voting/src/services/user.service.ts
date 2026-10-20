@@ -7,14 +7,6 @@ interface AdminUser {
   name: string | null;
   role: string;
   createdAt: string;
-}
-
-interface AdminUserDetail {
-  id: number;
-  username: string;
-  name: string | null;
-  role: string;
-  createdAt: string;
   updatedAt: string;
 }
 
@@ -23,7 +15,7 @@ interface GetAdminsResponse {
 }
 
 interface GetAdminResponse {
-  admin: AdminUserDetail;
+  admin: AdminUser;
 }
 
 interface CreateAdminPayload {
@@ -40,7 +32,7 @@ interface UpdateAdminPayload {
 
 interface AdminMessageResponse {
   message: string;
-  admin: AdminUserDetail;
+  admin: AdminUser;
 }
 
 interface AdminDeleteResponse {
@@ -59,7 +51,7 @@ const getAllAdminsApi = async (): Promise<AdminUser[]> => {
   }
 };
 
-const getAdminByIdApi = async (id: number): Promise<AdminUserDetail> => {
+const getAdminByIdApi = async (id: number): Promise<AdminUser> => {
   try {
     const response = await api.get<GetAdminResponse>(`/users/admins/${id}`);
     return response.data.admin;
@@ -122,7 +114,6 @@ const deleteAdminApi = async (id: number): Promise<AdminDeleteResponse> => {
 
 export type {
   AdminUser,
-  AdminUserDetail,
   GetAdminsResponse,
   GetAdminResponse,
   CreateAdminPayload,

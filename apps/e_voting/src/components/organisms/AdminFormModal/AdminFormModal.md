@@ -21,7 +21,7 @@ Per PRD Section 13: "Admin → dibuat oleh Super Admin".
 | Prop | Type | Description |
 | :--- | :--- | :--- |
 | `mode` | `"create" \| "edit"` | Form mode controls field requirements and title |
-| `admin` | `AdminUserDetail \| null` | Admin data for edit mode; `null` in create mode |
+| `admin` | `AdminUser \| null` | Admin row for edit mode; `null` in create mode |
 | `isOpen` | `boolean` | Modal visibility |
 | `onClose` | `() => void` | Dismiss callback (disabled while submitting) |
 | `onSaved` | `() => void` | Called after successful create/update — triggers parent to refetch list |

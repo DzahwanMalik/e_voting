@@ -13,6 +13,15 @@ Route container khusus untuk peran **Voter**. Merender `<VoterDashboard />` di d
 
 None. Self-contained page component yang membaca Zustand store untuk `user` dan `displayName`.
 
+## Candidate Photos
+
+Halaman ini tidak merender `<img>` secara langsung. Foto kandidat muncul melalui:
+
+- `VoterDashboard` → `VoterElectionCard` → `CandidateRadioCard`: foto kampanye pasangan (`CandidatePair.photoUrl`) dengan fallback inisial. Klik foto membuka full-size preview lewat molecule `ImagePreview`.
+- `CandidatePairDetailModal`: foto calon (`candidate.photoUrl`), wakil (`vice.photoUrl`), dan foto pasangan (`pair.photoUrl`), semuanya bisa diklik untuk full-size preview.
+
+Karena itu, penyesuaian preview foto voter terpusat di `CandidateRadioCard`, `CandidatePairDetailModal`, dan `ImagePreview`.
+
 ## Semantic Tokens Used
 
 - Outer Canvas & Shell: `bg-background`, `bg-card`, `border-border`, `shadow-xs`

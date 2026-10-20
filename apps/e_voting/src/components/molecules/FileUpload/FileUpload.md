@@ -4,7 +4,11 @@ A file input molecule styled like the `Input` atom. It displays the selected
 file name in a read-only field and shows a clear (X) button on the right when
 a file is present.
 
-Has built-in client-side validation for file size and type.
+Has built-in client-side validation for file size and type, using the shared
+`validateFile()` / `formatBytes()` utilities from `@/lib/utils`.
+
+For image uploads that need an existing-photo preview and remove/undo actions,
+use the `ImageUpload` molecule instead.
 
 ## Anatomy
 

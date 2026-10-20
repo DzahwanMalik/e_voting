@@ -5,16 +5,16 @@
 
 ## Purpose
 
-Dialog modal form for creating or editing a **candidate pair** (paslon). Wraps the `<Modal>` molecule and uses **React Hook Form + Zod** for form validation, plus the `<Select>` molecule (from `@/components/molecules/Select`) for the election dropdown. Follows the same patterns as `VoterFormModal`.
+Dialog modal form for creating or editing a **candidate pair** (paslon). Wraps the `<Modal>` molecule and uses **React Hook Form + Zod** for form validation, plus the `<Select>` molecule (from `@/components/molecules/Select`) for the election dropdown and the `<DatePicker>` molecule (from `@/components/molecules/DatePicker`) for birthday fields. Follows the same patterns as `VoterFormModal`.
 
 Per PRD Section 5 (Candidate) and §15.3 (Candidate Management), with reference to BR-09 (Candidate Ownership) and BR-15 (Candidate Update):
 
 - **Create mode** (Super Admin + Admin): Allows selecting an election from a dropdown (fetched via `getElectionsApi`), then fills calon/vice details, shared vision/mission, and optional photos. The election dropdown is filtered by the backend to only elections the user can manage.
-- **Edit mode** (Super Admin + Admin): Pre-fills all fields from the selected pair.
+- **Edit mode** (Super Admin + Admin): Pre-fills all fields from the selected pair row. **No election list is fetched** — the pair already belongs to an election and the backend does not allow moving a pair between elections. The pair's election is displayed read-only (`pair.election.title`) for context.
 
 ### Photo Upload Handling
 
-Three photo fields are managed via a local `PairPhotoUploader` sub-component that wraps the shared `FileUpload` molecule (`@/components/molecules/FileUpload`):
+Three photo fields are managed via the shared `ImageUpload` molecule (`@/components/molecules/ImageUpload`):
 
 | Photo | Source Field | Notes |
 | :--- | :--- | :--- |
@@ -22,28 +22,32 @@ Three photo fields are managed via a local `PairPhotoUploader` sub-component tha
 | Foto Wakil | `pair.vice.photoUrl` | Individual vice profile photo |
 | Foto Pasangan | `pair.photoUrl` | Shared campaign photo |
 
-States per photo:
+States per photo (`ImageUploadValue`):
 - **No change** (edit mode, untouched): `file=null, removed=false` → omitted from payload → backend skips
-- **New file selected** (via `FileUpload`): `file=<File>` → appended as multipart `File`
+- **New file selected**: `file=<File>` → appended as multipart `File`
 - **Marked for removal**: `removed=true` → appended as `"null"` string → backend sets to `null`
 
 Photos are uploaded via Multer + Cloudinary (backend `uploadCandidatePhotos` middleware). The frontend builds `FormData` using the shared `buildCandidatePairFormData` helper (called internally by `createCandidatePairApi`/`updateCandidatePairApi`).
 
-The `PairPhotoUploader` renders:
+The `ImageUpload` renders:
 1. A **label** for the photo field
-2. A `FileUpload` text-style input for selecting a replacement photo file (with 5MB size limit + image type validation)
-3. A **delete button** ("Hapus") that appears only in edit mode when an existing photo URL is present and no new file has been selected — marks the photo for removal from the API on submit
+2. A **thumbnail preview** (existing remote photo or newly selected file). Clicking it opens the full-size `ImagePreview` lightbox.
+3. File metadata (name + size for a new file, or "Foto saat ini")
+4. **Pilih Foto / Ganti Foto**, **Batalkan** (when a new file is selected), and **Hapus / Batalkan Hapus** (for an existing photo) actions
 
-### Delete Button (Remove Existing Photo)
+Client-side validation: 5 MB max, `image/jpeg`, `image/png`, `image/gif`, `image/webp`.
 
-The delete button (`canDelete` prop) is shown only in **edit mode** when:
-- An `existingUrl` is present (photo exists in the API)
-- No new file has been selected (`!value.file`)
-- Removal hasn't already been triggered (`!value.removed`)
+### Photo Removal
 
-Clicking "Hapus" sets `removed: true` → on form submit, `photoToPayload()` returns `null` → sent to backend as `"null"` → backend deletes the existing image and sets the URL to `null`.
+"Hapus" is shown when an `existingUrl` is present and no new file is selected. Clicking it sets `removed: true` → on form submit, `photoToPayload()` returns `null` → sent to backend as `"null"` → backend sets the URL to `null`. After removal is marked, the UI offers **Batalkan Hapus** to restore the existing photo without leaving the modal.
 
-> **Note:** The component no longer renders a preview image box or initials avatar. The UI is simplified to just the file upload input and the remove button. To undo a pending removal, simply select a new file via the `FileUpload` input (which resets `removed` to `false`).
+### Date Fields (DatePicker)
+
+`candidateBirthday` and `viceBirthday` use the `DatePicker` molecule instead of a native `<input type="date">`:
+
+- The trigger is read-only (calendar popover) — users select the day, month, and year from the popover; they cannot type into it.
+- Both fields are bound through React Hook Form's `<Controller>` because `DatePicker` is a controlled component (`value` + `onChange`).
+- The API returns `birthday` as an ISO datetime (e.g. `1990-05-20T00:00:00.000Z`). On edit, the value is normalized with `toDateInputValue()` from `@/lib/utils` before `reset()`, so the picker receives the required `YYYY-MM-DD` format and displays the existing birthday.
 
 ### String Trimming
 
@@ -52,16 +56,17 @@ Per frontend guideline Aturan 7, all string inputs are trimmed before submission
 ## Imports
 
 - `<Select>` molecule from `@/components/molecules/Select` — custom dropdown with internal popover UI for the election dropdown (Create mode only). Parent passes `options` array; all dropdown open/close, positioning, and click-outside behavior are handled internally.
-- `<Input>` atom from `@/components/atoms/Input` — for text and date fields.
+- `<Input>` atom from `@/components/atoms/Input` — for text fields.
+- `<DatePicker>` molecule from `@/components/molecules/DatePicker` — calendar-popover birthday selection (read-only trigger, no typing).
 - `<FormField>` molecule from `@/components/molecules/FormField` — label + error/hint wrapper.
-- `<FileUpload>` molecule from `@/components/molecules/FileUpload` — photo file selection.
+- `<ImageUpload>` molecule from `@/components/molecules/ImageUpload` — photo selection, thumbnail preview, and remove/undo actions (composes `ImagePreview`).
 - `<Modal>` molecule from `@/components/molecules/Modal` — dialog container.
 - `<LoadingState>` / `<EmptyState>` molecules — election dropdown loading and empty states.
 
 ## Props
 
 - `mode`: `"create" | "edit"`
-- `pair`: `CandidatePair \| null` — the pair to edit (null in create mode)
+- `pair`: `CandidatePairListItem \| null` — the pair row to edit (null in create mode); includes optional `election { id, title }` used for the read-only election info in edit mode
 - `isOpen`: `boolean` modal visibility
 - `onClose`: `() => void` dismiss callback
 - `onSaved`: `() => void` called after successful create/update to trigger parent refresh
@@ -70,16 +75,16 @@ Per frontend guideline Aturan 7, all string inputs are trimmed before submission
 
 | Field | Element | Validation | Required? |
 | :--- | :--- | :--- | :--- |
-| `electionId` | `<Select>` atom | non-zero number | Create only |
+| `electionId` | `<Select>` atom (create) / read-only info (edit) | non-zero number | Create only |
 | `candidateName` | `<Input>` | `.min(1)`, trimmed | Yes |
-| `candidateBirthday` | `<Input type="date">` | valid date | Yes |
+| `candidateBirthday` | `<DatePicker>` | valid date (`YYYY-MM-DD`) | Yes |
 | `candidateDescription` | `<Input>` | optional | No |
-| `candidatePhoto` | `PairPhotoUploader` → `FileUpload` | image file, 5MB max | No |
+| `candidatePhoto` | `<ImageUpload>` | image file, 5MB max | No |
 | `viceName` | `<Input>` | `.min(1)`, trimmed | Yes |
-| `viceBirthday` | `<Input type="date">` | valid date | Yes |
+| `viceBirthday` | `<DatePicker>` | valid date (`YYYY-MM-DD`) | Yes |
 | `viceDescription` | `<Input>` | optional | No |
-| `vicePhoto` | `PairPhotoUploader` → `FileUpload` | image file, 5MB max | No |
-| `pairPhoto` | `PairPhotoUploader` → `FileUpload` | image file, 5MB max | No |
+| `vicePhoto` | `<ImageUpload>` | image file, 5MB max | No |
+| `pairPhoto` | `<ImageUpload>` | image file, 5MB max | No |
 | `vision` | `<textarea>` | `.min(1)`, trimmed | Yes |
 | `mission` | `<textarea>` | `.min(1)`, trimmed | Yes |
 
@@ -88,8 +93,10 @@ Per frontend guideline Aturan 7, all string inputs are trimmed before submission
 - Form fields: `bg-card`, `text-foreground`, `border-input`, `border-destructive`, `placeholder:text-muted-foreground`, `focus:ring-primary`
 - Section headings: `text-muted-foreground`
 - Action buttons: `bg-primary`/`text-primary-foreground` (submit), `bg-transparent`/`text-foreground` (cancel)
-- Photo label: `text-muted-foreground`
-- Delete button: `text-destructive`, `border-border`, `hover:bg-destructive/10`
+- Photo label & hint: `text-muted-foreground`
+- Photo preview/placeholder: `bg-muted`, `bg-muted/40`, `border-border`
+- Delete action: `text-destructive`, `hover:bg-destructive/10`
+- Photo lightbox: `bg-foreground/80`, `bg-card`, `text-foreground`
 
 ## Code Example
 

@@ -317,7 +317,7 @@ const handleAction = async () => {
 ```text
 src/components/
 ├── atoms/        # Elemen primitif (Button, Input, Label, Badge, Avatar, Checkbox)
-├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, LoadingState, EmptyState, Modal, ConfirmModal)
+├── molecules/    # Kombinasi 2+ atom (FormField, NavItem, StatItem, StatCard, LoadingState, EmptyState, Modal, ConfirmModal, DatePicker, FileUpload, ImageUpload, ImagePreview)
 ├── organisms/    # Blok fungsional (LoginForm, Sidebar, Header, DataTable, CandidatePairDetailModal, VoteConfirmModal, AdminAssignmentModal, ElectionResultModal, ElectionDetailModal, AdminDashboard, VoterDashboard)
 ├── layouts/      # Struktur shell & skeleton (AuthLayout, VoterDashboardLayout, AdminDashboardLayout, ProtectedRoute, PublicRoute)
 └── pages/        # Route view + business logic + data fetching (LoginPage, VoterDashboardPage, AdminShellPage, ElectionPage, NotFoundPage)
@@ -547,7 +547,30 @@ const SuperAdminDashboard = () => {
 import { formatDate } from "@/lib/utils/date";
 ```
 
-### 7.4 `src/lib/axios.ts` — Axios Instance (Client Config)
+### 7.4 Aturan 12: Sumber Data Edit & Detail — Row-First
+
+> **Jika payload endpoint list sudah memuat seluruh field yang dibutuhkan form edit atau modal detail, gunakan data row secara langsung (`setEditX(row)` / `setDetailX(row)`). Dilarang melakukan fetch ulang by-ID hanya untuk membuka form edit/detail. Fetch by-ID hanya boleh digunakan bila endpoint list mengembalikan ringkasan (summary) yang kekurangan field.**
+
+- Tujuan: menghindari request redundan, latensi/flicker saat modal dibuka, dan race condition ketika user mengklik beberapa row secara berurutan.
+- Tipe props form/detail modal harus menerima tipe row list yang sama (mis. `AdminUser`, `ElectionListItem`), bukan tipe detail terpisah yang duplikatif — kecuali memang ada field tambahan yang hanya tersedia di endpoint detail.
+- Fetch by-ID tetap sah untuk kebutuhan yang memang butuh data segar/relasional di luar payload list (mis. memuat relasi yang tidak di-`include` pada list).
+
+```tsx
+// ❌ SALAH — fetch ulang padahal row sudah lengkap
+const handleEdit = async (admin: AdminUser) => {
+  const data = await getAdminByIdApi(admin.id);
+  setEditAdmin(data);
+  setIsFormOpen(true);
+};
+
+// ✅ BENAR — row-first
+const handleEdit = (admin: AdminUser) => {
+  setEditAdmin(admin);
+  setIsFormOpen(true);
+};
+```
+
+### 7.5 `src/lib/axios.ts` — Axios Instance (Client Config)
 
 File konfigurasi third-party client seperti Axios instance beserta interceptors (menggunakan bottom export):
 
@@ -1503,7 +1526,7 @@ export default AdminDashboard;
 
 | Entitas           | Konvensi                                 | Contoh                                                                                                                                           |
 | :---------------- | :--------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Komponen          | PascalCase                               | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu`, `Modal`, `ConfirmModal` |
+| Komponen          | PascalCase                               | `LoginForm`, `VoterDashboardPage`, `AdminShellPage`, `LoadingState`, `EmptyState`, `Badge`, `DataTable`, `DropdownMenu`, `Modal`, `ConfirmModal`, `DatePicker`, `ImageUpload`, `ImagePreview` |
 | File komponen     | PascalCase.tsx (export default di bawah) | `LoginForm.tsx`                                                                                                                                  |
 | File types        | PascalCase.types.ts (export type {...})  | `LoginForm.types.ts`                                                                                                                             |
 | File schema       | PascalCase.schema.ts                     | `LoginForm.schema.ts`                                                                                                                            |

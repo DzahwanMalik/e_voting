@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Calendar, Compass, Target, User } from "lucide-react";
+import { Calendar, Camera, Compass, Target, User } from "lucide-react";
 import Button from "@/components/atoms/Button";
+import ImagePreview from "@/components/molecules/ImagePreview";
 import Modal from "@/components/molecules/Modal";
 import type { CandidatePairDetailModalProps } from "./CandidatePairDetailModal.types";
 
@@ -54,16 +55,16 @@ const CandidatePairDetailModal = ({
 
     if (photoUrl && !hasError) {
       return (
-        <div className={`bg-muted border border-border shrink-0 ${sizeClass}`}>
-          <img
-            src={photoUrl}
-            alt={name}
-            onError={() =>
-              setFailedCandidateIds((prev) => new Set([...prev, id]))
-            }
-            className="w-full h-full object-cover object-top rounded-2xl"
-          />
-        </div>
+        <ImagePreview
+          src={photoUrl}
+          alt={name}
+          caption={name}
+          onError={() =>
+            setFailedCandidateIds((prev) => new Set([...prev, id]))
+          }
+          className={`bg-muted border border-border shrink-0 ${sizeClass}`}
+          imageClassName="w-full h-full object-cover object-top"
+        />
       );
     }
 
@@ -138,6 +139,23 @@ const CandidatePairDetailModal = ({
             </p>
           </div>
         </div>
+
+        {/* Pair Photo */}
+        {candidatePair.photoUrl && (
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground uppercase tracking-wider">
+              <Camera className="w-4 h-4 text-primary" />
+              <span>Foto Pasangan</span>
+            </div>
+            <ImagePreview
+              src={candidatePair.photoUrl}
+              alt={`${calon.name} & ${wakil.name}`}
+              caption={`${calon.name} & ${wakil.name}`}
+              className="w-full aspect-video rounded-2xl border border-border"
+              imageClassName="w-full h-full object-cover object-center"
+            />
+          </div>
+        )}
 
         {/* Visi Section (Shared) */}
         <div className="space-y-2.5">

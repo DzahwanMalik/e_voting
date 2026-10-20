@@ -19,6 +19,7 @@ Modular view organism for the Voter role. Encapsulates eligible elections retrie
 - Uses `<SectionCard>` molecule for the welcome banner card shell
 - Composes `<VoterElectionCard>` organisms (each using SectionCard internally) in a responsive grid
 - Uses `<LoadingState>` and `<EmptyState>` molecules directly (no card wrapper) for async/empty states
+- Renders `<CandidatePairDetailModal>`, whose candidate/vice/pair photos use the `<ImagePreview>` molecule for full-size preview
 
 ## Code Example
 ```tsx

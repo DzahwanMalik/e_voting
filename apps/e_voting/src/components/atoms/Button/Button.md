@@ -9,7 +9,7 @@ The `Button` component provides standard interactive trigger elements with suppo
 ## Props & Variants
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `variant` | `'primary' \| 'secondary' \| 'outline' \| 'ghost' \| 'destructive'` | `'primary'` | Visual aesthetic variant |
+| `variant` | `'primary' \| 'secondary' \| 'outline' \| 'ghost' \| 'destructive' \| 'destructive-ghost'` | `'primary'` | Visual aesthetic variant |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Height and padding scale |
 | `isLoading` | `boolean` | `false` | Displays spinning indicator on the left and disables click |
 | `icon` | `ReactNode` | `undefined` | Icon element positioned on the left |
@@ -19,6 +19,7 @@ The `Button` component provides standard interactive trigger elements with suppo
 - Primary: `bg-primary`, `hover:bg-primary-hover`, `text-primary-foreground`
 - Secondary: `bg-secondary`, `text-secondary-foreground`, `hover:bg-accent`
 - Outline: `border-border`, `text-foreground`, `hover:bg-accent`
+- Destructive ghost: `text-destructive`, `hover:bg-destructive/10`
 - Radius: `rounded-xl`
 - Focus: `focus:ring-2 focus:ring-ring focus:ring-offset-2`
 

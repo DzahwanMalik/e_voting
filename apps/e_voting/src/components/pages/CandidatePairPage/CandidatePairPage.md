@@ -57,7 +57,7 @@ None. Self-contained page component that reads all state from `useUserStore`.
 | Modal                      | Trigger                                          | Purpose                                                                                                                                                  |
 | :------------------------- | :----------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `CandidatePairDetailModal` | "Lihat Detail" row option                        | Reused organism — read-only pair profile (calon + wakil photos, names, birthdays, descriptions, shared vision/mission). Inspection-only, no vote action. |
-| `CandidatePairFormModal`   | "Tambah Paslon" button, "Edit Paslon" row option | Create new pair (election dropdown + calon/vice fields + photos + vision/mission) or edit existing pair                                                  |
+| `CandidatePairFormModal`   | "Tambah Paslon" button, "Edit Paslon" row option | Create new pair (election dropdown + calon/vice fields + photos + vision/mission) or edit existing pair. Edit mode uses the row's `election` as read-only info and does **not** fetch the election list |
 | `ConfirmModal`             | "Hapus Paslon" row option                        | Delete confirmation with per-row loading state (`isDeletingId`)                                                                                          |
 
 ## Semantic Tokens Used

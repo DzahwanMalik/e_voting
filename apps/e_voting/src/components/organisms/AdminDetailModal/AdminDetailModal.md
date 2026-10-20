@@ -11,7 +11,7 @@ Dialog modal for viewing Admin user details. Shows username, name, role badge, a
 
 | Prop | Type | Description |
 | :--- | :--- | :--- |
-| `admin` | `AdminUserDetail` | Admin data to display |
+| `admin` | `AdminUser \| null` | Admin row to display; renders nothing when `null` |
 | `isOpen` | `boolean` | Modal visibility |
 | `onClose` | `() => void` | Dismiss callback |
 
@@ -27,7 +27,7 @@ Dialog modal for viewing Admin user details. Shows username, name, role badge, a
 - Molecules: `Modal`
 - Icons: `Calendar`, `Clock`, `Shield` (from `lucide-react`)
 - Utilities: `formatDate` (from `@/lib/utils`)
-- Services: `AdminUserDetail` type (from `@/services/user.service`)
+- Services: `AdminUser` type (from `@/services/user.service`)
 
 ## Semantic Tokens Used
 

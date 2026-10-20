@@ -15,22 +15,20 @@ Per PRD Section 2.1 ("mengelola user") and Section 13 ("Admin → dibuat oleh Su
 | :--- | :--- | :--- |
 | `admins` | `AdminUser[]` | List of admins for the table |
 | `isLoading` | `boolean` | Initial load + refresh state |
-| `searchQuery` | `string` | Search filter for username/name |
 | `refreshKey` | `number` | Trigger refetch after mutations |
 | `isDeletingId` | `number \| null` | Tracks which admin is being deleted |
 | `deleteConfirmAdmin` | `AdminUser \| null` | Admin pending delete confirmation |
-| `detailAdmin` | `AdminUserDetail \| null` | Admin for detail modal |
-| `detailAdminId` | `number \| null` | Queued admin ID for detail fetch |
+| `detailAdmin` | `AdminUser \| null` | Admin row passed directly to detail modal |
 | `isFormOpen` | `boolean` | Admin form modal visibility |
 | `formMode` | `"create" \| "edit"` | Form mode |
-| `editAdmin` | `AdminUserDetail \| null` | Admin data for edit form |
+| `editAdmin` | `AdminUser \| null` | Admin row passed directly to edit form |
 
 ## Behavior
 
 1. On mount / `refreshKey` change → `getAllAdminsApi()` fetches all admins.
 2. **Create**: "Tambah Admin" button opens `AdminFormModal` in create mode → `POST /users/admins`.
-3. **View Detail**: "Lihat Detail" row option opens `AdminDetailModal` → `GET /users/admins/:id`.
-4. **Edit**: "Edit Admin" row option fetches detail via `GET /users/admins/:id`, then opens `AdminFormModal` in edit mode → `PUT /users/admins/:id`.
+3. **View Detail**: "Lihat Detail" row option opens `AdminDetailModal` using the row data directly (no extra request, since `GET /users/admins` already returns every field the modal needs).
+4. **Edit**: "Edit Admin" row option opens `AdminFormModal` in edit mode using the row data directly (no extra request) → `PUT /users/admins/:id`.
 5. **Delete**: "Hapus Admin" row option opens `ConfirmModal` → `DELETE /users/admins/:id`.
 6. After any mutation → `onSaved` triggers `refreshKey` increment → refetch list.
 
@@ -39,7 +37,7 @@ Per PRD Section 2.1 ("mengelola user") and Section 13 ("Admin → dibuat oleh Su
 - Atoms: `Badge`, `Button`, `Input`
 - Molecules: `SectionCard`, `LoadingState`, `ConfirmModal`
 - Organisms: `DataTable`, `AdminFormModal`, `AdminDetailModal`
-- Services: `getAllAdminsApi`, `getAdminByIdApi`, `deleteAdminApi` (from `@/services/user.service`)
+- Services: `getAllAdminsApi`, `deleteAdminApi` (from `@/services/user.service`)
 - Utilities: `formatDate` (from `@/lib/utils`)
 - Stores: `useUserStore` (for role checks, if needed)
 

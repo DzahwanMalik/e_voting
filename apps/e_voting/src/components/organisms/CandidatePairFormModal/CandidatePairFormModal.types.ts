@@ -1,10 +1,10 @@
-import type { CandidatePair } from "@/services/election.service";
+import type { CandidatePairListItem } from "@/services/election.service";
 
 type CandidatePairFormMode = "create" | "edit";
 
 interface CandidatePairFormModalProps {
   mode: CandidatePairFormMode;
-  pair: CandidatePair | null;
+  pair: CandidatePairListItem | null;
   isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;

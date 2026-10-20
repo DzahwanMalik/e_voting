@@ -1,10 +1,10 @@
-import type { AdminUserDetail } from "@/services/user.service";
+import type { AdminUser } from "@/services/user.service";
 
 type AdminFormMode = "create" | "edit";
 
 interface AdminFormModalProps {
   mode: AdminFormMode;
-  admin: AdminUserDetail | null;
+  admin: AdminUser | null;
   isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;

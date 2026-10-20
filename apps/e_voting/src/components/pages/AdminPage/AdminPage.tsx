@@ -10,10 +10,8 @@ import AdminFormModal from "@/components/organisms/AdminFormModal";
 import AdminDetailModal from "@/components/organisms/AdminDetailModal";
 import {
   getAllAdminsApi,
-  getAdminByIdApi,
   deleteAdminApi,
   type AdminUser,
-  type AdminUserDetail,
 } from "@/services/user.service";
 import { formatDate } from "@/lib/utils";
 
@@ -26,12 +24,11 @@ const AdminPage = () => {
   const [deleteConfirmAdmin, setDeleteConfirmAdmin] =
     useState<AdminUser | null>(null);
 
-  const [detailAdmin, setDetailAdmin] = useState<AdminUserDetail | null>(null);
-  const [detailAdminId, setDetailAdminId] = useState<number | null>(null);
+  const [detailAdmin, setDetailAdmin] = useState<AdminUser | null>(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
-  const [editAdmin, setEditAdmin] = useState<AdminUserDetail | null>(null);
+  const [editAdmin, setEditAdmin] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,51 +61,10 @@ const AdminPage = () => {
     };
   }, [refreshKey]);
 
-  // Fetch admin detail for view modal
-  useEffect(() => {
-    if (!detailAdminId) return;
-
-    let isMounted = true;
-
-    const fetchDetail = async () => {
-      try {
-        const data = await getAdminByIdApi(detailAdminId);
-        if (isMounted) {
-          setDetailAdmin(data);
-        }
-      } catch (error) {
-        if (isMounted) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : "Gagal memuat detail admin.";
-          toast.error(message);
-        }
-      } finally {
-        if (isMounted) {
-          setDetailAdminId(null);
-        }
-      }
-    };
-
-    void fetchDetail();
-    return () => {
-      isMounted = false;
-    };
-  }, [detailAdminId]);
-
-  // Fetch admin detail for edit form
-  const handleEdit = async (admin: AdminUser) => {
-    try {
-      const data = await getAdminByIdApi(admin.id);
-      setFormMode("edit");
-      setEditAdmin(data);
-      setIsFormOpen(true);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Gagal memuat detail admin.";
-      toast.error(message);
-    }
+  const handleEdit = (admin: AdminUser) => {
+    setFormMode("edit");
+    setEditAdmin(admin);
+    setIsFormOpen(true);
   };
 
   const handleCreate = () => {
@@ -117,9 +73,8 @@ const AdminPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleViewDetail = (adminId: number) => {
-    setDetailAdmin(null);
-    setDetailAdminId(adminId);
+  const handleViewDetail = (admin: AdminUser) => {
+    setDetailAdmin(admin);
   };
 
   const handleDeleteAdmin = async (admin: AdminUser) => {
@@ -172,7 +127,7 @@ const AdminPage = () => {
       key: "username",
       header: "Username",
       cell: (row: AdminUser) => (
-        <span className="text-muted-foreground">@{row.username}</span>
+        <span className="text-muted-foreground">{row.username}</span>
       ),
     },
     {
@@ -200,14 +155,12 @@ const AdminPage = () => {
     {
       label: "Lihat Detail",
       icon: <Layers className="w-4 h-4" />,
-      onClick: (row: AdminUser) => handleViewDetail(row.id),
+      onClick: (row: AdminUser) => handleViewDetail(row),
     },
     {
       label: "Edit Admin",
       icon: <Edit className="w-4 h-4" />,
-      onClick: (row: AdminUser) => {
-        void handleEdit(row);
-      },
+      onClick: (row: AdminUser) => handleEdit(row),
     },
     {
       label: "Hapus Admin",

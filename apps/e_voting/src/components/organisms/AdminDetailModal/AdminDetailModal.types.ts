@@ -1,7 +1,7 @@
-import type { AdminUserDetail } from "@/services/user.service";
+import type { AdminUser } from "@/services/user.service";
 
 interface AdminDetailModalProps {
-  admin: AdminUserDetail | null;
+  admin: AdminUser | null;
   isOpen: boolean;
   onClose: () => void;
 }

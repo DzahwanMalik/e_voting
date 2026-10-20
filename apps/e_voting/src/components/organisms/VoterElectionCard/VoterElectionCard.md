@@ -13,6 +13,7 @@ Comprehensive card container representing a single election per voter requiremen
 
 ## Notes on View Layout
 - All candidate pairs are rendered as radio list items for consistent, single-selection voting regardless of the number of elections.
+- Each pair row (`CandidateRadioCard`) shows the pair-level campaign photo (`CandidatePair.photoUrl`) with initials fallback; clicking the photo opens a full-size `ImagePreview` lightbox without changing the radio selection. Individual candidate/vice photos are shown in the detail modal.
 - When the election list response does not include candidate pairs, the card lazily fetches them via `getElectionByIdApi`.
 
 ## API Integration

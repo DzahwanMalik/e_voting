@@ -1,16 +1,20 @@
 ﻿import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, Calendar as CalendarIcon, FileText } from "lucide-react";
+import { User, Calendar as CalendarIcon, FileText, Layers } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Textarea from "@/components/atoms/Textarea";
 import Select from "@/components/molecules/Select";
+import DatePicker from "@/components/molecules/DatePicker";
 import FormField from "@/components/molecules/FormField";
-import FileUpload from "@/components/molecules/FileUpload";
+import ImageUpload, {
+  type ImageUploadValue,
+} from "@/components/molecules/ImageUpload";
 import LoadingState from "@/components/molecules/LoadingState";
 import EmptyState from "@/components/molecules/EmptyState";
 import Modal from "@/components/molecules/Modal";
+import { toDateInputValue } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   createCandidatePairApi,
@@ -24,62 +28,6 @@ import {
   type CandidatePairFormData,
 } from "./CandidatePairFormModal.schema";
 import type { CandidatePairFormModalProps } from "./CandidatePairFormModal.types";
-
-interface PhotoUploaderState {
-  file: File | null;
-  removed: boolean;
-}
-
-interface PairPhotoUploaderProps {
-  label: string;
-  existingUrl: string | null;
-  value: PhotoUploaderState;
-  onChange: (value: PhotoUploaderState) => void;
-  isSubmitting: boolean;
-  canDelete: boolean;
-}
-
-const PairPhotoUploader = ({
-  label,
-  existingUrl,
-  value,
-  onChange,
-  isSubmitting,
-  canDelete,
-}: PairPhotoUploaderProps) => {
-  const handleFileChange = (file: File | null) => {
-    onChange({ file, removed: false });
-  };
-
-  const handleRemovePhoto = () => {
-    onChange({ file: null, removed: true });
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
-      <FileUpload
-        accept="image/jpeg,image/png,image/gif,image/webp"
-        disabled={isSubmitting}
-        placeholder="Pilih foto..."
-        maxSize={5 * 1024 * 1024} // 5 MB
-        onChange={handleFileChange}
-      />
-      {canDelete && existingUrl && !value.file && !value.removed && (
-        <button
-          type="button"
-          onClick={handleRemovePhoto}
-          disabled={isSubmitting}
-          className="inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-border text-destructive hover:bg-destructive/10 text-xs font-medium transition-colors w-max"
-        >
-          Hapus
-        </button>
-      )}
-    </div>
-  );
-};
 
 const CandidatePairFormModal = ({
   mode,
@@ -100,21 +48,22 @@ const CandidatePairFormModal = ({
   );
 
   // Photo states
-  const [candidatePhoto, setCandidatePhoto] = useState<PhotoUploaderState>({
+  const [candidatePhoto, setCandidatePhoto] = useState<ImageUploadValue>({
     file: null,
     removed: false,
   });
-  const [vicePhoto, setVicePhoto] = useState<PhotoUploaderState>({
+  const [vicePhoto, setVicePhoto] = useState<ImageUploadValue>({
     file: null,
     removed: false,
   });
-  const [pairPhoto, setPairPhoto] = useState<PhotoUploaderState>({
+  const [pairPhoto, setPairPhoto] = useState<ImageUploadValue>({
     file: null,
     removed: false,
   });
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -148,10 +97,10 @@ const CandidatePairFormModal = ({
         reset({
           candidateName: pair.candidate.name,
           candidateDescription: pair.candidate.description ?? "",
-          candidateBirthday: pair.candidate.birthday,
+          candidateBirthday: toDateInputValue(pair.candidate.birthday),
           viceName: pair.vice.name,
           viceDescription: pair.vice.description ?? "",
-          viceBirthday: pair.vice.birthday,
+          viceBirthday: toDateInputValue(pair.vice.birthday),
           vision: pair.vision,
           mission: pair.mission,
         });
@@ -171,9 +120,10 @@ const CandidatePairFormModal = ({
     };
   }, [isOpen, pair, isCreateMode, reset]);
 
-  // Fetch elections when modal opens (for create-mode dropdown)
+  // Fetch elections only for the create-mode dropdown.
+  // Edit mode already knows the election from the pair row and cannot move it.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !isCreateMode) return;
 
     let isMounted = true;
 
@@ -203,11 +153,11 @@ const CandidatePairFormModal = ({
     return () => {
       isMounted = false;
     };
-  }, [isOpen]);
+  }, [isOpen, isCreateMode]);
 
   // Convert photo state to payload value for API
   const photoToPayload = (
-    state: PhotoUploaderState,
+    state: ImageUploadValue,
   ): File | null | undefined => {
     if (state.file) return state.file;
     if (state.removed) return null;
@@ -284,13 +234,13 @@ const CandidatePairFormModal = ({
       <form onSubmit={handleFormSubmit} noValidate className="flex flex-1 flex-col">
         {/* Modal Body (Scrollable) */}
         <div className="p-6 overflow-y-auto flex-1 scrollbar-none space-y-6">
-          {/* Election Selection (create mode only) */}
-          {isCreateMode && (
-            <div className="space-y-3">
-              <h3 className="font-sans text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Pemilihan
-              </h3>
-              {isLoadingElections ? (
+          {/* Election: selectable on create, read-only on edit */}
+          <div className="space-y-3">
+            <h3 className="font-sans text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Pemilihan
+            </h3>
+            {isCreateMode ? (
+              isLoadingElections ? (
                 <LoadingState
                   message="Memuat daftar pemilihan"
                   textSize="sm"
@@ -312,9 +262,21 @@ const CandidatePairFormModal = ({
                   placeholder="Pilih election..."
                   disabled={isSubmitting}
                 />
-              )}
-            </div>
-          )}
+              )
+            ) : (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+                <Layers className="w-4 h-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans font-medium text-foreground truncate">
+                    {pair?.election?.title ?? "Pemilihan terkait"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Pemilihan tidak dapat diubah saat mengedit paslon.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Candidate Information */}
           <div className="space-y-4">
@@ -348,13 +310,21 @@ const CandidatePairFormModal = ({
                 required
                 error={errors.candidateBirthday?.message}
               >
-                <Input
-                  id="candidateBirthday"
-                  type="date"
-                  disabled={isSubmitting}
-                  isInvalid={Boolean(errors.candidateBirthday)}
-                  leftElement={<CalendarIcon className="w-4 h-4" />}
-                  {...register("candidateBirthday")}
+                <Controller
+                  control={control}
+                  name="candidateBirthday"
+                  render={({ field, fieldState }) => (
+                    <DatePicker
+                      id="candidateBirthday"
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      disabled={isSubmitting}
+                      isInvalid={Boolean(fieldState.error)}
+                      placeholder="Pilih tanggal lahir"
+                    />
+                  )}
                 />
               </FormField>
 
@@ -374,13 +344,14 @@ const CandidatePairFormModal = ({
                 />
               </FormField>
 
-              <PairPhotoUploader
+              <ImageUpload
+                id="candidatePhoto"
                 label="Foto Calon"
                 existingUrl={pair?.candidate.photoUrl ?? null}
                 value={candidatePhoto}
                 onChange={setCandidatePhoto}
-                isSubmitting={isSubmitting}
-                canDelete={!isCreateMode}
+                disabled={isSubmitting}
+                optional
               />
             </div>
           </div>
@@ -416,13 +387,21 @@ const CandidatePairFormModal = ({
                 required
                 error={errors.viceBirthday?.message}
               >
-                <Input
-                  id="viceBirthday"
-                  type="date"
-                  disabled={isSubmitting}
-                  isInvalid={Boolean(errors.viceBirthday)}
-                  leftElement={<CalendarIcon className="w-4 h-4" />}
-                  {...register("viceBirthday")}
+                <Controller
+                  control={control}
+                  name="viceBirthday"
+                  render={({ field, fieldState }) => (
+                    <DatePicker
+                      id="viceBirthday"
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      disabled={isSubmitting}
+                      isInvalid={Boolean(fieldState.error)}
+                      placeholder="Pilih tanggal lahir"
+                    />
+                  )}
                 />
               </FormField>
 
@@ -442,13 +421,14 @@ const CandidatePairFormModal = ({
                 />
               </FormField>
 
-              <PairPhotoUploader
+              <ImageUpload
+                id="vicePhoto"
                 label="Foto Wakil"
                 existingUrl={pair?.vice.photoUrl ?? null}
                 value={vicePhoto}
                 onChange={setVicePhoto}
-                isSubmitting={isSubmitting}
-                canDelete={!isCreateMode}
+                disabled={isSubmitting}
+                optional
               />
             </div>
           </div>
@@ -462,13 +442,14 @@ const CandidatePairFormModal = ({
               Foto kampanye bersama calon + wakil (opsional).
             </p>
 
-            <PairPhotoUploader
+            <ImageUpload
+              id="pairPhoto"
               label="Foto Pasangan"
               existingUrl={pair?.photoUrl ?? null}
               value={pairPhoto}
               onChange={setPairPhoto}
-              isSubmitting={isSubmitting}
-              canDelete={!isCreateMode}
+              disabled={isSubmitting}
+              optional
             />
           </div>
 
@@ -527,7 +508,7 @@ const CandidatePairFormModal = ({
             variant="primary"
             size="sm"
             isLoading={isSubmitting}
-            disabled={isSubmitting || isLoadingElections}
+            disabled={isSubmitting || (isCreateMode && isLoadingElections)}
             icon={<FileText className="w-4 h-4" />}
           >
             {isCreateMode ? "Simpan" : "Perbarui"}

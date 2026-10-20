@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FileText, User } from "lucide-react";
 import Button from "@/components/atoms/Button";
+import ImagePreview from "@/components/molecules/ImagePreview";
 import type { CandidateRadioCardProps } from "./CandidateRadioCard.types";
 
 const CandidateRadioCard = ({
@@ -32,6 +33,7 @@ const CandidateRadioCard = ({
         if (!disabled) onSelect();
       }}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (!disabled && (e.key === " " || e.key === "Enter")) {
           e.preventDefault();
           onSelect();
@@ -48,11 +50,13 @@ const CandidateRadioCard = ({
       {/* Left: Pair-Level Campaign Photo */}
       <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted border border-border shrink-0 relative">
         {candidatePair.photoUrl && !imageError ? (
-          <img
+          <ImagePreview
             src={candidatePair.photoUrl}
             alt={`${calon.name} & ${wakil.name}`}
+            caption={`${calon.name} & ${wakil.name}`}
             onError={() => setImageError(true)}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full"
+            imageClassName="w-full h-full object-cover object-center"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/50 text-secondary-foreground text-center">
