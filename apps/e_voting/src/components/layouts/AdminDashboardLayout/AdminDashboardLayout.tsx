@@ -7,6 +7,7 @@ const AdminDashboardLayout = ({
   displayName,
   onLogout,
   isLoggingOut = false,
+  isSuperAdmin = false,
 }: AdminDashboardLayoutProps) => {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
@@ -16,6 +17,7 @@ const AdminDashboardLayout = ({
         displayName={displayName}
         onLogout={onLogout}
         isLoggingOut={isLoggingOut}
+        isSuperAdmin={isSuperAdmin}
       />
 
       {/* Main content — offset by sidebar width on desktop */}

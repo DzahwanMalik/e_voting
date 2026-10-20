@@ -179,7 +179,11 @@ const ElectionPage = () => {
                 description={emptyState.description}
               />
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <div
+                className={`grid grid-cols-1 gap-4${
+                  elections.length > 1 ? " xl:grid-cols-2" : ""
+                }`}
+              >
                 {elections.map((election) => (
                   <AdminElectionCard
                     key={election.id}

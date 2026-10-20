@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
-import { Award, Calendar, Layers, Pencil, Trash2, Plus } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Award, Plus } from "lucide-react";
 import { toast } from "sonner";
-import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
-import DataTable from "@/components/organisms/DataTable";
 import SectionCard from "@/components/molecules/SectionCard";
+import EmptyState from "@/components/molecules/EmptyState";
+import LoadingState from "@/components/molecules/LoadingState";
 import ConfirmModal from "@/components/molecules/ConfirmModal";
+import TabList, { type TabListItem } from "@/components/molecules/TabList";
+import CandidatePairCard from "@/components/organisms/CandidatePairCard";
 import CandidatePairDetailModal from "@/components/organisms/CandidatePairDetailModal";
 import CandidatePairFormModal from "@/components/organisms/CandidatePairFormModal";
 import { useUserStore } from "@/stores/useUserStore";
@@ -14,12 +16,16 @@ import {
   deleteCandidatePairApi,
   type CandidatePairListItem,
 } from "@/services/election.service";
-import { formatDate } from "@/lib/utils";
+
+type ElectionFilter = number | "all";
 
 const CandidatePairPage = () => {
   const [pairs, setPairs] = useState<CandidatePairListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [electionFilter, setElectionFilter] = useState<ElectionFilter | null>(
+    null,
+  );
 
   const [isDeletingId, setIsDeletingId] = useState<number | null>(null);
   const [deleteConfirmPair, setDeleteConfirmPair] =
@@ -33,6 +39,57 @@ const CandidatePairPage = () => {
   const [editPair, setEditPair] = useState<CandidatePairListItem | null>(null);
 
   const isSuperAdmin = useUserStore((state) => state.isSuperAdmin());
+
+  // Pill tab options grouped by election. The options are derived from the
+  // already role-scoped pairs, so Admin only ever sees elections they manage.
+  const electionTabs = useMemo<TabListItem<ElectionFilter>[]>(() => {
+    const grouped = new Map<number, { title: string; count: number }>();
+
+    for (const pair of pairs) {
+      const entry = grouped.get(pair.electionId);
+      if (entry) {
+        entry.count += 1;
+      } else {
+        grouped.set(pair.electionId, {
+          title: pair.election?.title ?? "Pemilihan Tanpa Judul",
+          count: 1,
+        });
+      }
+    }
+
+    const tabs: TabListItem<ElectionFilter>[] = [
+      { value: "all", label: "Semua", count: pairs.length },
+    ];
+
+    const sortedElections = [...grouped.entries()].sort((a, b) =>
+      a[1].title.localeCompare(b[1].title),
+    );
+
+    for (const [id, { title, count }] of sortedElections) {
+      tabs.push({ value: id, label: title, count });
+    }
+
+    return tabs;
+  }, [pairs]);
+
+  // Only worth showing when there is more than one election to pick from.
+  const hasMultipleElections = electionTabs.length > 2;
+
+  // Default selection is the first election tab (index 1), not "Semua".
+  const fallbackElectionFilter: ElectionFilter = electionTabs[1]?.value ?? "all";
+
+  // Keep the user's choice while it still exists; otherwise fall back to the
+  // first election tab (or "all" while there are no elections yet).
+  const activeElectionFilter: ElectionFilter =
+    electionFilter !== null &&
+    electionTabs.some((tab) => tab.value === electionFilter)
+      ? electionFilter
+      : fallbackElectionFilter;
+
+  const visiblePairs =
+    activeElectionFilter === "all"
+      ? pairs
+      : pairs.filter((pair) => pair.electionId === activeElectionFilter);
 
   useEffect(() => {
     let isMounted = true;
@@ -95,6 +152,12 @@ const CandidatePairPage = () => {
     setIsFormOpen(true);
   };
 
+  // Explicitly typed so the tab value type is pinned independently of
+  // inference on the `TabList` generic.
+  const handleElectionFilterChange = (value: ElectionFilter) => {
+    setElectionFilter(value);
+  };
+
   const handleEdit = (pair: CandidatePairListItem) => {
     setFormMode("edit");
     setEditPair(pair);
@@ -105,83 +168,6 @@ const CandidatePairPage = () => {
     setIsFormOpen(false);
     setRefreshKey((prev) => prev + 1);
   };
-
-  const columns = [
-    {
-      key: "election",
-      header: "Pemilihan",
-      cell: (row: CandidatePairListItem) => (
-        <Badge variant="default" className="px-2.5 py-0.5">
-          {row.election?.title ?? "-"}
-        </Badge>
-      ),
-    },
-    {
-      key: "candidate",
-      header: "Calon",
-      cell: (row: CandidatePairListItem) => (
-        <div className="flex flex-col">
-          <span className="font-sans font-semibold text-foreground">
-            {row.candidate.name}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: "vice",
-      header: "Wakil",
-      cell: (row: CandidatePairListItem) => (
-        <div className="flex flex-col">
-          <span className="font-sans font-semibold text-foreground">
-            {row.vice.name}
-          </span>
-        </div>
-      ),
-    },
-    ...(isSuperAdmin
-      ? [
-          {
-            key: "votes",
-            header: "Suara",
-            cell: (row: CandidatePairListItem) => (
-              <Badge variant="info" className="px-2.5 py-0.5">
-                {row._count?.votes ?? 0}
-              </Badge>
-            ),
-          },
-        ]
-      : []),
-    {
-      key: "createdAt",
-      header: "Dibuat",
-      cell: (row: CandidatePairListItem) => (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Calendar className="w-3.5 h-3.5" />
-          <span>{formatDate(row.createdAt)}</span>
-        </div>
-      ),
-    },
-  ];
-
-  const rowOptions = [
-    {
-      label: "Lihat Detail",
-      icon: <Layers className="w-4 h-4" />,
-      onClick: (row: CandidatePairListItem) => setDetailPair(row),
-    },
-    {
-      label: "Edit Paslon",
-      icon: <Pencil className="w-4 h-4" />,
-      onClick: (row: CandidatePairListItem) => handleEdit(row),
-    },
-    {
-      label: "Hapus Paslon",
-      icon: <Trash2 className="w-4 h-4" />,
-      onClick: (row: CandidatePairListItem) => setDeleteConfirmPair(row),
-      isDestructive: true,
-      disabled: (row: CandidatePairListItem) => isDeletingId === row.id,
-    },
-  ];
 
   return (
     <>
@@ -205,32 +191,69 @@ const CandidatePairPage = () => {
           </div>
         </SectionCard>
 
-        {/* Candidate Pairs Table Section */}
-        <SectionCard title={`Daftar Paslon (${pairs.length})`} padding="none">
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="flex justify-end items-center mb-4">
+        {/* Candidate Pairs Card Grid Section */}
+        <SectionCard title={`Daftar Paslon (${visiblePairs.length})`} padding="none">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-4">
+            <div
+              className={`flex flex-col gap-3 overflow-visible sm:flex-row sm:items-center ${
+                hasMultipleElections ? "sm:justify-between" : "sm:justify-end"
+              }`}
+            >
+              {hasMultipleElections && (
+                <TabList<ElectionFilter>
+                  items={electionTabs}
+                  value={activeElectionFilter}
+                  onChange={handleElectionFilterChange}
+                  ariaLabel="Filter paslon berdasarkan pemilihan"
+                  className="w-full sm:w-auto sm:min-w-0"
+                />
+              )}
               <Button
                 variant="primary"
                 size="sm"
                 icon={<Plus className="w-4 h-4" />}
                 onClick={handleCreate}
+                className="self-end sm:self-auto shrink-0"
               >
                 Tambah Paslon
               </Button>
             </div>
-            <DataTable<CandidatePairListItem>
-              data={pairs}
-              columns={columns}
-              rowOptions={rowOptions}
-              isLoading={isLoading}
-              loadingMessage="Memuat daftar paslon kandidat..."
-              emptyTitle="Belum Ada Paslon"
-              emptyDescription={
-                isSuperAdmin
-                  ? "Belum ada paslon kandidat yang dibuat."
-                  : "Belum ada paslon pada election yang Anda kelola."
-              }
-            />
+
+            {isLoading ? (
+              <LoadingState message="Memuat daftar paslon kandidat..." />
+            ) : pairs.length === 0 ? (
+              <EmptyState
+                title="Belum Ada Paslon"
+                description={
+                  isSuperAdmin
+                    ? "Belum ada paslon kandidat yang dibuat."
+                    : "Belum ada paslon pada election yang Anda kelola."
+                }
+              />
+            ) : visiblePairs.length === 0 ? (
+              <EmptyState
+                title="Tidak Ada Paslon"
+                description="Tidak ada paslon pada pemilihan yang dipilih."
+              />
+            ) : (
+              <div
+                className={`grid grid-cols-1 gap-4${
+                  visiblePairs.length > 1 ? " xl:grid-cols-2" : ""
+                }`}
+              >
+                {visiblePairs.map((pair) => (
+                  <CandidatePairCard
+                    key={pair.id}
+                    pair={pair}
+                    isDeleting={isDeletingId === pair.id}
+                    showVotes={isSuperAdmin}
+                    onViewDetail={setDetailPair}
+                    onEdit={handleEdit}
+                    onDelete={setDeleteConfirmPair}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </SectionCard>
       </div>

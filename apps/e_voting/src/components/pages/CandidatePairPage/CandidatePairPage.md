@@ -23,49 +23,90 @@ Candidate pairs are fetched via `getAllCandidatePairsApi()` from `@/services/ele
 
 None. Self-contained page component that reads all state from `useUserStore`.
 
+## Data Display: Card Grid (not a table)
+
+Candidate pairs are rendered as **one card per pair** using `CandidatePairCard` (organism), laid out in a responsive grid (`grid-cols-1` full width if only one pair, `xl:grid-cols-2` when more than one) — the same concept used by `ElectionPage` with `AdminElectionCard`.
+
+Every piece of information that used to live in a table column is displayed directly on the card, and every action that used to live in the row-options dropdown is rendered as an explicit button in the card footer. `DataTable` is no longer used on this page.
+
+`CandidatePairCard` is purely presentational: it receives the pair row plus action callbacks. The page keeps ownership of data fetching, role checks, delete confirmation, and all modals.
+
+## Election Filter (Pill Tabs)
+
+Because the pairs list is **flat** (pairs from every election are mixed together), the page offers a single-select pill filter grouped by election, rendered with `TabList` (molecule) + `Tab` (atom).
+
+- The tab options are **derived from the already loaded pairs** (`useMemo` over `pairs`): `"Semua"` (total count) plus one tab per distinct `electionId`, sorted alphabetically by election title. Each tab shows a count badge.
+- Options are built from role-scoped data, so an **Admin only sees elections they manage** — this is UX convenience, not an authorization boundary (the backend still scopes `getAllCandidatePairs`).
+- The filter is **client-side** (no extra request, no backend change) and instant.
+- The **default selection is the first election tab (index 1)**, not `"Semua"` — so the page initially shows the pairs of the first election (alphabetically). `"Semua"` remains available as index 0 for showing every pair.
+- The `TabList` is only rendered when there is more than one election (`electionTabs.length > 2`); with a single election the "Semua" tab would be redundant.
+- The selection is stored as `null` until the user picks a tab; during render it resolves to the first election tab. If the selected election no longer exists after a refresh (e.g. deleted), the page falls back to the first election tab (or `"all"` while there are no elections yet) — no `useEffect`/`setState` is used for this, keeping the page free of effect-driven state.
+- The section title count (`Daftar Paslon (n)`) reflects the **currently visible** (filtered) pairs.
+- Selecting an election with no pairs shows a dedicated `EmptyState` ("Tidak Ada Paslon").
+
 ## Layout Sections
 
-| Section     | Component                                                | Pattern                                                                 |
-| :---------- | :------------------------------------------------------- | :---------------------------------------------------------------------- |
-| Page Header | `<SectionCard padding="default">`                        | Banner with icon, h1 title, role-based subtitle, "Tambah Paslon" button |
-| Pairs Table | `<SectionCard title="Daftar Paslon (n)" padding="none">` | Header via `title` prop; body wraps `DataTable` or `LoadingState`       |
+| Section | Component | Pattern |
+| :--- | :--- | :--- |
+| Page Header | `<SectionCard padding="default">` (children) | Banner with icon, h1 title, role-based subtitle |
+| Pair List | `<SectionCard title="Daftar Paslon (n)" padding="none">` | Header via `title` prop; toolbar row contains the election `TabList` (when > 1 election) and the "Tambah Paslon" button, followed by `LoadingState`, `EmptyState`, or the card grid |
 
-## Data Columns
+### Card Content (via `CandidatePairCard`)
 
-| Column           | Header    | Content                           | Super Admin Only? |
-| :--------------- | :-------- | :-------------------------------- | :---------------- |
-| `election.title` | Pemilihan | Badge with election title         | No                |
-| `candidate.name` | Calon     | Main candidate name + description | No                |
-| `vice.name`      | Wakil     | Vice candidate name + description | No                |
-| `_count.votes`   | Suara     | Vote count badge                  | **Yes** (BR-12)   |
-| `createdAt`      | Dibuat    | Formatted creation date           | No                |
+| Information | Where it appears on the card |
+| :--- | :--- |
+| Calon & Wakil | Card header title (`calon & wakil`) |
+| Pemilihan | Card header badge (election title) |
+| Dibuat | Card header, below the title, with calendar icon |
+| Foto Pasangan | Body, `aspect-video` image (or placeholder when absent) |
+| Calon Utama / Wakil Calon | Candidate tiles with photo/initials, name, and role label |
+| Perolehan Suara | Stat tile — **Super Admin only** (BR-12) |
+| Visi | Body panel, clamped to three lines |
 
-> **BR-12 enforcement** is applied both in the backend (`getAllCandidatePairs` strips `_count` for Admin) and the frontend (the "Suara" column is only pushed into the `columns` array when `isSuperAdmin()` is true). This is defense-in-depth.
+> Full vision and mission, candidate birthdays, and descriptions remain available through `CandidatePairDetailModal` ("Lihat Detail").
 
-## Row Actions (both roles)
+## Card Actions per Role
 
-| Action       | Super Admin | Admin | Modal Used                                           |
-| :----------- | :---------- | :---- | :--------------------------------------------------- |
-| Lihat Detail | ✓           | ✓     | `CandidatePairDetailModal` (reused, inspection-only) |
-| Edit Paslon  | ✓           | ✓     | `CandidatePairFormModal`                             |
-| Hapus Paslon | ✓           | ✓     | `ConfirmModal` (delete confirmation)                 |
+| Action | Super Admin | Admin | Modal Used |
+| :--- | :--- | :--- | :--- |
+| Lihat Detail | ✓ | ✓ | `CandidatePairDetailModal` (reused, inspection-only) |
+| Edit Paslon | ✓ | ✓ | `CandidatePairFormModal` |
+| Hapus Paslon | ✓ | ✓ | `ConfirmModal` (delete confirmation) |
 
 > The backend enforces scope: Admin can only edit/delete pairs from elections they manage. Delete is destructive per BR-14 (removes entire pair + cascades votes; `hasVoted` status preserved).
 
+Actions are always visible on the card footer — no dropdown menu is required. Per-card loading (`isDeletingId` → `isDeleting` prop on the card) shows a spinner and disables the delete button while deletion is in flight.
+
+## BR-12 Enforcement
+
+Applied both in the backend (`getAllCandidatePairs` strips `_count` for Admin) and the frontend (the page only passes `showVotes={isSuperAdmin}` to the card, which then renders the vote stat tile). This is defense-in-depth.
+
 ## Modal Composition
 
-| Modal                      | Trigger                                          | Purpose                                                                                                                                                  |
-| :------------------------- | :----------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CandidatePairDetailModal` | "Lihat Detail" row option                        | Reused organism — read-only pair profile (calon + wakil photos, names, birthdays, descriptions, shared vision/mission). Inspection-only, no vote action. |
-| `CandidatePairFormModal`   | "Tambah Paslon" button, "Edit Paslon" row option | Create new pair (election dropdown + calon/vice fields + photos + vision/mission) or edit existing pair. Edit mode uses the row's `election` as read-only info and does **not** fetch the election list |
-| `ConfirmModal`             | "Hapus Paslon" row option                        | Delete confirmation with per-row loading state (`isDeletingId`)                                                                                          |
+| Modal | Trigger | Purpose |
+| :--- | :--- | :--- |
+| `CandidatePairDetailModal` | "Lihat Detail" card action | Reused organism — read-only pair profile (calon + wakil photos, names, birthdays, descriptions, shared vision/mission). Inspection-only, no vote action. |
+| `CandidatePairFormModal` | "Tambah Paslon" button, "Edit" card action | Create new pair (election dropdown + calon/vice fields + photos + vision/mission) or edit existing pair. Edit mode uses the row's `election` as read-only info and does **not** fetch the election list. |
+| `ConfirmModal` | "Hapus" card action | Delete confirmation with per-card loading state (`isDeletingId`) |
 
 ## Semantic Tokens Used
 
 - Page Canvas: `bg-background`, `text-foreground` (via `AdminDashboardLayout`)
 - Card Surface (via `SectionCard`): `bg-card`, `border-border`, `text-card-foreground`, `shadow-sm`, `rounded-3xl`
-- Icon Accent: `bg-primary`, `text-primary-foreground`, `rounded-xl`
-- Status Badges: `bg-info-subtle` / `text-info-subtle-foreground` (Suara column, SA only)
+- Icon Accent: `bg-secondary`, `text-primary`, `rounded-xl`
+- Candidate tiles / stat tile: `bg-muted/30`, `border-border`
+- Vision block: `bg-secondary/40`, `border-border`
+- Muted text: `text-muted-foreground`
+- Destructive action: `destructive-ghost` button variant (`text-destructive`)
+
+## Dependencies
+
+- Atoms: `Badge`, `Button`, `Tab` (rendered inside `TabList`)
+- Molecules: `SectionCard`, `EmptyState`, `LoadingState`, `ImagePreview` (rendered inside `CandidatePairCard`), `TabList`, `ConfirmModal`
+- Organisms: `CandidatePairCard`, `CandidatePairDetailModal`, `CandidatePairFormModal`
+- Services: `getAllCandidatePairsApi`, `deleteCandidatePairApi` (from `@/services/election.service`)
+- Stores: `useUserStore` (for role checks)
+- Utilities: `formatDate` (used inside `CandidatePairCard`)
 
 ## Code Example
 
@@ -73,5 +114,5 @@ None. Self-contained page component that reads all state from `useUserStore`.
 import CandidatePairPage from "@/components/pages/CandidatePairPage";
 
 // Inside <Routes> in main.tsx
-<Route path="/admin/candidate-pairs" element={<CandidatePairPage />} />;
+<Route path="/admin/candidate-pairs" element={<CandidatePairPage />} />
 ```

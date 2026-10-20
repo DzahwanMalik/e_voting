@@ -25,7 +25,7 @@ This component is self-contained — it reads user role directly from `useUserSt
 
 ## Data Display: Card Grid (not a table)
 
-Elections are rendered as **one card per election** using `AdminElectionCard` (organism), laid out in a responsive grid (`grid-cols-1` → `xl:grid-cols-2`). Every piece of information that used to live in a table column is displayed directly on the card, and every management action that used to live in the row-options dropdown is rendered as an explicit button in the card footer.
+Elections are rendered as **one card per election** using `AdminElectionCard` (organism), laid out in a responsive grid (`grid-cols-1` full width jika hanya 1 pemilihan, atau `xl:grid-cols-2` jika terdapat lebih dari 1 pemilihan). Every piece of information that used to live in a table column is displayed directly on the card, and every management action that used to live in the row-options dropdown is rendered as an explicit button in the card footer.
 
 `AdminElectionCard` is purely presentational apart from the Super Admin result fetch: it receives the election row plus optional action callbacks. The page keeps ownership of data fetching, role checks, delete confirmation, and all modals.
 

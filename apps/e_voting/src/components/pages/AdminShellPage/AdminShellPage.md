@@ -12,6 +12,7 @@ This component centralizes:
 - Display role name & user display name
 - Logout handler (token cleanup, store clear, navigation to `/login`)
 - `isLoggingOut` loading state
+- Passing `isSuperAdmin` down to `AdminDashboardLayout` → `Sidebar`, so Super Admin-only nav items (Admin, Pengaturan) are hidden for Admin users
 
 Child routes render their content via `<Outlet />` inside the layout.
 

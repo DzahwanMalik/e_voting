@@ -114,7 +114,7 @@ const AdminElectionCard = ({
             <Layers className="w-5 h-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-sans text-lg font-bold text-card-foreground break-words">
+            <h2 className="font-sans text-lg font-bold text-card-foreground wrap-break-word">
               {election.title}
             </h2>
             <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -215,8 +215,8 @@ const AdminElectionCard = ({
             />
           </div>
           <div className="flex items-center justify-between gap-3 text-xs">
-            <span className="font-medium text-success">Sudah {voted}</span>
-            <span className="text-muted-foreground">Belum {unvoted}</span>
+            <span className="font-medium text-success">Sudah Memilih {voted}</span>
+            <span className="text-muted-foreground">Belum Memilih {unvoted}</span>
           </div>
         </div>
 

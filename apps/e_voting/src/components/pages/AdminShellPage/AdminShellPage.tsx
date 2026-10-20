@@ -38,6 +38,7 @@ const AdminShellPage = () => {
       displayName={displayName}
       onLogout={handleLogout}
       isLoggingOut={isLoggingOut}
+      isSuperAdmin={isSuperAdmin}
     >
       <Outlet />
     </AdminDashboardLayout>

@@ -28,6 +28,7 @@ Layout shell for all Admin and Super Admin section pages. Uses a vertical Sideba
 - `displayName`: Active user's name — passed to Sidebar footer.
 - `onLogout`: Logout callback — passed to Sidebar.
 - `isLoggingOut`: Optional loading state.
+- `isSuperAdmin`: Optional `boolean` (default `false`) — passed to Sidebar to reveal `isSuperAdminOnly` nav items (Admin & Pengaturan).
 
 ## Semantic Tokens Used
 

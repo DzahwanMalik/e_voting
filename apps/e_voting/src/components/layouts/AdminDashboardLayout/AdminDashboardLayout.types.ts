@@ -6,6 +6,7 @@ interface AdminDashboardLayoutProps {
   displayName: string;
   onLogout: () => void;
   isLoggingOut?: boolean;
+  isSuperAdmin?: boolean;
 }
 
 export type { AdminDashboardLayoutProps };

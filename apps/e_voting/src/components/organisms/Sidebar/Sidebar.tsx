@@ -34,11 +34,13 @@ const sidebarNavItems: SidebarNavItem[] = [
     label: "Admin",
     icon: Shield,
     href: "/admin/admins",
+    isSuperAdminOnly: true,
   },
   {
     label: "Pengaturan",
     icon: Settings,
     href: "/admin/settings",
+    isSuperAdminOnly: true,
   },
 ];
 
@@ -47,6 +49,7 @@ interface SidebarContentProps {
   displayName: string;
   onLogout: () => void;
   isLoggingOut: boolean;
+  isSuperAdmin: boolean;
   onNavClick?: () => void;
   onClose?: () => void;
 }
@@ -56,9 +59,14 @@ const SidebarContent = ({
   displayName,
   onLogout,
   isLoggingOut,
+  isSuperAdmin,
   onNavClick,
   onClose,
 }: SidebarContentProps) => {
+  const visibleNavItems = sidebarNavItems.filter(
+    (item) => !item.isSuperAdminOnly || isSuperAdmin,
+  );
+
   return (
     <div className="flex flex-col h-full">
       {/* Logo / Brand */}
@@ -92,7 +100,7 @@ const SidebarContent = ({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         <ul className="space-y-1">
-          {sidebarNavItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <li key={item.label}>
               <NavLink
                 to={item.href}
@@ -146,6 +154,7 @@ const Sidebar = ({
   displayName,
   onLogout,
   isLoggingOut = false,
+  isSuperAdmin = false,
 }: SidebarProps) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -160,6 +169,7 @@ const Sidebar = ({
           displayName={displayName}
           onLogout={onLogout}
           isLoggingOut={isLoggingOut}
+          isSuperAdmin={isSuperAdmin}
           onNavClick={handleNavClick}
         />
       </aside>
@@ -209,6 +219,7 @@ const Sidebar = ({
             displayName={displayName}
             onLogout={onLogout}
             isLoggingOut={isLoggingOut}
+            isSuperAdmin={isSuperAdmin}
             onNavClick={handleNavClick}
             onClose={() => setIsMobileOpen(false)}
           />
