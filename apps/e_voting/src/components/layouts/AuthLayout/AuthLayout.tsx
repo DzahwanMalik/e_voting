@@ -12,7 +12,7 @@ const AuthLayout = ({
   title = "E-Voting",
   subtitle = "Sistem Pemungutan Suara Digital",
   badgeText = "MVP v0.1.0",
-  videoSrc = "/videos/bumper.mp4",
+  videoSrc = "https://res.cloudinary.com/dmndt2ffk/video/upload/q_auto/p_auto/v1792491292/bumper_1_krsml3.mp4",
   videoPoster,
 }: AuthLayoutProps) => {
   return (
