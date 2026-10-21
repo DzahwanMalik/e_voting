@@ -7,9 +7,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q ./dist/index.js\"",
+    "dev": "tsx watch ./src/index.ts",
     "build": "npx tsc",
-    "serve": "node ./dist/index.js"
+    "serve": "node --import tsx ./dist/index.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -20,7 +20,6 @@
     "@types/node": "^26.6.3",
     "@types/pg": "^8.23.1",
     "@types/xlsx": "^0.0.35",
-    "concurrently": "^10.0.5",
     "nodemon": "^3.1.9",
     "prisma": "^7.10.0",
     "ts-node": "^10.9.2",
